@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String?
+  email     String?   @unique
+  image     String?
+  projects  Project[]
+}
+
+model Project {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  title      String   @default("My Linktree")
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linksData  Json     @default("[]")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
