@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import BlankPageCard from "@/components/dashboard/BlankPageCard";
 import Link from "next/link";
-import { LayoutDashboard } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -14,34 +13,35 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-8">
-      <div className="max-w-5xl mx-auto">
-        <header className="flex items-center gap-3 mb-10 pb-6 border-b border-gray-800">
-          <LayoutDashboard size={28} className="text-blue-500" />
-          <h1 className="text-3xl font-bold font-sans">Dashboard</h1>
-        </header>
+    <div className="max-w-6xl mx-auto px-8 py-12">
+      <header className="mb-10">
+        <h1 className="text-3xl font-bold mb-3 text-white tracking-tight">My Projects</h1>
+        <p className="text-gray-400 text-[15px]">Manage your digital identity and biolink pages.</p>
+      </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {/* Kartu Tombol Buat Proyek Baru */}
-          <BlankPageCard />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Kartu Tombol Buat Proyek Baru */}
+        <BlankPageCard />
 
-          {/* Daftar Proyek yang Sudah Ada */}
-          {projects.map((project) => (
-            <Link 
-              key={project.id} 
-              href={`/editor/${project.id}`}
-              className="flex flex-col justify-between p-6 h-48 bg-gray-900 border border-gray-800 rounded-xl hover:border-gray-600 transition-colors"
-            >
-              <div>
-                <h2 className="text-xl font-semibold mb-2 truncate font-sans">{project.title}</h2>
-                <p className="text-gray-500 text-sm truncate">/{project.slug}</p>
-              </div>
-              <div className="text-xs text-gray-500 font-mono">
-                Created on {new Date(project.createdAt).toLocaleDateString()}
-              </div>
-            </Link>
-          ))}
-        </div>
+        {/* Daftar Proyek yang Sudah Ada */}
+        {projects.map((project) => (
+          <Link 
+            key={project.id} 
+            href={`/editor/${project.id}`}
+            className="flex flex-col overflow-hidden bg-[#121212] border border-[#2a2a2a] rounded-xl hover:border-[#4a4a4a] transition-all group"
+          >
+            {/* Thumbnail Preview Area */}
+            <div className="relative h-64 bg-[#141414] w-full border-b border-[#2a2a2a] overflow-hidden flex items-center justify-center">
+               <span className="text-gray-600 text-sm font-medium opacity-50 group-hover:opacity-100 transition-opacity">No Preview</span>
+            </div>
+            
+            {/* Card Info Area */}
+            <div className="p-5 bg-[#141414]">
+              <h2 className="text-[17px] font-semibold mb-1 truncate text-white">{project.title}</h2>
+              <p className="text-sm text-gray-500 truncate">linkbuilder.io/{project.slug}</p>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

@@ -18,10 +18,10 @@ export default function BlankPageCard() {
         router.push(`/editor/${data.id}`);
       } else {
         console.error("Failed to create project: server error");
+        setLoading(false);
       }
     } catch (error) {
       console.error("Failed to create project:", error);
-    } finally {
       setLoading(false);
     }
   };
@@ -30,13 +30,13 @@ export default function BlankPageCard() {
     <button
       onClick={createProject}
       disabled={loading}
-      className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-700 rounded-xl hover:border-gray-500 hover:bg-gray-900 transition-colors group cursor-pointer disabled:opacity-50"
+      className="flex flex-col items-center justify-center w-full min-h-[350px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl hover:border-[#4a4a4a] hover:bg-[#1f1f1f] transition-all group cursor-pointer disabled:opacity-50"
     >
-      <div className="p-4 bg-gray-800 rounded-full group-hover:bg-gray-700 transition-colors mb-4">
-        <Plus size={32} className="text-gray-300" />
+      <div className="w-[50px] h-[50px] flex items-center justify-center rounded-full border-[1.5px] border-dashed border-gray-500 mb-5 group-hover:border-gray-300 transition-colors bg-transparent">
+        <Plus size={20} className="text-gray-400 group-hover:text-white transition-colors" />
       </div>
-      <span className="text-gray-300 font-medium">
-        {loading ? "Creating..." : "Start from scratch"}
+      <span className="text-gray-300 font-semibold text-[17px] tracking-wide">
+        {loading ? "Creating..." : "Blank Page"}
       </span>
     </button>
   );
