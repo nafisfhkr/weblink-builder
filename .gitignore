@@ -41,4 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 *PRD-LinkBuilder-v2.md
+*implementation_plan.md
+*issue.md
 /app/generated/prisma

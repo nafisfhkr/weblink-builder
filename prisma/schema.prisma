@@ -20,7 +20,14 @@ model Project {
   title      String   @default("My Linktree")
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  linksData  Json     @default("[]")
+  // Draft: hasil auto-save terkini dari kanvas editor
+  blocksData          Json      @default("[]")
+
+  // Published: snapshot terakhir yang ditampilkan ke publik (null = belum pernah publish)
+  publishedBlocksData Json?
+
+  isPublished         Boolean   @default(false)
+  publishedAt         DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
