@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { UploadCloud, Loader2, Trash2, Palette } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
-import { uploadToCloudinary } from "@/lib/cloudinary";
+import { processImageToBase64 } from "@/lib/imageProcessor";
 
 export interface PageSettings {
   type: "color" | "gradient" | "image";
@@ -74,7 +74,7 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
 
     setIsUploading(true);
     try {
-      const result = await uploadToCloudinary(file);
+      const result = await processImageToBase64(file);
       onChange({ ...settings, type: "image", imageUrl: result.url, storageKey: result.storageKey });
       showToast("Foto background berhasil diunggah", "success");
     } catch {

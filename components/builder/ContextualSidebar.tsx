@@ -5,7 +5,7 @@ import { UploadCloud, Loader2, Trash2, Plus, X, Globe } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import BackgroundPicker, { PageSettings } from "@/components/builder/BackgroundPicker";
 import { InstagramIcon, TiktokIcon, XIcon, YoutubeIcon, FacebookIcon } from "@/components/ui/SocialIcons";
-import { uploadToCloudinary } from "@/lib/cloudinary";
+import { processImageToBase64 } from "@/lib/imageProcessor";
 
 interface BlockItem {
   id: string;
@@ -156,7 +156,7 @@ function ImagePanel({
     formData.append("file", file);
 
     try {
-      const result = await uploadToCloudinary(file);
+      const result = await processImageToBase64(file);
       onChange({ ...content, url: result.url, storageKey: result.storageKey });
       showToast("Gambar berhasil diunggah", "success");
     } catch (e: any) {

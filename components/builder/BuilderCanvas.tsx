@@ -26,7 +26,7 @@ import FloatingToolbar from "./FloatingToolbar";
 import ContextualSidebar from "./ContextualSidebar";
 import { useToast } from "@/components/ui/Toast";
 import type { PageSettings } from "./BackgroundPicker";
-import { uploadToCloudinary } from "@/lib/cloudinary";
+import { processImageToBase64 } from "@/lib/imageProcessor";
 
 interface BlockItem {
   id: string;
@@ -282,7 +282,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       formData.append("file", file);
 
       try {
-        const uploadResult = await uploadToCloudinary(file);
+        const uploadResult = await processImageToBase64(file);
         const updated = withTemp.map((b) =>
           b.id === newBlockId
             ? { ...b, content: { url: uploadResult.url, alt: "", storageKey: uploadResult.storageKey } }
