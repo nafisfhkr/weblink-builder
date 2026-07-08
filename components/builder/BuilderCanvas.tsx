@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { nanoid } from "nanoid";
-import { UploadCloud, ArrowLeft } from "lucide-react";
+import { UploadCloud, ArrowLeft, Check, Copy, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
 import CanvasBlock from "./CanvasBlock";
 import BlockPicker from "./BlockPicker";
@@ -41,6 +41,10 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/${initialData.slug}` : `/${initialData.slug}`;
 
   // --- Block State ---
   const [blocks, setBlocks] = useState<BlockItem[]>(() => {
@@ -355,7 +359,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
             onPublishSuccess={() => {
               setIsPublished(true);
               setPublishedBlocks(blocks);
-              showToast("Halaman berhasil dipublikasikan 🎉", "success");
+              setShowPublishModal(true);
             }}
           />
         }
@@ -463,6 +467,57 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
           </div>
         )}
       </div>
+
+      {/* Publish Success Modal */}
+      {showPublishModal && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowPublishModal(false)}>
+          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowPublishModal(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
+              <X size={20} />
+            </button>
+            <div className="w-12 h-12 rounded-full bg-teal-500/10 text-teal-400 flex items-center justify-center mb-4 border border-teal-500/20">
+              <Check size={24} />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-2">Halaman Berhasil Dipublikasikan!</h2>
+            <p className="text-sm text-zinc-400 mb-6">Halaman Anda sekarang sudah online dan bisa diakses oleh siapa saja. Bagikan tautan ini ke audiens Anda.</p>
+            
+            <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-700 rounded-xl p-2 mb-6">
+              <div className="flex-1 px-3 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-zinc-300 select-all">
+                {publicUrl}
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(publicUrl);
+                  setCopiedLink(true);
+                  setTimeout(() => setCopiedLink(false), 2000);
+                  showToast("Tautan disalin!", "success");
+                }}
+                className="flex items-center justify-center w-10 h-10 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
+                title="Salin Tautan"
+              >
+                {copiedLink ? <Check size={16} className="text-teal-400" /> : <Copy size={16} />}
+              </button>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPublishModal(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-zinc-800 hover:bg-zinc-700 text-white transition-colors"
+              >
+                Tutup
+              </button>
+              <a
+                href={publicUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-teal-500 hover:bg-teal-400 text-teal-950 transition-colors flex items-center justify-center gap-2"
+              >
+                Kunjungi <ExternalLink size={16} />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
