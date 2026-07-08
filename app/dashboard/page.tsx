@@ -9,7 +9,7 @@ import { headers } from "next/headers";
 
 export default async function DashboardPage() {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     redirect("/login");
   }
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const host = headersList.get("host") || "weblink-builder.vercel.app";
   const protocol = host.includes("localhost") ? "http" : "https";
 
-  let projects = [];
+  let projects: any[] = [];
   let dbError = null;
 
   try {
@@ -55,6 +55,7 @@ export default async function DashboardPage() {
         {projects.map((project: any) => {
           let bgStyle: React.CSSProperties = { backgroundColor: "#141414" };
           try {
+
             if (project.pageSettings) {
               const settings = typeof project.pageSettings === "string"
                 ? JSON.parse(project.pageSettings)
@@ -78,7 +79,7 @@ export default async function DashboardPage() {
               className="flex flex-col overflow-hidden bg-[#121212] border border-[#2a2a2a] rounded-xl hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] transition-all group relative"
             >
               <Link href={`/editor/${project.id}`} className="block h-full absolute inset-0 z-0"></Link>
-              
+
               {/* Thumbnail Preview Area */}
               <div
                 className="relative h-64 w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-4 pointer-events-none"
@@ -96,8 +97,8 @@ export default async function DashboardPage() {
                 <div className="flex items-center justify-between mb-1.5 gap-2 pointer-events-none">
                   <h2 className="text-[17px] font-semibold truncate text-white flex-1">{project.title}</h2>
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border shrink-0 ${project.isPublished
-                      ? "bg-emerald-950/60 text-emerald-400 border-emerald-800"
-                      : "bg-zinc-900 text-zinc-400 border-zinc-800"
+                    ? "bg-emerald-950/60 text-emerald-400 border-emerald-800"
+                    : "bg-zinc-900 text-zinc-400 border-zinc-800"
                     }`}>
                     {project.isPublished ? "Published" : "Draft"}
                   </span>

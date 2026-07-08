@@ -35,7 +35,7 @@ export default function FloatingToolbar({
     "flex items-center justify-center w-9 h-9 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed";
 
   return (
-    <div className="fixed top-5 right-5 z-50 flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-xl px-2 py-1.5 shadow-2xl">
+    <div className="fixed top-5 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:right-5 z-50 flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-xl px-2 py-1.5 shadow-2xl max-w-[95vw] sm:max-w-none overflow-x-auto scrollbar-hide">
       {/* Back to Dashboard */}
       <Link
         href="/dashboard"
