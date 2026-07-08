@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { ArrowRight, Layout, Sparkles, Zap, Image as ImageIcon } from "lucide-react";
+import { ArrowRight, Layout, Sparkles, Zap, Image as ImageIcon, Megaphone, Link as LinkIcon, ImagePlus, Heart } from "lucide-react";
 
 export default async function LandingPage() {
   const session = await auth();
@@ -96,18 +96,30 @@ export default async function LandingPage() {
           {/* Right Column: Image/Graphic */}
           <div className="relative w-full aspect-[4/3] lg:aspect-auto lg:h-[500px] flex items-center justify-center order-1 lg:order-2">
              <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/30 to-indigo-500/30 rounded-3xl transform rotate-3 scale-105 blur-lg"></div>
-             <img 
-               src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" 
-               alt="Digital Landscape Graphic" 
-               className="relative z-10 w-full h-full object-cover rounded-3xl border border-white/10 shadow-2xl"
-             />
              
-             {/* Floating Elements */}
-             <div className="absolute -top-6 -right-6 bg-zinc-900 p-4 rounded-2xl border border-zinc-700 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3s' }}>
-                <Sparkles className="text-yellow-400" size={32} />
-             </div>
-             <div className="absolute -bottom-8 -left-8 bg-zinc-900 p-4 rounded-2xl border border-zinc-700 shadow-xl z-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-                <Layout className="text-teal-400" size={32} />
+             {/* Custom Illustration Container */}
+             <div className="relative z-10 w-full h-full bg-[#121212] rounded-3xl border border-white/10 shadow-2xl flex items-center justify-center overflow-hidden">
+                {/* Background grid pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+                
+                {/* Main Icon (Megaphone) */}
+                <div className="relative bg-gradient-to-br from-teal-400 to-emerald-600 w-48 h-48 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(45,212,191,0.3)] z-20">
+                  <Megaphone className="text-white w-24 h-24 transform -rotate-12" />
+                </div>
+
+                {/* Floating Elements mimicking SaaS marketing */}
+                <div className="absolute top-1/4 left-[15%] bg-zinc-900 p-4 rounded-2xl border border-zinc-700 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3.5s' }}>
+                   <LinkIcon className="text-blue-400" size={28} />
+                </div>
+                <div className="absolute bottom-1/4 right-[15%] bg-zinc-900 p-4 rounded-2xl border border-zinc-700 shadow-xl z-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                   <ImagePlus className="text-purple-400" size={28} />
+                </div>
+                <div className="absolute top-[20%] right-[25%] bg-zinc-900 p-3 rounded-full border border-zinc-700 shadow-xl z-20 animate-pulse" style={{ animationDuration: '2s' }}>
+                   <Heart className="text-pink-500" size={20} fill="currentColor" />
+                </div>
+                <div className="absolute bottom-[20%] left-[25%] bg-zinc-900 p-3 rounded-full border border-zinc-700 shadow-xl z-20 animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }}>
+                   <Sparkles className="text-yellow-400" size={20} />
+                </div>
              </div>
           </div>
 
