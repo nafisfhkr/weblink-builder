@@ -4,15 +4,8 @@ import { nanoid } from "nanoid";
 import * as fs from "fs";
 import * as path from "path";
 
-// We dynamically import @vercel/blob so that if the package installation is pending or fails,
-// it doesn't crash the entire file parsing.
-let put: any = null;
-try {
-  const vercelBlob = require("@vercel/blob");
-  put = vercelBlob.put;
-} catch (e) {
-  console.warn("Vercel Blob package not fully loaded, fallback mock will be used if needed.");
-}
+import { put } from "@vercel/blob";
+
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -45,7 +38,7 @@ export async function POST(req: NextRequest) {
     const uniqueFilename = `${nanoid()}.${fileExtension}`;
 
     // Check if Vercel Blob Token is set and the package is available
-    if (process.env.BLOB_READ_WRITE_TOKEN && put) {
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
       const blob = await put(uniqueFilename, file, {
         access: "public",
       });
@@ -54,8 +47,13 @@ export async function POST(req: NextRequest) {
         storageKey: blob.pathname || uniqueFilename,
       });
     } else {
+      if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+        console.error("Missing BLOB_READ_WRITE_TOKEN on production. Vercel Blob Storage is not configured.");
+        return NextResponse.json({ error: "Storage Vercel Blob belum dikonfigurasi di Environment Variables Vercel." }, { status: 500 });
+      }
+
       // Fallback: Local storage mock for local development
-      console.log("No Vercel Blob Token found or package missing. Saving file locally.");
+      console.log("No Vercel Blob Token found. Saving file locally.");
       
       const uploadDir = path.join(process.cwd(), "public", "uploads");
       if (!fs.existsSync(uploadDir)) {
