@@ -5,6 +5,7 @@ import { UploadCloud, Loader2, Trash2, Plus, X, Globe } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import BackgroundPicker, { PageSettings } from "@/components/builder/BackgroundPicker";
 import { InstagramIcon, TiktokIcon, XIcon, YoutubeIcon, FacebookIcon } from "@/components/ui/SocialIcons";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 interface BlockItem {
   id: string;
@@ -155,12 +156,7 @@ function ImagePanel({
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Gagal mengunggah gambar");
-      }
-      const result = await res.json();
+      const result = await uploadToCloudinary(file);
       onChange({ ...content, url: result.url, storageKey: result.storageKey });
       showToast("Gambar berhasil diunggah", "success");
     } catch (e: any) {
