@@ -30,7 +30,7 @@ export default function BlankPageCard() {
     <button
       onClick={createProject}
       disabled={loading}
-      className="flex flex-col items-center justify-center w-full min-h-[350px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl hover:border-[#4a4a4a] hover:bg-[#1f1f1f] transition-all group cursor-pointer disabled:opacity-50"
+      className="flex flex-col items-center justify-center w-full min-h-[250px] sm:min-h-[350px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl hover:border-[#4a4a4a] hover:bg-[#1f1f1f] transition-all group cursor-pointer disabled:opacity-50"
     >
       <div className="w-[50px] h-[50px] flex items-center justify-center rounded-full border-[1.5px] border-dashed border-gray-500 mb-5 group-hover:border-gray-300 transition-colors bg-transparent">
         <Plus size={20} className="text-gray-400 group-hover:text-white transition-colors" />

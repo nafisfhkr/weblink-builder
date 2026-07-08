@@ -33,10 +33,10 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-8 py-12">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold mb-3 text-white tracking-tight">My Projects</h1>
-        <p className="text-gray-400 text-[15px]">Manage your digital identity and biolink pages.</p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+      <header className="mb-8 sm:mb-10">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 text-white tracking-tight">My Projects</h1>
+        <p className="text-gray-400 text-sm sm:text-[15px]">Manage your digital identity and biolink pages.</p>
       </header>
 
       {dbError && (
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Kartu Tombol Buat Proyek Baru */}
         <BlankPageCard />
 
@@ -82,7 +82,7 @@ export default async function DashboardPage() {
 
               {/* Thumbnail Preview Area */}
               <div
-                className="relative h-64 w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-4 pointer-events-none"
+                className="relative h-48 sm:h-64 w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-4 pointer-events-none"
                 style={bgStyle}
               >
                 <div className="bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 opacity-80 group-hover:opacity-100 transition-opacity">
