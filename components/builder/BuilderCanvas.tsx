@@ -30,7 +30,7 @@ import { processImageToBase64 } from "@/lib/imageProcessor";
 
 interface BlockItem {
   id: string;
-  type: "heading" | "link" | "image" | "divider" | "social";
+  type: "heading" | "text" | "link" | "image" | "divider" | "social";
   content: any;
   order: number;
 }
@@ -192,7 +192,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     autoSave(newBlocks);
   };
 
-  const handleAddBlock = (type: "heading" | "link" | "image" | "divider" | "social") => {
+  const handleAddBlock = (type: "heading" | "text" | "link" | "image" | "divider" | "social") => {
     if (type === "link") {
       const linkCount = blocks.filter((b) => b.type === "link").length;
       if (linkCount >= 15) {
@@ -203,6 +203,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
     const defaultContent: Record<string, any> = {
       heading: { title: "Halo, saya " + (initialData.title || "User"), bio: "Selamat datang di halaman saya" },
+      text: { text: "Tulis paragraf atau deskripsi Anda di sini..." },
       link: { title: "Hubungi Saya", url: "https://example.com" },
       image: { url: "", alt: "", storageKey: "" },
       social: { items: [] },
@@ -436,20 +437,60 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         {/* Blocks */}
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
-            <div className="space-y-1" onClick={(e) => e.stopPropagation()}>
-              {blocks.map((block) => (
-                <CanvasBlock
-                  key={block.id}
-                  block={block}
-                  onDelete={handleDeleteBlock}
-                  isSelected={block.id === selectedBlockId}
-                  onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
-                  isPreviewMode={isPreviewMode}
-                  uploadingBlockIds={uploadingBlockIds}
-                  cardStyle={cardStyle}
-                  cardShowHeadingCard={pageSettings.cardShowHeadingCard ?? false}
-                />
-              ))}
+            <div className="space-y-0.5" onClick={(e) => e.stopPropagation()}>
+              {(() => {
+                const groupedBlocks: any[] = [];
+                let currentGroup: any[] = [];
+
+                blocks.forEach((block, i) => {
+                  if (block.type === "link") {
+                    currentGroup.push(block);
+                  } else {
+                    if (currentGroup.length > 0) {
+                      groupedBlocks.push({ type: "linkGroup", id: `group-${i}`, items: currentGroup });
+                      currentGroup = [];
+                    }
+                    groupedBlocks.push(block);
+                  }
+                });
+                if (currentGroup.length > 0) {
+                  groupedBlocks.push({ type: "linkGroup", id: `group-end`, items: currentGroup });
+                }
+
+                return groupedBlocks.map((group) => {
+                  if (group.type === "linkGroup") {
+                    return (
+                      <div key={group.id} style={cardStyle} className="w-full flex flex-col gap-3 p-6 rounded-[32px] my-4 shadow-md border transition-all">
+                        {group.items.map((block: any) => (
+                          <CanvasBlock
+                            key={block.id}
+                            block={block}
+                            onDelete={handleDeleteBlock}
+                            isSelected={block.id === selectedBlockId}
+                            onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
+                            isPreviewMode={isPreviewMode}
+                            uploadingBlockIds={uploadingBlockIds}
+                          />
+                        ))}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <CanvasBlock
+                      key={group.id}
+                      block={group}
+                      onDelete={handleDeleteBlock}
+                      isSelected={group.id === selectedBlockId}
+                      onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
+                      isPreviewMode={isPreviewMode}
+                      uploadingBlockIds={uploadingBlockIds}
+                      cardStyle={cardStyle}
+                      cardShowHeadingCard={pageSettings.cardShowHeadingCard ?? false}
+                    />
+                  );
+                });
+              })()}
             </div>
           </SortableContext>
         </DndContext>

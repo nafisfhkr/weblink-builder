@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { InstagramIcon, YoutubeIcon, FacebookIcon, XIcon, TiktokIcon } from "@/components/ui/SocialIcons";
+import { InstagramIcon, YoutubeIcon, FacebookIcon, XIcon, TiktokIcon, WhatsappIcon } from "@/components/ui/SocialIcons";
 import { Globe } from "lucide-react";
 
 interface BlockItem {
@@ -175,73 +175,129 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         {/* Blocks Section */}
         <div className="w-full flex flex-col gap-4 mt-4">
           {blocks.length > 0 ? (
-            blocks.map((block) => {
-              switch (block.type) {
-                case "heading":
-                  if (pageSettings.cardShowHeadingCard) {
+            (() => {
+                const groupedBlocks: any[] = [];
+                let currentGroup: any[] = [];
+
+                blocks.forEach((block, i) => {
+                  if (block.type === "link") {
+                    currentGroup.push(block);
+                  } else {
+                    if (currentGroup.length > 0) {
+                      groupedBlocks.push({ type: "linkGroup", id: `group-${i}`, items: currentGroup });
+                      currentGroup = [];
+                    }
+                    groupedBlocks.push(block);
+                  }
+                });
+                if (currentGroup.length > 0) {
+                  groupedBlocks.push({ type: "linkGroup", id: `group-end`, items: currentGroup });
+                }
+
+                return groupedBlocks.map((group) => {
+                  if (group.type === "linkGroup") {
                     return (
-                      <div 
-                        key={block.id} 
-                        style={cardStyle}
-                        className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
-                      >
-                        <h1 style={{ color: cardStyle.color }} className="text-3xl font-extrabold tracking-tight mb-2">
-                          {block.content?.title || ""}
-                        </h1>
-                        {block.content?.bio && (
-                          <p style={{ color: cardStyle.color, opacity: 0.8 }} className="text-sm max-w-md mx-auto whitespace-pre-wrap leading-relaxed">
-                            {block.content.bio}
-                          </p>
-                        )}
+                      <div key={group.id} style={cardStyle} className="w-full flex flex-col gap-3 p-6 rounded-[32px] mb-4 shadow-md border transition-all">
+                        {group.items.map((block: any) => {
+                          const iconType = block.content?.icon || "default";
+                          let IconComponent: any = Globe;
+                          if (iconType === "whatsapp") IconComponent = WhatsappIcon;
+                          else if (iconType === "web") IconComponent = Globe;
+                          
+                          return (
+                            <a 
+                              key={block.id} 
+                              href={block.content?.url || "#"} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="w-full flex items-center justify-between py-4 px-6 rounded-full border border-zinc-700/50 hover:bg-white/5 transition-all font-semibold tracking-wide"
+                            >
+                              <span>{block.content?.title || "Tautan"}</span>
+                              {iconType !== "none" && (
+                                <IconComponent 
+                                  size={20} 
+                                  className={iconType !== "default" ? "text-white" : "text-zinc-300"} 
+                                />
+                              )}
+                            </a>
+                          );
+                        })}
                       </div>
                     );
                   }
-                  return (
-                    <div key={block.id} className="w-full text-center my-4">
-                      <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">
-                        {block.content?.title || ""}
-                      </h1>
-                      {block.content?.bio && (
-                        <p className="text-zinc-400 text-sm max-w-md mx-auto whitespace-pre-wrap leading-relaxed">
-                          {block.content.bio}
-                        </p>
-                      )}
-                    </div>
-                  );
-                case "link":
-                  return (
-                    <a 
-                      key={block.id} 
-                      href={block.content?.url || "#"} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={cardStyle}
-                      className="w-full block text-center py-4 px-6 rounded-full border transition-all font-semibold tracking-wide shadow-md hover:scale-[1.01]"
-                    >
-                      {block.content?.title || "Tautan"}
-                    </a>
-                  );
-                case "image":
-                  const ratio = block.content?.aspectRatio || "widescreen";
-                  let containerShape = "rounded-2xl";
-                  let wrapperClass = "relative w-full";
+                  
+                  const block = group;
+                  switch (block.type) {
+                    case "heading":
+                      const customColorStyle = {
+                        color: block.content?.textColor || cardStyle?.color,
+                        fontSize: block.content?.textSize ? `${block.content.textSize}px` : undefined,
+                      };
+                      if (block.content?.useCard === true || (block.content?.useCard !== false && pageSettings.cardShowHeadingCard)) {
+                        return (
+                          <div 
+                            key={block.id} 
+                            style={cardStyle}
+                            className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
+                          >
+                            <h1 style={customColorStyle} className="text-3xl font-extrabold tracking-tight mb-2">
+                              {block.content?.title || ""}
+                            </h1>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={block.id} className="w-full text-center my-4">
+                          <h1 style={customColorStyle} className="text-3xl font-extrabold tracking-tight mb-2">
+                            {block.content?.title || ""}
+                          </h1>
+                        </div>
+                      );
+                    case "text":
+                      const customTextStyle = {
+                        color: block.content?.textColor || cardStyle?.color || "#a1a1aa",
+                        fontSize: block.content?.textSize ? `${block.content.textSize}px` : undefined,
+                      };
+                      if (block.content?.useCard === true) {
+                        return (
+                          <div key={block.id} style={cardStyle} className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md">
+                            <p style={customTextStyle} className="max-w-md mx-auto whitespace-pre-wrap leading-relaxed">
+                              {block.content?.text || ""}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={block.id} className="w-full text-center my-2">
+                          <p style={customTextStyle} className="max-w-md mx-auto whitespace-pre-wrap leading-relaxed">
+                            {block.content?.text || ""}
+                          </p>
+                        </div>
+                      );
+                    case "image":
+                      const ratio = block.content?.aspectRatio || "widescreen";
+                      let containerShape = "rounded-2xl";
+                      let wrapperClass = "relative w-full";
 
-                  if (ratio === "widescreen") {
-                    containerShape = "rounded-2xl";
-                    wrapperClass += " aspect-[16/9]";
-                  } else if (ratio === "square") {
-                    containerShape = "rounded-2xl";
-                    wrapperClass += " aspect-square";
-                  } else if (ratio === "circle") {
-                    containerShape = "rounded-full max-w-[200px] mx-auto";
-                    wrapperClass += " aspect-square";
-                  }
+                      if (ratio === "widescreen") {
+                        containerShape = "rounded-2xl";
+                        wrapperClass += " aspect-[16/9]";
+                      } else if (ratio === "square") {
+                        containerShape = "rounded-2xl";
+                        wrapperClass += " aspect-square";
+                      } else if (ratio === "circle") {
+                        containerShape = "rounded-full max-w-[200px] mx-auto";
+                        wrapperClass += " aspect-square";
+                      }
 
-                  return (
+                      const useCardImage = block.content?.useCard !== false;
+                      return (
                     <div 
                       key={block.id} 
-                      style={cardStyle}
-                      className={`w-full overflow-hidden border shadow-md transition-all hover:scale-[1.005] ${containerShape}`}
+                      style={useCardImage ? cardStyle : undefined}
+                      className={`w-full overflow-hidden transition-all hover:scale-[1.005] ${containerShape} ${
+                        useCardImage ? "border shadow-md" : ""
+                      }`}
                     >
                       {block.content?.url ? (
                         <div className={wrapperClass}>
@@ -265,6 +321,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                   );
                 case "social":
                   const items = block.content?.items || [];
+                  const useCardSocial = block.content?.useCard !== false;
                   return (
                     <div key={block.id} className="w-full flex justify-center gap-3.5 py-3">
                       {items.map((item: any, i: number) => {
@@ -276,8 +333,10 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                             href={getPlatformUrl(item.platform, item.url)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={cardStyle}
-                            className="p-3 border rounded-full hover:scale-110 transition-all shadow-md"
+                            style={useCardSocial ? cardStyle : undefined}
+                            className={`p-3 rounded-full hover:scale-110 transition-all ${
+                              useCardSocial ? "border shadow-md" : ""
+                            }`}
                             title={item.platform}
                           >
                             <Icon size={18} />
@@ -289,7 +348,8 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                 default:
                   return null;
               }
-            })
+            });
+          })()
           ) : (
             <p className="text-zinc-500 text-center py-8 italic text-sm">
               Halaman ini belum memiliki konten yang dipublikasikan.

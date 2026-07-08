@@ -71,5 +71,14 @@ export const auth = async (...args: any[]) => {
       }
     };
   }
-  return (nextAuth.auth as any)(...args);
+  try {
+    return await (nextAuth.auth as any)(...args);
+  } catch (error: any) {
+    if (error?.name === "JWTSessionError" || error?.message?.includes("JWTSessionError")) {
+      console.warn("Caught JWTSessionError: Your session cookie might be invalid due to a secret change. Returning null.");
+      return null;
+    }
+    // Only rethrow if it's a redirect or other Next.js error
+    throw error;
+  }
 };

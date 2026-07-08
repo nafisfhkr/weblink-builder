@@ -6,10 +6,14 @@ interface HeadingBlockDisplayProps {
     bio?: string;
   };
   textColor?: string;
+  textSize?: string;
 }
 
-export default function HeadingBlock({ content, textColor }: HeadingBlockDisplayProps) {
-  const customColorStyle = textColor ? { color: textColor } : undefined;
+export default function HeadingBlock({ content, textColor, textSize }: HeadingBlockDisplayProps) {
+  const customColorStyle: React.CSSProperties = {
+    color: textColor,
+    fontSize: textSize ? `${textSize}px` : undefined,
+  };
   
   return (
     <div className="w-full text-center py-4">

@@ -11,9 +11,9 @@ interface ImageBlockDisplayProps {
   };
   isUploading?: boolean;
   cardStyle?: React.CSSProperties;
+  useCard?: boolean;
 }
-
-export default function ImageBlock({ content, isUploading, cardStyle }: ImageBlockDisplayProps) {
+export default function ImageBlock({ content, isUploading, cardStyle, useCard = true }: ImageBlockDisplayProps) {
   const url = content?.url || "";
   const alt = content?.alt || "";
   const ratio = content?.aspectRatio || "widescreen";
@@ -49,11 +49,12 @@ export default function ImageBlock({ content, isUploading, cardStyle }: ImageBlo
       </div>
     );
   }
-
   return (
     <div 
-      style={cardStyle}
-      className={`w-full overflow-hidden border border-zinc-800 bg-[#1a1a1a] shadow-md ${containerShape}`}
+      style={useCard ? cardStyle : undefined}
+      className={`w-full overflow-hidden ${
+        useCard ? "border border-zinc-800 bg-[#1a1a1a] shadow-md" : ""
+      } ${containerShape}`}
     >
       <div className={wrapperClass}>
         {/* eslint-disable-next-line @next/next/no-img-element */}

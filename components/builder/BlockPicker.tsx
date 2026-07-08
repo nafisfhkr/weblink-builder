@@ -3,11 +3,12 @@
 import { Type, Link, Image, Minus, Share2 } from "lucide-react";
 
 interface BlockPickerProps {
-  onSelectBlock: (type: "heading" | "link" | "image" | "divider" | "social") => void;
+  onSelectBlock: (type: "heading" | "text" | "link" | "image" | "divider" | "social") => void;
 }
 
 const BLOCK_TYPES = [
-  { value: "heading", label: "Heading & Bio", description: "Nama profil, gelar, dan bio singkat", icon: Type },
+  { value: "heading", label: "Judul (Heading)", description: "Judul besar halaman", icon: Type },
+  { value: "text", label: "Teks Paragraf", description: "Teks panjang / deskripsi", icon: Type },
   { value: "link", label: "Tautan Link", description: "Tombol navigasi ke URL lain", icon: Link },
   { value: "image", label: "Foto / Gambar", description: "Unggah foto dari komputer", icon: Image },
   { value: "divider", label: "Garis Pembatas", description: "Pemisah visual tipis", icon: Minus },

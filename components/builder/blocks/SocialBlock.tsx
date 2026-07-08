@@ -13,6 +13,7 @@ interface SocialBlockDisplayProps {
     items?: SocialItem[];
   };
   cardStyle?: React.CSSProperties;
+  useCard?: boolean;
 }
 
 const AVAILABLE_PLATFORMS = [
@@ -51,8 +52,7 @@ function getPlatformUrl(platform: string, input: string) {
       return `https://${username}`;
   }
 }
-
-export default function SocialBlock({ content, cardStyle }: SocialBlockDisplayProps) {
+export default function SocialBlock({ content, cardStyle, useCard = true }: SocialBlockDisplayProps) {
   const items = content?.items || [];
 
   if (items.length === 0) {
@@ -74,8 +74,10 @@ export default function SocialBlock({ content, cardStyle }: SocialBlockDisplayPr
             href={getPlatformUrl(item.platform, item.url)}
             target="_blank"
             rel="noopener noreferrer"
-            style={cardStyle}
-            className="p-3 bg-[#1a1a1a] border border-zinc-800 text-zinc-400 hover:text-white rounded-full hover:scale-110 hover:border-zinc-600 transition-all shadow-md"
+            style={useCard ? cardStyle : undefined}
+            className={`p-3 text-zinc-400 hover:text-white rounded-full hover:scale-110 transition-all ${
+              useCard ? "bg-[#1a1a1a] border border-zinc-800 hover:border-zinc-600 shadow-md" : ""
+            }`}
             title={platformConfig?.label || item.platform}
           >
             <Icon size={18} />

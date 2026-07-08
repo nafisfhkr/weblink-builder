@@ -3,7 +3,12 @@ import { auth } from "@/auth";
 import { ArrowRight, Layout, Sparkles, Zap, Image as ImageIcon, Megaphone, Link as LinkIcon, ImagePlus, Heart } from "lucide-react";
 
 export default async function LandingPage() {
-  const session = await auth();
+  let session = null;
+  try {
+    session = await auth();
+  } catch (e) {
+    console.error("Session error caught:", e);
+  }
   const isLoggedIn = !!session?.user;
 
   return (

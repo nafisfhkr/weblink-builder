@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Trash2 } from "lucide-react";
 import HeadingBlock from "./blocks/HeadingBlock";
+import TextBlock from "./blocks/TextBlock";
 import LinkBlock from "./blocks/LinkBlock";
 import ImageBlock from "./blocks/ImageBlock";
 import DividerBlock from "./blocks/DividerBlock";
@@ -11,7 +12,7 @@ import SocialBlock from "./blocks/SocialBlock";
 
 interface BlockItem {
   id: string;
-  type: "heading" | "link" | "image" | "divider" | "social";
+  type: "heading" | "text" | "link" | "image" | "divider" | "social";
   content: any;
   order: number;
 }
@@ -64,17 +65,29 @@ export default function CanvasBlock({
   const renderBlock = () => {
     switch (block.type) {
       case "heading":
-        if (cardShowHeadingCard) {
+        if (block.content?.useCard === true || (block.content?.useCard !== false && cardShowHeadingCard)) {
           return (
             <div 
               style={cardStyle}
               className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
             >
-              <HeadingBlock content={block.content || {}} textColor={cardStyle?.color} />
+              <HeadingBlock content={block.content || {}} textColor={cardStyle?.color} textSize={block.content?.textSize} />
             </div>
           );
         }
-        return <HeadingBlock content={block.content || {}} />;
+        return <HeadingBlock content={block.content || {}} textColor={cardStyle?.color} textSize={block.content?.textSize} />;
+      case "text":
+        if (block.content?.useCard === true) {
+          return (
+            <div 
+              style={cardStyle}
+              className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
+            >
+              <TextBlock content={block.content || {}} textColor={cardStyle?.color} textSize={block.content?.textSize} />
+            </div>
+          );
+        }
+        return <TextBlock content={block.content || {}} textColor={cardStyle?.color} textSize={block.content?.textSize} />;
       case "link":
         return <LinkBlock content={block.content || {}} cardStyle={cardStyle} />;
       case "image":
@@ -83,12 +96,13 @@ export default function CanvasBlock({
             content={block.content || {}}
             isUploading={uploadingBlockIds?.has(block.id)}
             cardStyle={cardStyle}
+            useCard={block.content?.useCard}
           />
         );
       case "divider":
         return <DividerBlock data={block.content || {}} onChange={() => {}} />;
       case "social":
-        return <SocialBlock content={block.content || {}} cardStyle={cardStyle} />;
+        return <SocialBlock content={block.content || {}} cardStyle={cardStyle} useCard={block.content?.useCard} />;
       default:
         return null;
     }

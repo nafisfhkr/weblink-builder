@@ -9,7 +9,7 @@ import { processImageToBase64 } from "@/lib/imageProcessor";
 
 interface BlockItem {
   id: string;
-  type: "heading" | "link" | "image" | "divider" | "social";
+  type: "heading" | "text" | "link" | "image" | "divider" | "social";
   content: any;
   order: number;
 }
@@ -40,7 +40,8 @@ const AVAILABLE_PLATFORMS = [
 ];
 
 const BLOCK_TYPE_LABELS: Record<string, string> = {
-  heading: "TEXT",
+  heading: "HEADING",
+  text: "TEXT",
   link: "LINK",
   image: "IMAGE",
   divider: "DIVIDER",
@@ -53,7 +54,7 @@ function HeadingPanel({ content, onChange }: { content: any; onChange: (c: any) 
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <label className="sidebar-label">Site Title</label>
+        <label className="sidebar-label">Site Title / Judul</label>
         <input
           id="sidebar-heading-title"
           type="text"
@@ -66,17 +67,63 @@ function HeadingPanel({ content, onChange }: { content: any; onChange: (c: any) 
         <p className="sidebar-hint">{(content?.title || "").length}/60</p>
       </div>
       <div>
+        <label className="sidebar-label">Ukuran Font (px)</label>
+        <input
+          type="number"
+          value={content?.textSize || 30}
+          onChange={(e) => onChange({ ...content, textSize: e.target.value })}
+          placeholder="30"
+          className="sidebar-input"
+        />
+      </div>
+      <div>
+        <label className="sidebar-label">Warna Teks</label>
+        <input
+          type="color"
+          value={content?.textColor || "#ffffff"}
+          onChange={(e) => onChange({ ...content, textColor: e.target.value })}
+          className="w-full h-10 rounded bg-zinc-950 border border-zinc-800 cursor-pointer"
+        />
+      </div>
+    </div>
+  );
+}
+
+// --- Text Panel ---
+function TextPanel({ content, onChange }: { content: any; onChange: (c: any) => void }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
         <label className="sidebar-label">Bio / Deskripsi</label>
         <textarea
-          id="sidebar-heading-bio"
-          value={content?.bio || ""}
-          maxLength={120}
-          rows={3}
-          onChange={(e) => onChange({ ...content, bio: e.target.value })}
-          placeholder="Desainer Grafis & Content Creator..."
+          id="sidebar-text-content"
+          value={content?.text || ""}
+          maxLength={200}
+          rows={4}
+          onChange={(e) => onChange({ ...content, text: e.target.value })}
+          placeholder="Tuliskan deskripsi..."
           className="sidebar-input resize-none"
         />
-        <p className="sidebar-hint">{(content?.bio || "").length}/120</p>
+        <p className="sidebar-hint">{(content?.text || "").length}/200</p>
+      </div>
+      <div>
+        <label className="sidebar-label">Ukuran Font (px)</label>
+        <input
+          type="number"
+          value={content?.textSize || 14}
+          onChange={(e) => onChange({ ...content, textSize: e.target.value })}
+          placeholder="14"
+          className="sidebar-input"
+        />
+      </div>
+      <div>
+        <label className="sidebar-label">Warna Teks</label>
+        <input
+          type="color"
+          value={content?.textColor || "#a1a1aa"}
+          onChange={(e) => onChange({ ...content, textColor: e.target.value })}
+          className="w-full h-10 rounded bg-zinc-950 border border-zinc-800 cursor-pointer"
+        />
       </div>
     </div>
   );
@@ -117,6 +164,21 @@ function LinkPanel({ content, onChange }: { content: any; onChange: (c: any) => 
           placeholder="https://example.com"
           className="sidebar-input font-mono text-xs"
         />
+      </div>
+      <div>
+        <label className="sidebar-label flex items-center justify-between">
+          <span>Ikon Tautan</span>
+        </label>
+        <select
+          value={content?.icon || "default"}
+          onChange={(e) => onChange({ ...content, icon: e.target.value })}
+          className="sidebar-input w-full bg-zinc-950 border border-zinc-800 focus:border-teal-500 rounded-lg p-3 text-white appearance-none"
+        >
+          <option value="default">Default (Panah)</option>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="web">Web / Internet</option>
+          <option value="none">Tanpa Ikon</option>
+        </select>
       </div>
     </div>
   );
@@ -407,39 +469,62 @@ export default function ContextualSidebar({
         </div>
 
         {/* Form Content */}
-        <div className="flex-1 overflow-y-auto p-5">
-          {selectedBlock?.type === "heading" && (
-            <HeadingPanel
-              content={selectedBlock.content}
-              onChange={(c) => onUpdate(selectedBlock.id, c)}
-            />
-          )}
-          {selectedBlock?.type === "link" && (
-            <LinkPanel
-              content={selectedBlock.content}
-              onChange={(c) => onUpdate(selectedBlock.id, c)}
-            />
-          )}
-          {selectedBlock?.type === "image" && (
-            <ImagePanel
-              content={selectedBlock.content}
-              onChange={(c) => onUpdate(selectedBlock.id, c)}
-              onUploadStart={() => onImageUploadStart?.(selectedBlock.id)}
-              onUploadEnd={() => onImageUploadEnd?.(selectedBlock.id)}
-            />
-          )}
-          {selectedBlock?.type === "divider" && <DividerPanel />}
-          {selectedBlock?.type === "social" && (
-            <SocialPanel
-              content={selectedBlock.content}
-              onChange={(c) => onUpdate(selectedBlock.id, c)}
-            />
-          )}
-          {showPageSettings && pageSettings && onPageSettingsChange && (
-            <BackgroundPicker
-              settings={pageSettings}
-              onChange={onPageSettingsChange}
-            />
+        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
+          <div className="flex-1">
+            {selectedBlock?.type === "heading" && (
+              <HeadingPanel
+                content={selectedBlock.content}
+                onChange={(c) => onUpdate(selectedBlock.id, c)}
+              />
+            )}
+            {selectedBlock?.type === "text" && (
+              <TextPanel
+                content={selectedBlock.content}
+                onChange={(c) => onUpdate(selectedBlock.id, c)}
+              />
+            )}
+            {selectedBlock?.type === "link" && (
+              <LinkPanel
+                content={selectedBlock.content}
+                onChange={(c) => onUpdate(selectedBlock.id, c)}
+              />
+            )}
+            {selectedBlock?.type === "image" && (
+              <ImagePanel
+                content={selectedBlock.content}
+                onChange={(c) => onUpdate(selectedBlock.id, c)}
+                onUploadStart={() => onImageUploadStart?.(selectedBlock.id)}
+                onUploadEnd={() => onImageUploadEnd?.(selectedBlock.id)}
+              />
+            )}
+            {selectedBlock?.type === "divider" && <DividerPanel />}
+            {selectedBlock?.type === "social" && (
+              <SocialPanel
+                content={selectedBlock.content}
+                onChange={(c) => onUpdate(selectedBlock.id, c)}
+              />
+            )}
+            {showPageSettings && pageSettings && onPageSettingsChange && (
+              <BackgroundPicker
+                settings={pageSettings}
+                onChange={onPageSettingsChange}
+              />
+            )}
+          </div>
+          
+          {selectedBlock && !["divider", "link"].includes(selectedBlock.type) && (
+            <div className="pt-4 border-t border-zinc-800">
+               <label className="sidebar-label flex items-center justify-between cursor-pointer">
+                  <span>Gunakan Card (Background)</span>
+                  <input
+                    type="checkbox"
+                    checked={selectedBlock.content?.useCard !== false}
+                    onChange={(e) => onUpdate(selectedBlock.id, { ...selectedBlock.content, useCard: e.target.checked })}
+                    className="accent-teal-500 w-4 h-4"
+                  />
+               </label>
+               <p className="sidebar-hint mt-2">Jika dimatikan, blok ini akan tampil tanpa bingkai dan latar belakang.</p>
+            </div>
           )}
         </div>
       </aside>
