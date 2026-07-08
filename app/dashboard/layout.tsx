@@ -13,12 +13,12 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col font-sans">
       {/* Navbar */}
-      <nav className="border-b border-[#1f1f1f] bg-[#0a0a0a] px-8 h-16 flex items-center justify-between">
+      <nav className="border-b border-[#1f1f1f] bg-[#0a0a0a] px-4 md:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8 h-full">
           <Link href="/dashboard" className="text-[#00e59b] font-bold text-xl tracking-tight">
             LinkBuilder
           </Link>
-          <div className="flex items-center gap-6 text-sm text-gray-400 font-medium h-full">
+          <div className="hidden md:flex items-center gap-6 text-sm text-gray-400 font-medium h-full">
             <Link href="/dashboard" className="h-full flex items-center text-white border-b-2 border-[#00e59b] mt-[2px]">
               Projects
             </Link>
@@ -31,16 +31,16 @@ export default async function DashboardLayout({
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <button className="text-gray-400 hover:text-white transition-colors">
+        <div className="flex items-center gap-3 md:gap-6">
+          <button className="hidden sm:block text-gray-400 hover:text-white transition-colors">
             <Bell size={20} />
           </button>
-          <div className="flex items-center gap-4 border-l border-[#1f1f1f] pl-6">
+          <div className="flex items-center gap-3 md:gap-4 sm:border-l border-[#1f1f1f] sm:pl-6">
             <form action={async () => {
               "use server";
               await signOut();
             }}>
-              <button className="text-gray-400 hover:text-white text-sm font-medium transition-colors">
+              <button className="text-gray-400 hover:text-white text-xs sm:text-sm font-medium transition-colors">
                 Logout
               </button>
             </form>
