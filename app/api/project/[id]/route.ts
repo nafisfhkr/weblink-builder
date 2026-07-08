@@ -125,3 +125,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  try {
+    const deletedProject = await prisma.project.delete({
+      where: { id, userId: session.user.id },
+    });
+
+    return NextResponse.json({ success: true, project: deletedProject });
+  } catch (error) {
+    console.error("Delete project error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+

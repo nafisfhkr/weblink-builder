@@ -1,6 +1,7 @@
 "use client";
 
-import { Camera, Play, Globe, Music } from "lucide-react";
+import { InstagramIcon, TiktokIcon, XIcon, YoutubeIcon, FacebookIcon } from "@/components/ui/SocialIcons";
+import { Globe } from "lucide-react";
 
 interface SocialItem {
   platform: string;
@@ -11,17 +12,47 @@ interface SocialBlockDisplayProps {
   content: {
     items?: SocialItem[];
   };
+  cardStyle?: React.CSSProperties;
 }
 
 const AVAILABLE_PLATFORMS = [
-  { value: "instagram", label: "Instagram", icon: Camera },
-  { value: "tiktok", label: "TikTok", icon: Music },
-  { value: "x", label: "X / Twitter", icon: Globe },
-  { value: "youtube", label: "YouTube", icon: Play },
-  { value: "facebook", label: "Facebook", icon: Globe },
+  { value: "instagram", label: "Instagram", icon: InstagramIcon },
+  { value: "tiktok", label: "TikTok", icon: TiktokIcon },
+  { value: "x", label: "X / Twitter", icon: XIcon },
+  { value: "youtube", label: "YouTube", icon: YoutubeIcon },
+  { value: "facebook", label: "Facebook", icon: FacebookIcon },
 ];
 
-export default function SocialBlock({ content }: SocialBlockDisplayProps) {
+function getPlatformUrl(platform: string, input: string) {
+  if (!input) return "#";
+  const trimmed = input.trim();
+  
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  
+  if (/^(www\.)?[a-z0-9\-]+\.[a-z]{2,}/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  
+  const username = trimmed.replace(/^@/, "");
+  switch (platform) {
+    case "instagram":
+      return `https://instagram.com/${username}`;
+    case "tiktok":
+      return `https://tiktok.com/@${username}`;
+    case "x":
+      return `https://x.com/${username}`;
+    case "youtube":
+      return `https://youtube.com/@${username}`;
+    case "facebook":
+      return `https://facebook.com/${username}`;
+    default:
+      return `https://${username}`;
+  }
+}
+
+export default function SocialBlock({ content, cardStyle }: SocialBlockDisplayProps) {
   const items = content?.items || [];
 
   if (items.length === 0) {
@@ -40,9 +71,10 @@ export default function SocialBlock({ content }: SocialBlockDisplayProps) {
         return (
           <a
             key={i}
-            href={item.url || "#"}
+            href={getPlatformUrl(item.platform, item.url)}
             target="_blank"
             rel="noopener noreferrer"
+            style={cardStyle}
             className="p-3 bg-[#1a1a1a] border border-zinc-800 text-zinc-400 hover:text-white rounded-full hover:scale-110 hover:border-zinc-600 transition-all shadow-md"
             title={platformConfig?.label || item.platform}
           >

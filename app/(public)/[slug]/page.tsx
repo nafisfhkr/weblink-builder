@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Camera, Play, Globe, Music } from "lucide-react";
+import { InstagramIcon, YoutubeIcon, FacebookIcon, XIcon, TiktokIcon } from "@/components/ui/SocialIcons";
+import { Globe } from "lucide-react";
 
 interface BlockItem {
   id: string;
@@ -11,12 +12,41 @@ interface BlockItem {
 }
 
 const AVAILABLE_PLATFORMS = [
-  { value: "instagram", icon: Camera },
-  { value: "youtube", icon: Play },
-  { value: "facebook", icon: Globe },
-  { value: "x", icon: Globe },
-  { value: "tiktok", icon: Music },
+  { value: "instagram", icon: InstagramIcon },
+  { value: "youtube", icon: YoutubeIcon },
+  { value: "facebook", icon: FacebookIcon },
+  { value: "x", icon: XIcon },
+  { value: "tiktok", icon: TiktokIcon },
 ];
+
+function getPlatformUrl(platform: string, input: string) {
+  if (!input) return "#";
+  const trimmed = input.trim();
+  
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  
+  if (/^(www\.)?[a-z0-9\-]+\.[a-z]{2,}/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  
+  const username = trimmed.replace(/^@/, "");
+  switch (platform) {
+    case "instagram":
+      return `https://instagram.com/${username}`;
+    case "tiktok":
+      return `https://tiktok.com/@${username}`;
+    case "x":
+      return `https://x.com/${username}`;
+    case "youtube":
+      return `https://youtube.com/@${username}`;
+    case "facebook":
+      return `https://facebook.com/${username}`;
+    default:
+      return `https://${username}`;
+  }
+}
 
 export default async function PublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -69,8 +99,20 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     console.error("Failed to parse publishedBlocksData", error);
   }
 
-  // Parse pageSettings for background
-  let pageSettings: { type?: string; color?: string; gradient?: string; imageUrl?: string } = {};
+  // Parse pageSettings for background and card styles
+  let pageSettings: { 
+    type?: string; 
+    color?: string; 
+    gradient?: string; 
+    imageUrl?: string;
+    cardBgColor?: string;
+    cardBgOpacity?: number;
+    cardTextColor?: string;
+    cardBorderColor?: string;
+    cardBorderOpacity?: number;
+    cardBlur?: number;
+    cardShowHeadingCard?: boolean;
+  } = {};
   try {
     if (project.pageSettings) {
       if (typeof project.pageSettings === "string") pageSettings = JSON.parse(project.pageSettings);
@@ -84,6 +126,32 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
       : pageSettings.type === "gradient" && pageSettings.gradient
       ? { background: pageSettings.gradient }
       : { backgroundColor: pageSettings.color || "#0a0a0a" };
+
+  // Helper to convert hex and opacity to rgba
+  const hexToRgba = (hex: string = "#121212", opacityPercentage: number = 100) => {
+    let c = hex.replace("#", "");
+    if (c.length === 3) {
+      c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+    }
+    const r = parseInt(c.substring(0, 2), 16) || 18;
+    const g = parseInt(c.substring(2, 4), 16) || 18;
+    const b = parseInt(c.substring(4, 6), 16) || 18;
+    const alpha = opacityPercentage / 100;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const cardBg = hexToRgba(pageSettings.cardBgColor || "#121212", pageSettings.cardBgOpacity ?? 100);
+  const cardBorder = hexToRgba(pageSettings.cardBorderColor || "#2a2a2a", pageSettings.cardBorderOpacity ?? 100);
+  const cardText = pageSettings.cardTextColor || "#ffffff";
+  const cardBlur = pageSettings.cardBlur ? `${pageSettings.cardBlur}px` : "0px";
+
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: cardBg,
+    borderColor: cardBorder,
+    color: cardText,
+    backdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
+    WebkitBackdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
+  };
 
   // Pastikan data block diurutkan berdasarkan field 'order'
   blocks.sort((a, b) => a.order - b.order);
@@ -110,6 +178,24 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
             blocks.map((block) => {
               switch (block.type) {
                 case "heading":
+                  if (pageSettings.cardShowHeadingCard) {
+                    return (
+                      <div 
+                        key={block.id} 
+                        style={cardStyle}
+                        className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
+                      >
+                        <h1 style={{ color: cardStyle.color }} className="text-3xl font-extrabold tracking-tight mb-2">
+                          {block.content?.title || ""}
+                        </h1>
+                        {block.content?.bio && (
+                          <p style={{ color: cardStyle.color, opacity: 0.8 }} className="text-sm max-w-md mx-auto whitespace-pre-wrap leading-relaxed">
+                            {block.content.bio}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
                   return (
                     <div key={block.id} className="w-full text-center my-4">
                       <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">
@@ -129,16 +215,36 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                       href={block.content?.url || "#"} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="w-full block text-center bg-[#121212] hover:bg-zinc-900 text-white py-4 px-6 rounded-full border border-zinc-900 hover:border-zinc-700 transition-all font-semibold tracking-wide shadow-md hover:scale-[1.01]"
+                      style={cardStyle}
+                      className="w-full block text-center py-4 px-6 rounded-full border transition-all font-semibold tracking-wide shadow-md hover:scale-[1.01]"
                     >
                       {block.content?.title || "Tautan"}
                     </a>
                   );
                 case "image":
+                  const ratio = block.content?.aspectRatio || "widescreen";
+                  let containerShape = "rounded-2xl";
+                  let wrapperClass = "relative w-full";
+
+                  if (ratio === "widescreen") {
+                    containerShape = "rounded-2xl";
+                    wrapperClass += " aspect-[16/9]";
+                  } else if (ratio === "square") {
+                    containerShape = "rounded-2xl";
+                    wrapperClass += " aspect-square";
+                  } else if (ratio === "circle") {
+                    containerShape = "rounded-full max-w-[200px] mx-auto";
+                    wrapperClass += " aspect-square";
+                  }
+
                   return (
-                    <div key={block.id} className="w-full overflow-hidden rounded-2xl border border-zinc-900 bg-[#121212] shadow-md transition-all hover:scale-[1.005]">
+                    <div 
+                      key={block.id} 
+                      style={cardStyle}
+                      className={`w-full overflow-hidden border shadow-md transition-all hover:scale-[1.005] ${containerShape}`}
+                    >
                       {block.content?.url ? (
-                        <div className="relative w-full aspect-[16/9]">
+                        <div className={wrapperClass}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={block.content.url}
@@ -167,10 +273,11 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                         return (
                           <a
                             key={i}
-                            href={item.url || "#"}
+                            href={getPlatformUrl(item.platform, item.url)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-3 bg-[#121212] border border-zinc-900 text-zinc-400 hover:text-white rounded-full hover:scale-110 hover:border-zinc-700 transition-all shadow-md"
+                            style={cardStyle}
+                            className="p-3 border rounded-full hover:scale-110 transition-all shadow-md"
                             title={item.platform}
                           >
                             <Icon size={18} />
