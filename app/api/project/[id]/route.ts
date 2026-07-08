@@ -3,14 +3,67 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-const linkSchema = z.object({
-  id: z.string(),
-  title: z.string().min(1, "Title is required"),
-  url: z.string().url("Must be a valid URL"),
-  order: z.number(),
+const headingContentSchema = z.object({
+  title: z.string().max(60, "Judul halaman maksimal 60 karakter").optional().or(z.literal("")),
+  bio: z.string().max(120, "Bio maksimal 120 karakter").optional().or(z.literal("")),
 });
 
-const linksDataSchema = z.array(linkSchema).max(15, "Max 15 links allowed");
+const linkContentSchema = z.object({
+  title: z.string().max(40, "Judul tautan maksimal 40 karakter").optional().or(z.literal("")),
+  url: z.string().optional().or(z.literal("")),
+});
+
+const imageContentSchema = z.object({
+  url: z.string().optional().or(z.literal("")),
+  alt: z.string().max(100, "Alt text maksimal 100 karakter").optional().or(z.literal("")),
+  storageKey: z.string().optional().or(z.literal("")),
+});
+
+const dividerContentSchema = z.object({}).passthrough().optional();
+
+const socialItemSchema = z.object({
+  platform: z.string(),
+  url: z.string().optional().or(z.literal("")),
+});
+
+const socialContentSchema = z.object({
+  items: z.array(socialItemSchema).optional(),
+});
+
+const blockSchema = z.discriminatedUnion("type", [
+  z.object({
+    id: z.string(),
+    type: z.literal("heading"),
+    content: headingContentSchema,
+    order: z.number(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("link"),
+    content: linkContentSchema,
+    order: z.number(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("image"),
+    content: imageContentSchema,
+    order: z.number(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("divider"),
+    content: dividerContentSchema,
+    order: z.number(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("social"),
+    content: socialContentSchema,
+    order: z.number(),
+  }),
+]);
+
+const blocksDataSchema = z.array(blockSchema).max(30, "Max 30 blocks allowed");
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -22,16 +75,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const body = await req.json();
-    const parsedLinks = linksDataSchema.parse(body.linksData);
+    const parsedBlocks = blocksDataSchema.parse(body.blocksData);
 
     const project = await prisma.project.update({
       where: { id, userId: session.user.id },
-      data: { linksData: parsedLinks },
+      data: { blocksData: parsedBlocks },
     });
 
     return NextResponse.json({ success: true, project });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.warn("Validation warning on auto-save:", error.issues);
       return NextResponse.json({ error: "Validation Error", details: error.issues }, { status: 400 });
     }
     console.error("Auto-save PATCH error:", error);

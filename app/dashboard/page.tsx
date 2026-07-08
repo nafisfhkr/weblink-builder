@@ -37,7 +37,16 @@ export default async function DashboardPage() {
             
             {/* Card Info Area */}
             <div className="p-5 bg-[#141414]">
-              <h2 className="text-[17px] font-semibold mb-1 truncate text-white">{project.title}</h2>
+              <div className="flex items-center justify-between mb-1.5 gap-2">
+                <h2 className="text-[17px] font-semibold truncate text-white flex-1">{project.title}</h2>
+                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border shrink-0 ${
+                  project.isPublished 
+                    ? "bg-green-950/60 text-green-400 border-green-850" 
+                    : "bg-zinc-900 text-zinc-400 border-zinc-800"
+                }`}>
+                  {project.isPublished ? "Published" : "Draft"}
+                </span>
+              </div>
               <p className="text-sm text-gray-500 truncate">linkbuilder.io/{project.slug}</p>
             </div>
           </Link>
