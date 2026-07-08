@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         slug,
         title: "My Linktree",
         userId: session.user.id,
-        linksData: [],
+        blocksData: [],
       },
     });
     return NextResponse.json(newProject);

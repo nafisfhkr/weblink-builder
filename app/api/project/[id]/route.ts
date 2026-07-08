@@ -3,14 +3,17 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-const linkSchema = z.object({
+const blockSchema = z.object({
   id: z.string(),
-  title: z.string().min(1, "Title is required"),
-  url: z.string().url("Must be a valid URL"),
+  type: z.enum(["link", "image"]),
+  title: z.string().optional(),
+  url: z.string().optional(),
+  storageKey: z.string().optional(),
+  alt: z.string().optional(),
   order: z.number(),
 });
 
-const linksDataSchema = z.array(linkSchema).max(15, "Max 15 links allowed");
+const blocksDataSchema = z.array(blockSchema).max(30, "Max 30 blocks allowed");
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -22,11 +25,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const body = await req.json();
-    const parsedLinks = linksDataSchema.parse(body.linksData);
+    const parsedBlocks = blocksDataSchema.parse(body.blocksData);
 
     const project = await prisma.project.update({
       where: { id, userId: session.user.id },
-      data: { linksData: parsedLinks },
+      data: { blocksData: parsedBlocks },
     });
 
     return NextResponse.json({ success: true, project });
