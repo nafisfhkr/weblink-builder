@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import authConfig from "./auth.config"
 import { prisma } from "./lib/prisma"
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const nextAuth = NextAuth({
   ...authConfig,
   callbacks: {
     async signIn({ user, account }) {
@@ -41,3 +41,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: { strategy: "jwt" }
 })
+
+export const { handlers, signIn, signOut } = nextAuth;
+
+export const auth = async (...args: any[]) => {
+  if (process.env.PLAYWRIGHT_TEST === "true") {
+    try {
+      await prisma.user.upsert({
+        where: { id: "test-user-id" },
+        update: {
+          image: null
+        },
+        create: {
+          id: "test-user-id",
+          email: "test@example.com",
+          name: "Test User",
+          image: null
+        }
+      });
+    } catch (e) {
+      console.error("Failed to upsert test user in auth mock:", e);
+    }
+    return {
+      user: {
+        id: "test-user-id",
+        name: "Test User",
+        email: "test@example.com",
+        image: null
+      }
+    };
+  }
+  return (nextAuth.auth as any)(...args);
+};

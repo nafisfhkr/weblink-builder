@@ -4,6 +4,10 @@ import authConfig from "./auth.config"
 const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
+  if (process.env.PLAYWRIGHT_TEST === "true") {
+    return;
+  }
+
   const isLoggedIn = !!req.auth;
   const isProtectedPath = req.nextUrl.pathname.startsWith('/dashboard') || 
                           req.nextUrl.pathname.startsWith('/editor');

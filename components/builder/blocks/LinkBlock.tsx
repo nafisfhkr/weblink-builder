@@ -7,15 +7,19 @@ interface LinkBlockDisplayProps {
     title?: string;
     url?: string;
   };
+  cardStyle?: React.CSSProperties;
 }
 
-export default function LinkBlock({ content }: LinkBlockDisplayProps) {
+export default function LinkBlock({ content, cardStyle }: LinkBlockDisplayProps) {
   const title = content?.title || "";
   const url = content?.url || "";
 
   return (
     <div className="w-full">
-      <div className="w-full flex items-center justify-between bg-[#1a1a1a] border border-zinc-800 hover:border-zinc-600 text-white py-4 px-6 rounded-full transition-all font-semibold tracking-wide shadow-md group cursor-default">
+      <div 
+        style={cardStyle}
+        className="w-full flex items-center justify-between bg-[#1a1a1a] border border-zinc-800 hover:border-zinc-600 text-white py-4 px-6 rounded-full transition-all font-semibold tracking-wide shadow-md group cursor-default"
+      >
         <span className={!title ? "text-zinc-600 italic font-normal text-sm" : ""}>
           {title || "Judul Tautan..."}
         </span>

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import BlankPageCard from "@/components/dashboard/BlankPageCard";
 import Link from "next/link";
+import DeleteProjectButton from "@/components/dashboard/DeleteProjectButton";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -72,7 +73,10 @@ export default async function DashboardPage() {
                     {project.isPublished ? "Published" : "Draft"}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 truncate">linkbuilder.io/{project.slug}</p>
+                <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-zinc-900">
+                  <p className="text-xs text-gray-500 truncate flex-1">linkbuilder.io/{project.slug}</p>
+                  <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
+                </div>
               </div>
             </Link>
           );

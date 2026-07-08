@@ -10,6 +10,14 @@ export interface PageSettings {
   gradient?: string;
   imageUrl?: string;
   storageKey?: string;
+  // Card styles
+  cardBgColor?: string;
+  cardBgOpacity?: number;
+  cardTextColor?: string;
+  cardBorderColor?: string;
+  cardBorderOpacity?: number;
+  cardBlur?: number;
+  cardShowHeadingCard?: boolean;
 }
 
 interface BackgroundPickerProps {
@@ -243,6 +251,142 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-[10px] text-white/60 font-mono tracking-wider">PREVIEW</span>
           </div>
+        </div>
+      </div>
+
+      {/* Pengaturan Card Styling */}
+      <div className="mt-6 border-t border-zinc-800 pt-5 flex flex-col gap-4">
+        <div className="flex items-center gap-1.5">
+          <Palette size={14} className="text-teal-400" />
+          <label className="sidebar-label !mb-0">Desain Kartu (Card)</label>
+        </div>
+
+        {/* Card Background Color */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] text-zinc-400 font-medium">Warna Background Kartu</label>
+          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
+            <input
+              type="color"
+              value={settings.cardBgColor || "#121212"}
+              onChange={(e) => onChange({ ...settings, cardBgColor: e.target.value })}
+              className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
+            />
+            <input
+              type="text"
+              value={settings.cardBgColor || "#121212"}
+              onChange={(e) => onChange({ ...settings, cardBgColor: e.target.value })}
+              className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
+              maxLength={7}
+            />
+          </div>
+        </div>
+
+        {/* Card Background Opacity */}
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between items-center text-[11px] text-zinc-400">
+            <span>Transparansi Kartu</span>
+            <span className="font-mono">{settings.cardBgOpacity ?? 100}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={settings.cardBgOpacity ?? 100}
+            onChange={(e) => onChange({ ...settings, cardBgOpacity: parseInt(e.target.value) })}
+            className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+          />
+        </div>
+
+        {/* Card Text Color */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] text-zinc-400 font-medium">Warna Teks Kartu</label>
+          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
+            <input
+              type="color"
+              value={settings.cardTextColor || "#ffffff"}
+              onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
+              className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
+            />
+            <input
+              type="text"
+              value={settings.cardTextColor || "#ffffff"}
+              onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
+              className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
+              maxLength={7}
+            />
+          </div>
+        </div>
+
+        {/* Card Border Color */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] text-zinc-400 font-medium">Warna Border Kartu</label>
+          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
+            <input
+              type="color"
+              value={settings.cardBorderColor || "#2a2a2a"}
+              onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
+              className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
+            />
+            <input
+              type="text"
+              value={settings.cardBorderColor || "#2a2a2a"}
+              onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
+              className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
+              maxLength={7}
+            />
+          </div>
+        </div>
+
+        {/* Card Border Opacity */}
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between items-center text-[11px] text-zinc-400">
+            <span>Transparansi Border</span>
+            <span className="font-mono">{settings.cardBorderOpacity ?? 100}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={settings.cardBorderOpacity ?? 100}
+            onChange={(e) => onChange({ ...settings, cardBorderOpacity: parseInt(e.target.value) })}
+            className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+          />
+        </div>
+
+        {/* Backdrop Blur Slider */}
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between items-center text-[11px] text-zinc-400">
+            <span>Backdrop Blur (Glassmorphism)</span>
+            <span className="font-mono">{settings.cardBlur ?? 0}px</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="20"
+            value={settings.cardBlur ?? 0}
+            onChange={(e) => onChange({ ...settings, cardBlur: parseInt(e.target.value) })}
+            className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+          />
+        </div>
+
+        {/* Toggle Show Heading Block inside Card */}
+        <div className="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 mt-2">
+          <div className="flex flex-col">
+            <span className="text-[11px] text-zinc-300 font-semibold">Tampilkan Heading dalam Card</span>
+            <span className="text-[9px] text-zinc-500">Membungkus judul utama di dalam kartu</span>
+          </div>
+          <button
+            onClick={() => onChange({ ...settings, cardShowHeadingCard: !settings.cardShowHeadingCard })}
+            className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer ${
+              settings.cardShowHeadingCard ? "bg-teal-500" : "bg-zinc-700"
+            }`}
+          >
+            <div
+              className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                settings.cardShowHeadingCard ? "translate-x-4" : "translate-x-0"
+              }`}
+            />
+          </button>
         </div>
       </div>
     </div>

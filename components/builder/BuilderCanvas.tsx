@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -17,7 +17,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { nanoid } from "nanoid";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import CanvasBlock from "./CanvasBlock";
 import BlockPicker from "./BlockPicker";
 import PublishButton from "./PublishButton";
@@ -35,6 +36,11 @@ interface BlockItem {
 
 export default function BuilderCanvas({ initialData }: { initialData: any }) {
   const { showToast } = useToast();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // --- Block State ---
   const [blocks, setBlocks] = useState<BlockItem[]>(() => {
@@ -117,22 +123,35 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
   );
 
   // --- Auto-Save ---
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const autoSave = useCallback(
     async (newBlocks: BlockItem[]) => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       setIsSaving(true);
       try {
         const res = await fetch(`/api/project/${initialData.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ blocksData: newBlocks }),
+          signal: controller.signal,
         });
         if (!res.ok) {
           showToast("Koneksi gagal, mencoba menyimpan ulang", "error");
         }
-      } catch {
-        showToast("Koneksi gagal, mencoba menyimpan ulang", "error");
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          showToast("Koneksi gagal, mencoba menyimpan ulang", "error");
+        }
       } finally {
-        setIsSaving(false);
+        if (abortControllerRef.current === controller) {
+          setIsSaving(false);
+        }
       }
     },
     [initialData.id, showToast]
@@ -281,7 +300,37 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
   const hasChanges = JSON.stringify(blocks) !== JSON.stringify(publishedBlocks);
 
+  // Helper to convert hex and opacity to rgba
+  const hexToRgba = (hex: string = "#121212", opacityPercentage: number = 100) => {
+    let c = hex.replace("#", "");
+    if (c.length === 3) {
+      c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+    }
+    const r = parseInt(c.substring(0, 2), 16) || 18;
+    const g = parseInt(c.substring(2, 4), 16) || 18;
+    const b = parseInt(c.substring(4, 6), 16) || 18;
+    const alpha = opacityPercentage / 100;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const cardBg = hexToRgba(pageSettings.cardBgColor || "#121212", pageSettings.cardBgOpacity ?? 100);
+  const cardBorder = hexToRgba(pageSettings.cardBorderColor || "#2a2a2a", pageSettings.cardBorderOpacity ?? 100);
+  const cardText = pageSettings.cardTextColor || "#ffffff";
+  const cardBlur = pageSettings.cardBlur ? `${pageSettings.cardBlur}px` : "0px";
+
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: cardBg,
+    borderColor: cardBorder,
+    color: cardText,
+    backdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
+    WebkitBackdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
+  };
+
   const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-2xl";
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-zinc-950" />;
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -394,6 +443,8 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                   onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
                   isPreviewMode={isPreviewMode}
                   uploadingBlockIds={uploadingBlockIds}
+                  cardStyle={cardStyle}
+                  cardShowHeadingCard={pageSettings.cardShowHeadingCard ?? false}
                 />
               ))}
             </div>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { UploadCloud, Loader2, Trash2, Plus, Camera, Play, Globe, Music, X } from "lucide-react";
+import { UploadCloud, Loader2, Trash2, Plus, X, Globe } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import BackgroundPicker, { PageSettings } from "@/components/builder/BackgroundPicker";
+import { InstagramIcon, TiktokIcon, XIcon, YoutubeIcon, FacebookIcon } from "@/components/ui/SocialIcons";
 
 interface BlockItem {
   id: string;
@@ -30,11 +31,11 @@ interface ContextualSidebarProps {
 }
 
 const AVAILABLE_PLATFORMS = [
-  { value: "instagram", label: "Instagram", icon: Camera },
-  { value: "tiktok", label: "TikTok", icon: Music },
-  { value: "x", label: "X / Twitter", icon: Globe },
-  { value: "youtube", label: "YouTube", icon: Play },
-  { value: "facebook", label: "Facebook", icon: Globe },
+  { value: "instagram", label: "Instagram", icon: InstagramIcon },
+  { value: "tiktok", label: "TikTok", icon: TiktokIcon },
+  { value: "x", label: "X / Twitter", icon: XIcon },
+  { value: "youtube", label: "YouTube", icon: YoutubeIcon },
+  { value: "facebook", label: "Facebook", icon: FacebookIcon },
 ];
 
 const BLOCK_TYPE_LABELS: Record<string, string> = {
@@ -238,6 +239,30 @@ function ImagePanel({
         )}
       </div>
 
+      {/* Bentuk Gambar (Aspect Ratio / Shape) */}
+      <div>
+        <label className="sidebar-label">Bentuk Gambar</label>
+        <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1">
+          {([
+            { value: "widescreen", label: "Persegi Panjang" },
+            { value: "square", label: "Kotak" },
+            { value: "circle", label: "Bulat" },
+          ] as const).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onChange({ ...content, aspectRatio: opt.value })}
+              className={`flex-1 text-[11px] py-1.5 rounded-md font-medium transition-all ${
+                (content?.aspectRatio || "widescreen") === opt.value
+                  ? "bg-zinc-700 text-white shadow"
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div>
         <label className="sidebar-label">Alt Text (Opsional)</label>
         <input
@@ -276,7 +301,9 @@ function SocialPanel({ content, onChange }: { content: any; onChange: (c: any) =
   const handleUrlBlur = (index: number) => {
     const url = items[index]?.url?.trim();
     if (url && !/^https?:\/\//i.test(url)) {
-      updateItem(index, "url", `https://${url}`);
+      if (url.includes(".")) {
+        updateItem(index, "url", `https://${url}`);
+      }
     }
   };
 

@@ -23,9 +23,20 @@ interface CanvasBlockProps {
   onSelect: (id: string) => void;
   isPreviewMode: boolean;
   uploadingBlockIds?: Set<string>;
+  cardStyle?: React.CSSProperties;
+  cardShowHeadingCard?: boolean;
 }
 
-export default function CanvasBlock({ block, onDelete, isSelected, onSelect, isPreviewMode, uploadingBlockIds }: CanvasBlockProps) {
+export default function CanvasBlock({ 
+  block, 
+  onDelete, 
+  isSelected, 
+  onSelect, 
+  isPreviewMode, 
+  uploadingBlockIds,
+  cardStyle,
+  cardShowHeadingCard
+}: CanvasBlockProps) {
   const {
     attributes,
     listeners,
@@ -41,23 +52,43 @@ export default function CanvasBlock({ block, onDelete, isSelected, onSelect, isP
     zIndex: isDragging ? 10 : 1,
   };
 
+  const combinedStyle = {
+    ...style,
+    ...cardStyle,
+    ...(isSelected ? {
+      borderColor: "#14b8a6",
+      boxShadow: "0 0 0 1px rgba(20, 184, 166, 0.4), 0 10px 15px -3px rgba(20, 184, 166, 0.3)",
+    } : {}),
+  };
+
   const renderBlock = () => {
     switch (block.type) {
       case "heading":
+        if (cardShowHeadingCard) {
+          return (
+            <div 
+              style={cardStyle}
+              className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
+            >
+              <HeadingBlock content={block.content || {}} textColor={cardStyle?.color} />
+            </div>
+          );
+        }
         return <HeadingBlock content={block.content || {}} />;
       case "link":
-        return <LinkBlock content={block.content || {}} />;
+        return <LinkBlock content={block.content || {}} cardStyle={cardStyle} />;
       case "image":
         return (
           <ImageBlock
             content={block.content || {}}
             isUploading={uploadingBlockIds?.has(block.id)}
+            cardStyle={cardStyle}
           />
         );
       case "divider":
         return <DividerBlock data={block.content || {}} onChange={() => {}} />;
       case "social":
-        return <SocialBlock content={block.content || {}} />;
+        return <SocialBlock content={block.content || {}} cardStyle={cardStyle} />;
       default:
         return null;
     }
@@ -74,14 +105,14 @@ export default function CanvasBlock({ block, onDelete, isSelected, onSelect, isP
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={combinedStyle}
       onClick={() => onSelect(block.id)}
       className={`group flex items-start gap-3 border p-4 rounded-2xl mb-4 transition-all cursor-pointer ${
         isDragging
-          ? "border-teal-500 shadow-xl opacity-90 bg-[#121212]"
+          ? "opacity-90 shadow-xl"
           : isSelected
-          ? "border-teal-500 ring-1 ring-teal-500/40 bg-[#0f1f1f] shadow-teal-900/30 shadow-lg"
-          : "border-zinc-900 bg-[#121212] hover:border-zinc-700"
+          ? "ring-1 ring-teal-500/40 shadow-teal-900/30 shadow-lg"
+          : "hover:border-zinc-700"
       }`}
     >
       {/* Drag Handle */}
