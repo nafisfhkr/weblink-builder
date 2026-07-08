@@ -6,35 +6,45 @@ import { z } from "zod";
 const headingContentSchema = z.object({
   title: z.string().max(60, "Judul halaman maksimal 60 karakter").optional().or(z.literal("")),
   bio: z.string().max(120, "Bio maksimal 120 karakter").optional().or(z.literal("")),
-});
+}).passthrough();
+
+const textContentSchema = z.object({
+  text: z.string().max(200, "Deskripsi maksimal 200 karakter").optional().or(z.literal("")),
+}).passthrough();
 
 const linkContentSchema = z.object({
   title: z.string().max(40, "Judul tautan maksimal 40 karakter").optional().or(z.literal("")),
   url: z.string().optional().or(z.literal("")),
-});
+}).passthrough();
 
 const imageContentSchema = z.object({
   url: z.string().optional().or(z.literal("")),
   alt: z.string().max(100, "Alt text maksimal 100 karakter").optional().or(z.literal("")),
   storageKey: z.string().optional().or(z.literal("")),
-});
+}).passthrough();
 
 const dividerContentSchema = z.object({}).passthrough().optional();
 
 const socialItemSchema = z.object({
   platform: z.string(),
   url: z.string().optional().or(z.literal("")),
-});
+}).passthrough();
 
 const socialContentSchema = z.object({
   items: z.array(socialItemSchema).optional(),
-});
+}).passthrough();
 
 const blockSchema = z.discriminatedUnion("type", [
   z.object({
     id: z.string(),
     type: z.literal("heading"),
     content: headingContentSchema,
+    order: z.number(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("text"),
+    content: textContentSchema,
     order: z.number(),
   }),
   z.object({
