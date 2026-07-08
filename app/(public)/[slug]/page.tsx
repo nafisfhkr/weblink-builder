@@ -228,7 +228,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                   
                   const block = group;
                   switch (block.type) {
-                    case "heading":
+                    case "heading": {
                       const customColorStyle = {
                         color: block.content?.textColor || cardStyle?.color,
                         fontSize: block.content?.textSize ? `${block.content.textSize}px` : undefined,
@@ -253,7 +253,8 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                           </h1>
                         </div>
                       );
-                    case "text":
+                    }
+                    case "text": {
                       const customTextStyle = {
                         color: block.content?.textColor || cardStyle?.color || "#a1a1aa",
                         fontSize: block.content?.textSize ? `${block.content.textSize}px` : undefined,
@@ -274,7 +275,8 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                           </p>
                         </div>
                       );
-                    case "image":
+                    }
+                    case "image": {
                       const ratio = block.content?.aspectRatio || "widescreen";
                       let containerShape = "rounded-2xl";
                       let wrapperClass = "relative w-full";
@@ -315,11 +317,13 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                       )}
                     </div>
                   );
-                case "divider":
+                }
+                case "divider": {
                   return (
                     <hr key={block.id} className="w-4/5 mx-auto my-6 border-t border-zinc-900" />
                   );
-                case "social":
+                }
+                case "social": {
                   const items = block.content?.items || [];
                   const useCardSocial = block.content?.useCard !== false;
                   return (
@@ -345,6 +349,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                       })}
                     </div>
                   );
+                }
                 default:
                   return null;
               }

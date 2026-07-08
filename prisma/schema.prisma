@@ -7,33 +7,26 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  name      String?
-  email     String?   @unique
-  image     String?
-  projects  Project[]
+  id       String    @id @default(cuid())
+  name     String?
+  email    String?   @unique
+  image    String?
+  projects Project[]
 }
 
 model Project {
-  id         String   @id @default(cuid())
-  slug       String   @unique
-  title      String   @default("My Linktree")
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Draft: hasil auto-save terkini dari kanvas editor
-  blocksData          Json      @default("[]")
-
-  // Published: snapshot terakhir yang ditampilkan ke publik (null = belum pernah publish)
+  id                  String    @id @default(cuid())
+  slug                String    @unique
+  title               String    @default("My Linktree")
+  userId              String
+  blocksData          Json
   publishedBlocksData Json?
-
-  // Page appearance settings: background color, gradient, or image
-  // { type: "color"|"gradient"|"image", color?: string, gradient?: string, imageUrl?: string, storageKey?: string }
-  pageSettings        Json      @default("{}")
-
+  pageSettings        Json
   isPublished         Boolean   @default(false)
   publishedAt         DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId], map: "Project_userId_fkey")
+}
