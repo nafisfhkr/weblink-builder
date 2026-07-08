@@ -12,8 +12,8 @@ export async function GET(req: NextRequest) {
   try {
     const projects = await prisma.project.findMany({
       where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
     });
+    projects.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return NextResponse.json(projects);
   } catch (error) {
     console.error("Failed to fetch projects:", error);

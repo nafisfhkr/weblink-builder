@@ -25,8 +25,9 @@ export default async function DashboardPage() {
     // Ambil daftar project milik user
     projects = await prisma.project.findMany({
       where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
     });
+    // Sorting di sisi aplikasi untuk menghindari error "Out of sort memory" di database
+    projects.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch (error: any) {
     console.error("Database connection error:", error);
     dbError = error.message;
