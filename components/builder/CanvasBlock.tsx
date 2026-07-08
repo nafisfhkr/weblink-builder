@@ -18,18 +18,21 @@ interface BlockItem {
 
 interface CanvasBlockProps {
   block: BlockItem;
-  onUpdate: (id: string, content: any) => void;
   onDelete: (id: string) => void;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+  isPreviewMode: boolean;
+  uploadingBlockIds?: Set<string>;
 }
 
-export default function CanvasBlock({ block, onUpdate, onDelete }: CanvasBlockProps) {
+export default function CanvasBlock({ block, onDelete, isSelected, onSelect, isPreviewMode, uploadingBlockIds }: CanvasBlockProps) {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging
+    isDragging,
   } = useSortable({ id: block.id });
 
   const style = {
@@ -38,63 +41,73 @@ export default function CanvasBlock({ block, onUpdate, onDelete }: CanvasBlockPr
     zIndex: isDragging ? 10 : 1,
   };
 
-  const renderBlockEditor = () => {
+  const renderBlock = () => {
     switch (block.type) {
       case "heading":
-        return (
-          <HeadingBlock
-            data={block.content || { title: "", bio: "" }}
-            onChange={(newData) => onUpdate(block.id, newData)}
-          />
-        );
+        return <HeadingBlock content={block.content || {}} />;
       case "link":
-        return (
-          <LinkBlock
-            data={block.content || { title: "", url: "" }}
-            onChange={(newData) => onUpdate(block.id, newData)}
-          />
-        );
+        return <LinkBlock content={block.content || {}} />;
       case "image":
         return (
           <ImageBlock
-            data={block.content || { url: "", alt: "", storageKey: "" }}
-            onChange={(newData) => onUpdate(block.id, newData)}
+            content={block.content || {}}
+            isUploading={uploadingBlockIds?.has(block.id)}
           />
         );
       case "divider":
-        return (
-          <DividerBlock
-            data={block.content || {}}
-            onChange={(newData) => onUpdate(block.id, newData)}
-          />
-        );
+        return <DividerBlock data={block.content || {}} onChange={() => {}} />;
       case "social":
-        return (
-          <SocialBlock
-            data={block.content || { items: [] }}
-            onChange={(newData) => onUpdate(block.id, newData)}
-          />
-        );
+        return <SocialBlock content={block.content || {}} />;
       default:
         return null;
     }
   };
 
+  if (isPreviewMode) {
+    return (
+      <div ref={setNodeRef} style={style}>
+        {renderBlock()}
+      </div>
+    );
+  }
+
   return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
-      className={`flex items-start gap-3 bg-[#121212] border ${isDragging ? 'border-teal-500 shadow-xl opacity-90' : 'border-zinc-900'} p-4 rounded-2xl mb-4 transition-all`}
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={() => onSelect(block.id)}
+      className={`group flex items-start gap-3 border p-4 rounded-2xl mb-4 transition-all cursor-pointer ${
+        isDragging
+          ? "border-teal-500 shadow-xl opacity-90 bg-[#121212]"
+          : isSelected
+          ? "border-teal-500 ring-1 ring-teal-500/40 bg-[#0f1f1f] shadow-teal-900/30 shadow-lg"
+          : "border-zinc-900 bg-[#121212] hover:border-zinc-700"
+      }`}
     >
-      <div {...attributes} {...listeners} className="cursor-grab hover:text-white text-zinc-600 active:cursor-grabbing p-1.5 mt-2 transition-colors">
+      {/* Drag Handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        onClick={(e) => e.stopPropagation()}
+        className="cursor-grab hover:text-white text-zinc-600 active:cursor-grabbing p-1.5 mt-2 transition-colors shrink-0"
+      >
         <GripVertical size={20} />
       </div>
-      
-      <div className="flex-1 min-w-0">
-        {renderBlockEditor()}
+
+      {/* Block Content */}
+      <div className="flex-1 min-w-0 pointer-events-none select-none">
+        {renderBlock()}
       </div>
 
-      <button onClick={() => onDelete(block.id)} className="text-zinc-600 hover:text-red-500 p-2 mt-2 transition-colors cursor-pointer shrink-0">
+      {/* Delete Button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(block.id);
+        }}
+        className="text-zinc-700 hover:text-red-500 p-2 mt-2 transition-colors cursor-pointer shrink-0 opacity-0 group-hover:opacity-100"
+        aria-label="Hapus blok"
+      >
         <Trash2 size={18} />
       </button>
     </div>

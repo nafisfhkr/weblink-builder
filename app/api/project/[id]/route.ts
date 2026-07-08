@@ -75,14 +75,46 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const body = await req.json();
-    const parsedBlocks = blocksDataSchema.parse(body.blocksData);
 
-    const project = await prisma.project.update({
-      where: { id, userId: session.user.id },
-      data: { blocksData: parsedBlocks },
-    });
+    // Path 1: Save blocksData (auto-save draft)
+    if (body.blocksData !== undefined) {
+      const parsedBlocks = blocksDataSchema.parse(body.blocksData);
+      
+      // Extract title from the heading block
+      let projectTitle = "My Linktree";
+      const headingBlock = parsedBlocks.find(b => b.type === "heading");
+      if (headingBlock && "title" in headingBlock.content && headingBlock.content.title) {
+        projectTitle = headingBlock.content.title;
+      }
 
-    return NextResponse.json({ success: true, project });
+      const project = await prisma.project.update({
+        where: { id, userId: session.user.id },
+        data: { 
+          blocksData: parsedBlocks as any,
+          title: projectTitle
+        },
+      });
+      return NextResponse.json({ success: true, project });
+    }
+
+    // Path 2: Save pageSettings (background config)
+    if (body.pageSettings !== undefined) {
+      const pageSettingsSchema = z.object({
+        type: z.enum(["color", "gradient", "image"]),
+        color: z.string().optional(),
+        gradient: z.string().optional(),
+        imageUrl: z.string().optional(),
+        storageKey: z.string().optional(),
+      });
+      const parsedSettings = pageSettingsSchema.parse(body.pageSettings);
+      const project = await prisma.project.update({
+        where: { id, userId: session.user.id },
+        data: { pageSettings: parsedSettings as any },
+      });
+      return NextResponse.json({ success: true, project });
+    }
+
+    return NextResponse.json({ error: "No valid data to update" }, { status: 400 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.warn("Validation warning on auto-save:", error.issues);
@@ -92,3 +124,4 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+

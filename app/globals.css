@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,15 +12,22 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Sidebar utility classes */
+.sidebar-label {
+  @apply text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-1.5;
+}
+
+.sidebar-input {
+  @apply w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-600 rounded-lg px-3 py-2 text-white outline-none text-sm transition-colors;
+}
+
+.sidebar-hint {
+  @apply text-[10px] text-zinc-600 mt-1 text-right;
+}
+

@@ -30,6 +30,31 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
   // Jika slug tidak ditemukan di database, langsung lemparkan ke halaman 404
   if (!project) notFound();
 
+  // Jika slug ditemukan tapi project belum pernah dipublikasikan
+  if (!project.isPublished) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-6 font-sans text-white">
+        <div className="flex flex-col items-center gap-6 text-center max-w-sm">
+          <div className="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-500">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-white mb-2">Halaman Belum Dipublikasikan</h1>
+            <p className="text-zinc-500 text-sm leading-relaxed">
+              Halaman ini sedang dalam tahap persiapan dan belum siap untuk dilihat publik.
+            </p>
+          </div>
+          <div className="text-xs text-zinc-700 font-mono tracking-widest uppercase pt-4 border-t border-zinc-900 w-full text-center">
+            /{slug}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
   // Parsing JSON publishedBlocksData secara aman
   let blocks: BlockItem[] = [];
   try {
@@ -44,11 +69,27 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     console.error("Failed to parse publishedBlocksData", error);
   }
 
+  // Parse pageSettings for background
+  let pageSettings: { type?: string; color?: string; gradient?: string; imageUrl?: string } = {};
+  try {
+    if (project.pageSettings) {
+      if (typeof project.pageSettings === "string") pageSettings = JSON.parse(project.pageSettings);
+      else if (typeof project.pageSettings === "object") pageSettings = project.pageSettings as any;
+    }
+  } catch {}
+
+  const bgStyle: React.CSSProperties =
+    pageSettings.type === "image" && pageSettings.imageUrl
+      ? { backgroundImage: `url(${pageSettings.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }
+      : pageSettings.type === "gradient" && pageSettings.gradient
+      ? { background: pageSettings.gradient }
+      : { backgroundColor: pageSettings.color || "#0a0a0a" };
+
   // Pastikan data block diurutkan berdasarkan field 'order'
   blocks.sort((a, b) => a.order - b.order);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center py-20 px-6 font-sans text-white">
+    <div className="min-h-screen flex flex-col items-center py-20 px-6 font-sans text-white" style={bgStyle}>
       <div className="w-full max-w-[680px] flex flex-col items-center">
         {/* Profile / Header Section */}
         {project.user?.image ? (

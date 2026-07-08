@@ -1,62 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-interface HeadingBlockProps {
-  data: {
-    title: string;
+interface HeadingBlockDisplayProps {
+  content: {
+    title?: string;
     bio?: string;
   };
-  onChange: (newData: { title: string; bio?: string }) => void;
 }
 
-export default function HeadingBlock({ data, onChange }: HeadingBlockProps) {
-  const [title, setTitle] = useState(data.title || "");
-  const [bio, setBio] = useState(data.bio || "");
-
-  useEffect(() => {
-    setTitle(data.title || "");
-    setBio(data.bio || "");
-  }, [data]);
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.slice(0, 60);
-    setTitle(val);
-    onChange({ title: val, bio });
-  };
-
-  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value.slice(0, 120);
-    setBio(val);
-    onChange({ title, bio: val });
-  };
-
+export default function HeadingBlock({ content }: HeadingBlockDisplayProps) {
   return (
-    <div className="w-full flex flex-col items-center gap-3 p-3 bg-zinc-950 border border-zinc-900 rounded-xl">
-      <div className="w-full">
-        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-1">
-          Heading Title (Max 60)
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={handleTitleChange}
-          placeholder="Halo, Saya Rina"
-          className="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-lg px-3 py-2 text-white outline-none text-center font-bold text-lg"
-        />
-      </div>
-      <div className="w-full">
-        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-1">
-          Bio / Subtitle (Max 120)
-        </label>
-        <textarea
-          value={bio}
-          onChange={handleBioChange}
-          placeholder="Desainer Grafis & Content Creator"
-          rows={2}
-          className="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-lg px-3 py-2 text-zinc-300 outline-none text-center text-sm resize-none"
-        />
-      </div>
+    <div className="w-full text-center py-4">
+      <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2 leading-tight">
+        {content?.title || <span className="text-zinc-600 italic font-normal text-lg">Ketuk untuk mengisi judul...</span>}
+      </h1>
+      {content?.bio ? (
+        <p className="text-zinc-400 text-sm max-w-md mx-auto leading-relaxed whitespace-pre-wrap">
+          {content.bio}
+        </p>
+      ) : (
+        <p className="text-zinc-700 text-sm italic">Bio / deskripsi singkat...</p>
+      )}
     </div>
   );
 }

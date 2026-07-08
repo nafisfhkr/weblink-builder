@@ -1,72 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ExternalLink } from "lucide-react";
 
-interface LinkBlockProps {
-  data: {
-    title: string;
-    url: string;
+interface LinkBlockDisplayProps {
+  content: {
+    title?: string;
+    url?: string;
   };
-  onChange: (newData: { title: string; url: string }) => void;
 }
 
-export default function LinkBlock({ data, onChange }: LinkBlockProps) {
-  const [title, setTitle] = useState(data.title || "");
-  const [url, setUrl] = useState(data.url || "");
-
-  useEffect(() => {
-    setTitle(data.title || "");
-    setUrl(data.url || "");
-  }, [data]);
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.slice(0, 40);
-    setTitle(val);
-    onChange({ title: val, url });
-  };
-
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setUrl(val);
-    onChange({ title, url: val });
-  };
-
-  // Helper to ensure URL protocol on blur
-  const handleUrlBlur = () => {
-    let finalUrl = url.trim();
-    if (finalUrl && !/^https?:\/\//i.test(finalUrl)) {
-      finalUrl = `https://${finalUrl}`;
-      setUrl(finalUrl);
-      onChange({ title, url: finalUrl });
-    }
-  };
+export default function LinkBlock({ content }: LinkBlockDisplayProps) {
+  const title = content?.title || "";
+  const url = content?.url || "";
 
   return (
-    <div className="w-full flex flex-col gap-2 p-3 bg-zinc-950 border border-zinc-900 rounded-xl">
-      <div>
-        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-1">
-          Link Button Text (Max 40)
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={handleTitleChange}
-          placeholder="My Portfolio Website"
-          className="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-lg px-3 py-2 text-white outline-none text-sm font-medium"
-        />
-      </div>
-      <div>
-        <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-1">
-          Destination URL
-        </label>
-        <input
-          type="text"
-          value={url}
-          onChange={handleUrlChange}
-          onBlur={handleUrlBlur}
-          placeholder="https://example.com"
-          className="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-lg px-3 py-2 text-zinc-400 outline-none text-xs"
-        />
+    <div className="w-full">
+      <div className="w-full flex items-center justify-between bg-[#1a1a1a] border border-zinc-800 hover:border-zinc-600 text-white py-4 px-6 rounded-full transition-all font-semibold tracking-wide shadow-md group cursor-default">
+        <span className={!title ? "text-zinc-600 italic font-normal text-sm" : ""}>
+          {title || "Judul Tautan..."}
+        </span>
+        <div className="flex items-center gap-2">
+          {url && (
+            <span className="text-zinc-600 text-xs truncate max-w-[120px] hidden sm:block">
+              {url.replace(/^https?:\/\//, "")}
+            </span>
+          )}
+          <ExternalLink size={14} className="text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0" />
+        </div>
       </div>
     </div>
   );
