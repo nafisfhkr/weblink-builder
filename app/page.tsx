@@ -39,7 +39,7 @@ export default async function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden px-6">
+      <section className="relative min-h-screen pt-28 lg:pt-20 pb-12 flex flex-col justify-center overflow-hidden px-6">
         
         {/* Abstract Background Elements */}
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-900/20 blur-[120px] rounded-full pointer-events-none" />
