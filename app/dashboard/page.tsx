@@ -3,9 +3,14 @@ import { prisma } from "@/lib/prisma";
 import BlankPageCard from "@/components/dashboard/BlankPageCard";
 import Link from "next/link";
 import DeleteProjectButton from "@/components/dashboard/DeleteProjectButton";
+import CopyLinkButton from "@/components/dashboard/CopyLinkButton";
+import { headers } from "next/headers";
 
 export default async function DashboardPage() {
   const session = await auth();
+  const headersList = await headers();
+  const host = headersList.get("host") || "weblink-builder.vercel.app";
+  const protocol = host.includes("localhost") ? "http" : "https";
 
   // Ambil daftar project milik user
   const projects = await prisma.project.findMany({
@@ -43,6 +48,8 @@ export default async function DashboardPage() {
             }
           } catch (e) { }
 
+          const fullUrl = `${protocol}://${host}/${project.slug}`;
+
           return (
             <Link
               key={project.id}
@@ -73,8 +80,13 @@ export default async function DashboardPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-2 pt-1.5 border-t border-zinc-900">
-                  <p className="text-xs text-gray-500 truncate flex-1">linkbuilder.io/{project.slug}</p>
-                  <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
+                  <p className="text-xs text-gray-500 truncate flex-1">
+                    {host}/{project.slug}
+                  </p>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <CopyLinkButton url={fullUrl} />
+                    <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
+                  </div>
                 </div>
               </div>
             </Link>
