@@ -39,55 +39,78 @@ export default async function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden flex flex-col items-center justify-center text-center px-6">
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden px-6">
         
         {/* Abstract Background Elements */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-teal-900/20 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-900/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-900/20 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-indigo-900/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-semibold uppercase tracking-wider mb-8">
-            <Sparkles size={14} /> <span>Pembuat Link-in-Bio Generasi Baru</span>
-          </div>
+        <div className="relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-12 items-center">
           
-          <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
-            Satu Tautan untuk <br className="hidden lg:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-300 to-cyan-400">
-              Semua Identitas Digitalmu.
-            </span>
-          </h1>
-          
-          <p className="text-lg lg:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Buat landing page pribadi ala Carrd secara visual. Drag-and-drop foto, susun tautan, dan sesuaikan background dalam hitungan detik. 
-          </p>
+          {/* Left Column: Text */}
+          <div className="flex flex-col items-start text-left order-2 lg:order-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-semibold uppercase tracking-wider mb-6">
+              <Sparkles size={14} /> <span>Pembuat Link-in-Bio Generasi Baru</span>
+            </div>
+            
+            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+              Satu Tautan untuk <br className="hidden lg:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-300 to-cyan-400">
+                Semua Identitas Digitalmu.
+              </span>
+            </h1>
+            
+            <p className="text-lg lg:text-xl text-zinc-400 mb-8 max-w-xl leading-relaxed">
+              Buat landing page pribadi ala Carrd secara visual. Drag-and-drop foto, susun tautan, dan sesuaikan background dalam hitungan detik. 
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {isLoggedIn ? (
-              <Link 
-                href="/dashboard"
-                className="group flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-8 py-3.5 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1"
-              >
-                Lanjut ke Dashboard
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            ) : (
-              <Link 
-                href="/login"
-                className="group flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-8 py-3.5 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1"
-              >
-                Mulai Buat Halaman Gratis
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            )}
-            {!isLoggedIn && (
-              <Link 
-                href="/login"
-                className="flex items-center gap-2 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-semibold px-8 py-3.5 rounded-full transition-colors backdrop-blur-sm"
-              >
-                Lihat Demo
-              </Link>
-            )}
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+              {isLoggedIn ? (
+                <Link 
+                  href="/dashboard"
+                  className="group flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-8 py-3.5 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1 w-full sm:w-auto"
+                >
+                  Lanjut ke Dashboard
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              ) : (
+                <Link 
+                  href="/login"
+                  className="group flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-8 py-3.5 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1 w-full sm:w-auto"
+                >
+                  Mulai Buat Halaman
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
+              {!isLoggedIn && (
+                <Link 
+                  href="/login"
+                  className="flex items-center justify-center gap-2 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-semibold px-8 py-3.5 rounded-full transition-colors backdrop-blur-sm w-full sm:w-auto"
+                >
+                  Lihat Demo
+                </Link>
+              )}
+            </div>
           </div>
+
+          {/* Right Column: Image/Graphic */}
+          <div className="relative w-full aspect-[4/3] lg:aspect-auto lg:h-[500px] flex items-center justify-center order-1 lg:order-2">
+             <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/30 to-indigo-500/30 rounded-3xl transform rotate-3 scale-105 blur-lg"></div>
+             <img 
+               src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop" 
+               alt="Digital Landscape Graphic" 
+               className="relative z-10 w-full h-full object-cover rounded-3xl border border-white/10 shadow-2xl"
+             />
+             
+             {/* Floating Elements */}
+             <div className="absolute -top-6 -right-6 bg-zinc-900 p-4 rounded-2xl border border-zinc-700 shadow-xl z-20 animate-bounce" style={{ animationDuration: '3s' }}>
+                <Sparkles className="text-yellow-400" size={32} />
+             </div>
+             <div className="absolute -bottom-8 -left-8 bg-zinc-900 p-4 rounded-2xl border border-zinc-700 shadow-xl z-20 animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}>
+                <Layout className="text-teal-400" size={32} />
+             </div>
+          </div>
+
         </div>
       </section>
 
