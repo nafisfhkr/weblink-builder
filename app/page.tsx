@@ -39,28 +39,28 @@ export default async function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen pt-28 lg:pt-20 pb-12 flex flex-col justify-center overflow-hidden px-6">
+      <section className="relative h-[100dvh] min-h-[650px] pt-24 lg:pt-16 pb-8 flex flex-col justify-center overflow-hidden px-6">
         
         {/* Abstract Background Elements */}
         <div className="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-teal-900/20 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-indigo-900/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-12 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-8 items-center w-full">
           
           {/* Left Column: Text */}
           <div className="flex flex-col items-start text-left order-2 lg:order-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-semibold uppercase tracking-wider mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-300 text-xs font-semibold uppercase tracking-wider mb-5">
               <Sparkles size={14} /> <span>Pembuat Link-in-Bio Generasi Baru</span>
             </div>
             
-            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight mb-5 leading-[1.15]">
               Satu Tautan untuk <br className="hidden lg:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-300 to-cyan-400">
                 Semua Identitas Digitalmu.
               </span>
             </h1>
             
-            <p className="text-lg lg:text-xl text-zinc-400 mb-8 max-w-xl leading-relaxed">
+            <p className="text-base lg:text-lg text-zinc-400 mb-8 max-w-xl leading-relaxed">
               Buat landing page pribadi ala Carrd secara visual. Drag-and-drop foto, susun tautan, dan sesuaikan background dalam hitungan detik. 
             </p>
 
@@ -68,7 +68,7 @@ export default async function LandingPage() {
               {isLoggedIn ? (
                 <Link 
                   href="/dashboard"
-                  className="group flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-8 py-3.5 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1 w-full sm:w-auto"
+                  className="group flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-7 py-3 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1 w-full sm:w-auto text-sm lg:text-base"
                 >
                   Lanjut ke Dashboard
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -76,7 +76,7 @@ export default async function LandingPage() {
               ) : (
                 <Link 
                   href="/login"
-                  className="group flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-8 py-3.5 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1 w-full sm:w-auto"
+                  className="group flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-teal-950 font-bold px-7 py-3 rounded-full transition-all hover:shadow-[0_0_40px_8px_rgba(20,184,166,0.3)] hover:-translate-y-1 w-full sm:w-auto text-sm lg:text-base"
                 >
                   Mulai Buat Halaman
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -85,7 +85,7 @@ export default async function LandingPage() {
               {!isLoggedIn && (
                 <Link 
                   href="/login"
-                  className="flex items-center justify-center gap-2 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-semibold px-8 py-3.5 rounded-full transition-colors backdrop-blur-sm w-full sm:w-auto"
+                  className="flex items-center justify-center gap-2 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-semibold px-7 py-3 rounded-full transition-colors backdrop-blur-sm w-full sm:w-auto text-sm lg:text-base"
                 >
                   Lihat Demo
                 </Link>
@@ -94,7 +94,7 @@ export default async function LandingPage() {
           </div>
 
           {/* Right Column: Image/Graphic */}
-          <div className="relative w-full aspect-[4/3] lg:aspect-auto lg:h-[500px] flex items-center justify-center order-1 lg:order-2">
+          <div className="relative w-full max-w-[400px] lg:max-w-none mx-auto aspect-[4/3] lg:aspect-auto lg:h-[400px] flex items-center justify-center order-1 lg:order-2">
              <div className="absolute inset-0 bg-gradient-to-tr from-teal-500/30 to-indigo-500/30 rounded-3xl transform rotate-3 scale-105 blur-lg"></div>
              
              {/* Custom Illustration Container */}
