@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
         title: "My Linktree",
         userId: session.user.id,
         blocksData: [],
+        pageSettings: {},
       },
     });
     return NextResponse.json(newProject);
