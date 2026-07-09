@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "next dev -p 8002",
     "start": "next start -p 8002",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:print": "npx eslint --print-config eslint.config.mjs > eslint-show-config.json",
@@ -20,7 +20,8 @@
     "tsc:watch": "tsc --noEmit --watch",
     "tsc:print": "tsc --showConfig",
     "tsc:check": "tsc --noEmit --pretty",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "prisma generate"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
