@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "auth";
 import { prisma } from "src/lib/prisma";
 import { z } from "zod";
@@ -107,7 +107,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ success: true, project });
     }
 
-    // Path 2: Save pageSettings (background config)
+    // Path 2: Save pageSettings (background + card + layout + profile config)
     if (body.pageSettings !== undefined) {
       const pageSettingsSchema = z.object({
         type: z.enum(["color", "gradient", "image"]),
@@ -115,6 +115,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         gradient: z.string().optional(),
         imageUrl: z.string().optional(),
         storageKey: z.string().optional(),
+        // Card styles
+        cardBgColor: z.string().optional(),
+        cardBgOpacity: z.number().min(0).max(100).optional(),
+        cardTextColor: z.string().optional(),
+        cardBorderColor: z.string().optional(),
+        cardBorderOpacity: z.number().min(0).max(100).optional(),
+        cardBlur: z.number().min(0).max(20).optional(),
+        cardShowHeadingCard: z.boolean().optional(),
+        // Overlay
+        imageOverlayOpacity: z.number().min(0).max(100).optional(),
+        backgroundOverlayOpacity: z.number().min(0).max(100).optional(),
+        // Profile
+        profileImageUrl: z.string().optional(),
+        profileTitle: z.string().max(60).optional(),
+        profileBio: z.string().max(150).optional(),
+        showProfile: z.boolean().optional(),
+        // Layout
+        blockSpacing: z.number().min(0).max(40).optional(),
+        fontFamily: z.string().optional(),
       });
       const parsedSettings = pageSettingsSchema.parse(body.pageSettings);
       const project = await prisma.project.update({

@@ -168,10 +168,10 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="min-h-screen flex flex-col items-center py-20 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
-      {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 55) > 0) && (
+      {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
         <div 
           className="absolute inset-0 pointer-events-none z-0" 
-          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 55) / 100})` }}
+          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
         />
       )}
       <div className="w-full max-w-[680px] flex flex-col items-center relative z-10">
