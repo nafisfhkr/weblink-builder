@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id       String    @id @default(cuid())
+  name     String?
+  email    String?   @unique
+  image    String?
+  projects Project[]
+}
+
+model Project {
+  id                  String    @id @default(cuid())
+  slug                String    @unique
+  title               String    @default("My Linktree")
+  userId              String
+  blocksData          Json
+  publishedBlocksData Json?
+  pageSettings        Json
+  isPublished         Boolean   @default(false)
+  publishedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Project_userId_fkey")
+}
