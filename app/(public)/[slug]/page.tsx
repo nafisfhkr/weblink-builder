@@ -114,6 +114,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     cardBorderOpacity?: number;
     cardBlur?: number;
     cardShowHeadingCard?: boolean;
+    imageOverlayOpacity?: number;
   } = {};
   try {
     if (project.pageSettings) {
@@ -159,8 +160,14 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
   blocks.sort((a, b) => a.order - b.order);
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-20 px-6 font-sans text-white" style={bgStyle}>
-      <div className="w-full max-w-[680px] flex flex-col items-center">
+    <div className="min-h-screen flex flex-col items-center py-20 px-6 font-sans text-white relative" style={bgStyle}>
+      {pageSettings.type === "image" && pageSettings.imageUrl && (
+        <div 
+          className="absolute inset-0 pointer-events-none z-0" 
+          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.imageOverlayOpacity ?? 55) / 100})` }}
+        />
+      )}
+      <div className="w-full max-w-[680px] flex flex-col items-center relative z-10">
         {/* Profile / Header Section */}
         {project.user?.image ? (
           <Image 
@@ -199,7 +206,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                 return groupedBlocks.map((group) => {
                   if (group.type === "linkGroup") {
                     return (
-                      <div key={group.id} style={cardStyle} className="w-full flex flex-col gap-3 p-6 rounded-[32px] mb-4 shadow-md border transition-all">
+                      <div key={group.id} style={cardStyle} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] mb-4 shadow-md border transition-all">
                         {group.items.map((block: any) => {
                           const iconType = block.content?.icon || "default";
                           let IconComponent: any = Globe;

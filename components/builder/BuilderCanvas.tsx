@@ -402,7 +402,10 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       >
         {/* Dark overlay for image backgrounds */}
         {pageSettings.type === "image" && pageSettings.imageUrl && (
-          <div className="absolute inset-0 bg-black/55 pointer-events-none" />
+          <div 
+            className="absolute inset-0 pointer-events-none" 
+            style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.imageOverlayOpacity ?? 55) / 100})` }}
+          />
         )}
         {/* Canvas OS Drop Overlay */}
         {canvasDragOver && (
@@ -460,7 +463,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                 return groupedBlocks.map((group) => {
                   if (group.type === "linkGroup") {
                     return (
-                      <div key={group.id} style={cardStyle} className="w-full flex flex-col gap-3 p-6 rounded-[32px] my-4 shadow-md border transition-all">
+                      <div key={group.id} style={cardStyle} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] my-4 shadow-md border transition-all">
                         {group.items.map((block: any) => (
                           <CanvasBlock
                             key={block.id}

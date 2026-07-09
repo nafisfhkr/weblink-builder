@@ -19,6 +19,7 @@ export interface PageSettings {
   cardBorderOpacity?: number;
   cardBlur?: number;
   cardShowHeadingCard?: boolean;
+  imageOverlayOpacity?: number;
 }
 
 interface BackgroundPickerProps {
@@ -219,10 +220,28 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
             </button>
           )}
 
+          {/* Image Overlay Opacity */}
+          {settings.imageUrl && (
+            <div className="flex flex-col gap-1 mt-2">
+              <div className="flex justify-between items-center text-[11px] text-zinc-400">
+                <span>Transparansi Overlay Gelap</span>
+                <span className="font-mono">{settings.imageOverlayOpacity ?? 55}%</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={settings.imageOverlayOpacity ?? 55}
+                onChange={(e) => onChange({ ...settings, imageOverlayOpacity: parseInt(e.target.value) })}
+                className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+              />
+            </div>
+          )}
+
           {/* Overlay opacity hint */}
           {settings.imageUrl && (
             <p className="text-[10px] text-zinc-600">
-              Foto background otomatis diberikan overlay gelap agar teks tetap terbaca.
+              Atur transparansi overlay gelap agar teks tetap terbaca dengan jelas.
             </p>
           )}
         </div>
@@ -242,7 +261,10 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           }
         >
           {settings.type === "image" && settings.imageUrl && (
-            <div className="absolute inset-0 bg-black/50" />
+            <div 
+              className="absolute inset-0" 
+              style={{ backgroundColor: `rgba(0, 0, 0, ${(settings.imageOverlayOpacity ?? 55) / 100})` }}
+            />
           )}
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-[10px] text-white/60 font-mono tracking-wider">PREVIEW</span>
