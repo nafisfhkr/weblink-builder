@@ -281,13 +281,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center text-[11px] text-zinc-400">
             <span>Transparansi Kartu</span>
-            <span className="font-mono">{settings.cardBgOpacity ?? 100}%</span>
+            <span className="font-mono">{settings.cardBgOpacity ?? 10}%</span>
           </div>
           <input
             type="range"
             min="0"
             max="100"
-            value={settings.cardBgOpacity ?? 100}
+            value={settings.cardBgOpacity ?? 10}
             onChange={(e) => onChange({ ...settings, cardBgOpacity: parseInt(e.target.value) })}
             className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
           />
@@ -299,13 +299,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
             <input
               type="color"
-              value={settings.cardTextColor || "#000000"}
+              value={settings.cardTextColor || "#ffffff"}
               onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
               className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
             />
             <input
               type="text"
-              value={settings.cardTextColor || "#000000"}
+              value={settings.cardTextColor || "#ffffff"}
               onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
               className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
               maxLength={7}
@@ -319,13 +319,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
             <input
               type="color"
-              value={settings.cardBorderColor || "#e5e5e5"}
+              value={settings.cardBorderColor || "#ffffff"}
               onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
               className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
             />
             <input
               type="text"
-              value={settings.cardBorderColor || "#e5e5e5"}
+              value={settings.cardBorderColor || "#ffffff"}
               onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
               className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
               maxLength={7}
@@ -337,13 +337,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center text-[11px] text-zinc-400">
             <span>Transparansi Border</span>
-            <span className="font-mono">{settings.cardBorderOpacity ?? 100}%</span>
+            <span className="font-mono">{settings.cardBorderOpacity ?? 20}%</span>
           </div>
           <input
             type="range"
             min="0"
             max="100"
-            value={settings.cardBorderOpacity ?? 100}
+            value={settings.cardBorderOpacity ?? 20}
             onChange={(e) => onChange({ ...settings, cardBorderOpacity: parseInt(e.target.value) })}
             className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
           />
@@ -353,13 +353,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center text-[11px] text-zinc-400">
             <span>Backdrop Blur (Glassmorphism)</span>
-            <span className="font-mono">{settings.cardBlur ?? 0}px</span>
+            <span className="font-mono">{settings.cardBlur ?? 10}px</span>
           </div>
           <input
             type="range"
             min="0"
             max="20"
-            value={settings.cardBlur ?? 0}
+            value={settings.cardBlur ?? 10}
             onChange={(e) => onChange({ ...settings, cardBlur: parseInt(e.target.value) })}
             className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
           />

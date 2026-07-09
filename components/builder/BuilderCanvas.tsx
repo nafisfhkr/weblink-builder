@@ -317,10 +317,10 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  const cardBg = hexToRgba(pageSettings.cardBgColor || "#ffffff", pageSettings.cardBgOpacity ?? 100);
-  const cardBorder = hexToRgba(pageSettings.cardBorderColor || "#e5e5e5", pageSettings.cardBorderOpacity ?? 100);
-  const cardText = pageSettings.cardTextColor || "#000000";
-  const cardBlur = pageSettings.cardBlur ? `${pageSettings.cardBlur}px` : "0px";
+  const cardBg = hexToRgba(pageSettings.cardBgColor || "#ffffff", pageSettings.cardBgOpacity ?? 10);
+  const cardBorder = hexToRgba(pageSettings.cardBorderColor || "#ffffff", pageSettings.cardBorderOpacity ?? 20);
+  const cardText = pageSettings.cardTextColor || "#ffffff";
+  const cardBlur = pageSettings.cardBlur !== undefined ? `${pageSettings.cardBlur}px` : "10px";
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: cardBg,
