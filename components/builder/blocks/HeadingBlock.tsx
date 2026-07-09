@@ -16,10 +16,10 @@ export default function HeadingBlock({ content, textColor, textSize }: HeadingBl
   };
   
   return (
-    <div className="w-full text-center py-4">
+    <div className="w-full text-center">
       <h1 
         style={customColorStyle}
-        className="text-3xl font-extrabold text-white tracking-tight mb-2 leading-tight"
+        className="text-3xl font-extrabold text-white tracking-tight leading-tight"
       >
         {content?.title || <span className="text-zinc-600 italic font-normal text-lg">Ketuk untuk mengisi judul...</span>}
       </h1>

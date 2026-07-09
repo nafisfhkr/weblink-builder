@@ -261,8 +261,8 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                         );
                       }
                       return (
-                        <div key={block.id} className="w-full text-center my-4">
-                          <h1 style={customColorStyle} className="text-3xl font-extrabold tracking-tight mb-2">
+                        <div key={block.id} className="w-full text-center">
+                          <h1 style={customColorStyle} className="text-3xl font-extrabold tracking-tight">
                             {block.content?.title || ""}
                           </h1>
                           {block.content?.bio && (
@@ -288,7 +288,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                         );
                       }
                       return (
-                        <div key={block.id} className="w-full text-center my-2">
+                        <div key={block.id} className="w-full text-center">
                           <p style={customTextStyle} className="max-w-md mx-auto whitespace-pre-wrap leading-relaxed">
                             {block.content?.text || ""}
                           </p>
