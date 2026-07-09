@@ -179,12 +179,14 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         {pageSettings.showProfile !== false && (
           <div className="w-full flex flex-col items-center relative z-10 mb-6">
             {pageSettings.profileImageUrl || project.user?.image ? (
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
                 src={pageSettings.profileImageUrl || project.user?.image || ""} 
                 alt={pageSettings.profileTitle || project.user?.name || "Profile"} 
                 className="rounded-full mb-4 border shadow-xl object-cover h-24 w-24"
               />
+              </>
             ) : (
               <div className="w-24 h-24 rounded-full bg-zinc-200 mb-4 border shadow-xl" />
             )}
