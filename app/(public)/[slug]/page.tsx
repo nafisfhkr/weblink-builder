@@ -4,6 +4,8 @@ import Image from "next/image";
 import { InstagramIcon, YoutubeIcon, FacebookIcon, XIcon, TiktokIcon, WhatsappIcon } from "@/components/ui/SocialIcons";
 import { Globe } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 interface BlockItem {
   id: string;
   type: "heading" | "link" | "image" | "divider" | "social";
