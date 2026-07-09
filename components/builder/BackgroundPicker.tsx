@@ -263,13 +263,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
             <input
               type="color"
-              value={settings.cardBgColor || "#121212"}
+              value={settings.cardBgColor || "#ffffff"}
               onChange={(e) => onChange({ ...settings, cardBgColor: e.target.value })}
               className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
             />
             <input
               type="text"
-              value={settings.cardBgColor || "#121212"}
+              value={settings.cardBgColor || "#ffffff"}
               onChange={(e) => onChange({ ...settings, cardBgColor: e.target.value })}
               className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
               maxLength={7}
@@ -299,13 +299,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
             <input
               type="color"
-              value={settings.cardTextColor || "#ffffff"}
+              value={settings.cardTextColor || "#000000"}
               onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
               className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
             />
             <input
               type="text"
-              value={settings.cardTextColor || "#ffffff"}
+              value={settings.cardTextColor || "#000000"}
               onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
               className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
               maxLength={7}
@@ -319,13 +319,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
             <input
               type="color"
-              value={settings.cardBorderColor || "#2a2a2a"}
+              value={settings.cardBorderColor || "#e5e5e5"}
               onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
               className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
             />
             <input
               type="text"
-              value={settings.cardBorderColor || "#2a2a2a"}
+              value={settings.cardBorderColor || "#e5e5e5"}
               onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
               className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
               maxLength={7}

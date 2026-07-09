@@ -142,9 +142,9 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  const cardBg = hexToRgba(pageSettings.cardBgColor || "#121212", pageSettings.cardBgOpacity ?? 100);
-  const cardBorder = hexToRgba(pageSettings.cardBorderColor || "#2a2a2a", pageSettings.cardBorderOpacity ?? 100);
-  const cardText = pageSettings.cardTextColor || "#ffffff";
+  const cardBg = hexToRgba(pageSettings.cardBgColor || "#ffffff", pageSettings.cardBgOpacity ?? 100);
+  const cardBorder = hexToRgba(pageSettings.cardBorderColor || "#e5e5e5", pageSettings.cardBorderOpacity ?? 100);
+  const cardText = pageSettings.cardTextColor || "#000000";
   const cardBlur = pageSettings.cardBlur ? `${pageSettings.cardBlur}px` : "0px";
 
   const cardStyle: React.CSSProperties = {
