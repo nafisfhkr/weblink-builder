@@ -22,9 +22,10 @@ import { HERO, asset, CONTACT } from './home-data';
 
 type HomeHeroProps = {
   waLink?: string | null;
+  isAuthenticated?: boolean;
 };
 
-export function HomeHero({ waLink }: HomeHeroProps) {
+export function HomeHero({ waLink, isAuthenticated }: HomeHeroProps) {
   return (
     <Box
       component="section"
@@ -76,10 +77,10 @@ export function HomeHero({ waLink }: HomeHeroProps) {
                 size="large"
                 color="primary"
                 variant="contained"
-                href="/dashboard"
+                href={isAuthenticated ? "/dashboard" : "/login"}
                 endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
               >
-                {HERO.cta}
+                {isAuthenticated ? HERO.cta : "Login"}
               </Button>
             </Box>
 
