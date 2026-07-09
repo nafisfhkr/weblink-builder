@@ -1,24 +1,15 @@
-﻿import { PrismaClient } from "@prisma/client"
-import { PrismaMariaDb } from "@prisma/adapter-mariadb"
+import { PrismaClient } from "@prisma/client"
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
-let prisma: PrismaClient
-
 const connectionString = process.env.DATABASE_URL
+const pool = new Pool({ connectionString })
+const adapter = new PrismaPg(pool)
 
-if (!connectionString) {
-  throw new Error("DATABASE_URL environment variable is not defined")
-}
-
-try {
-  const adapter = new PrismaMariaDb(connectionString)
-  prisma = globalForPrisma.prisma || new PrismaClient({ adapter })
-} catch (error) {
-  console.error("Failed to initialize Prisma Client:", error)
-  throw error
-}
+export const prisma =
+  globalForPrisma.prisma || new PrismaClient({ adapter })
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
-export { prisma }

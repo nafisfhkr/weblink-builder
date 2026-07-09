@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import type { FaqGroup } from 'src/lib/api';
 
@@ -10,7 +10,6 @@ import { HomeClients } from '../home-clients';
 import { HomeProblem } from '../home-problem';
 import { HomeSolution } from '../home-solution';
 import { HomeResource } from '../home-resource';
-import { HomeTechStack } from '../home-tech-stack';
 import { HomeManagement } from '../home-management';
 import { HomeFloatingCta } from '../home-floating-cta';
 import { HomeSpecialOffer } from '../home-special-offer';
@@ -36,7 +35,6 @@ export function HomeView({ faqGroups, waLink }: HomeViewProps) {
       <HomeManagement />
       <HomeResource />
       <HomeSpecialOffer waLink={waLink} />
-      <HomeTechStack />
       <HomeFaqs groups={faqGroups} />
       <HomeCta waLink={waLink} />
       <HomeFloatingCta waLink={waLink} />

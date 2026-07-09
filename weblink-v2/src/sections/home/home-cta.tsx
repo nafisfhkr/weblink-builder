@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { m } from 'framer-motion';
 
@@ -33,21 +33,12 @@ export function HomeCta({ waLink }: HomeCtaProps) {
           sx={{
             gap: { xs: 3, md: 6 },
             display: 'flex',
-            alignItems: 'flex-end',
-            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: 'center',
+            flexDirection: 'column',
+            textAlign: 'center',
           }}
         >
-          <Box
-            component={m.img}
-            loading="lazy"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            alt={CLOSING_CTA.title}
-            src={CLOSING_CTA.image}
-            sx={{ width: { xs: 220, md: 320 }, height: 'auto', flexShrink: 0 }}
-          />
+
 
           <MotionViewport sx={{ flex: 1, py: { xs: 0, md: 8 }, pb: { xs: 6, md: 8 } }}>
             <Typography
@@ -62,7 +53,7 @@ export function HomeCta({ waLink }: HomeCtaProps) {
             <Typography
               component={m.p}
               variants={varFade('inUp')}
-              sx={{ mb: 4, maxWidth: 520, opacity: 0.9 }}
+              sx={{ mb: 4, maxWidth: 640, mx: 'auto', opacity: 0.9 }}
             >
               {CLOSING_CTA.description}{' '}
               <Box component="span" sx={{ fontWeight: 'fontWeightBold' }}>

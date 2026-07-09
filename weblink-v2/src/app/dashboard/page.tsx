@@ -1,4 +1,4 @@
-﻿import { auth } from "auth";
+import { auth } from "auth";
 import { prisma } from "src/lib/prisma";
 import BlankPageCard from "src/components/dashboard/BlankPageCard";
 import Link from "next/link";
@@ -34,10 +34,10 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
-      <header className="mb-8 sm:mb-10">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 text-white tracking-tight">My Projects</h1>
-        <p className="text-gray-400 text-sm sm:text-[15px]">Manage your digital identity and biolink pages.</p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-8 pb-12 sm:pt-12 sm:pb-16">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 text-zinc-900 tracking-tight">Proyek Saya</h1>
+        <p className="text-gray-500 text-sm sm:text-[15px]">Kelola identitas digital dan halaman biolink Anda.</p>
       </header>
 
       {dbError && (
@@ -77,13 +77,13 @@ export default async function DashboardPage() {
           return (
             <div
               key={project.id}
-              className="flex flex-col overflow-hidden bg-[#121212] border border-[#2a2a2a] rounded-xl hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] transition-all group relative"
+              className="flex flex-col w-full overflow-hidden bg-[#121212] border border-[#2a2a2a] rounded-xl hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] transition-all group relative"
             >
               <Link href={`/editor/${project.id}`} className="block h-full absolute inset-0 z-0"></Link>
 
               {/* Thumbnail Preview Area */}
               <div
-                className="relative h-48 sm:h-64 w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-4 pointer-events-none"
+                className="relative aspect-video w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 pointer-events-none"
                 style={bgStyle}
               >
                 <div className="bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -94,9 +94,9 @@ export default async function DashboardPage() {
               </div>
 
               {/* Card Info Area */}
-              <div className="p-5 bg-[#141414] relative z-10 flex-1 flex flex-col">
-                <div className="flex items-center justify-between mb-1.5 gap-2 pointer-events-none">
-                  <h2 className="text-[17px] font-semibold truncate text-white flex-1">{project.title}</h2>
+              <div className="p-4 bg-[#141414] relative z-10 flex-1 flex flex-col w-full">
+                <div className="flex items-center justify-between mb-2 gap-2 w-full pointer-events-none">
+                  <h2 className="text-[15px] sm:text-[17px] font-semibold truncate text-white flex-1 min-w-0">{project.title}</h2>
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border shrink-0 ${project.isPublished
                     ? "bg-emerald-950/60 text-emerald-400 border-emerald-800"
                     : "bg-zinc-900 text-zinc-400 border-zinc-800"
@@ -104,8 +104,8 @@ export default async function DashboardPage() {
                     {project.isPublished ? "Published" : "Draft"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-zinc-900">
-                  <p className="text-xs text-gray-500 truncate flex-1">
+                <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-zinc-900 w-full">
+                  <p className="text-xs text-gray-500 truncate flex-1 min-w-0">
                     {host}/{project.slug}
                   </p>
                   <div className="flex items-center gap-1.5 shrink-0">

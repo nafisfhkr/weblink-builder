@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { m } from 'framer-motion';
 
@@ -20,11 +20,15 @@ export function HomeSolution() {
         <Card sx={{ overflow: 'hidden', boxShadow: (theme) => theme.customShadows.z16 }}>
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
             <Box sx={{ flex: 1, p: { xs: 4, md: 6 } }}>
-              <Typography variant="h3" sx={{ mb: { xs: 3, md: 5 } }}>
+              <Typography variant="h3" sx={{ mb: { xs: 3, md: 5 }, textAlign: 'center' }}>
                 {SOLUTION.caption}
               </Typography>
 
-              <MotionViewport sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <MotionViewport sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' }, 
+                gap: 4 
+              }}>
                 {SOLUTION.items.map((item) => (
                   <Box
                     component={m.div}
@@ -52,15 +56,6 @@ export function HomeSolution() {
               </MotionViewport>
             </Box>
 
-            <Box sx={{ flex: 1, position: 'relative', minHeight: { xs: 320, md: 'auto' } }}>
-              <Box
-                component="img"
-                loading="lazy"
-                alt={SOLUTION.caption}
-                src={SOLUTION.image}
-                sx={{ inset: 0, width: 1, height: 1, position: 'absolute', objectFit: 'cover' }}
-              />
-            </Box>
           </Box>
         </Card>
       </Container>

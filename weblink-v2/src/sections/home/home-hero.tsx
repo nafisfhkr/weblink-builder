@@ -1,6 +1,7 @@
-﻿'use client';
+'use client';
 
 import { Fragment } from 'react';
+import { m } from 'framer-motion';
 import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
@@ -30,7 +31,7 @@ export function HomeHero({ waLink }: HomeHeroProps) {
       sx={(theme) => ({
         overflow: 'hidden',
         position: 'relative',
-        py: { xs: 8, md: 14 },
+        py: { xs: 6, md: 8 },
         background: `linear-gradient(180deg, ${varAlpha(theme.vars.palette.primary.lighterChannel, 0.4)}, ${varAlpha(theme.vars.palette.primary.lighterChannel, 0)})`,
       })}
     >
@@ -81,32 +82,154 @@ export function HomeHero({ waLink }: HomeHeroProps) {
                 {HERO.cta}
               </Button>
             </Box>
+
+
           </Box>
 
           <Box sx={{ flex: 1, width: 1 }}>
-            <Box sx={{ width: 1, position: 'relative' }}>
+            <Box
+              sx={{
+                width: 1,
+                aspectRatio: { xs: '1/1', md: '4/3' },
+                bgcolor: '#121212',
+                borderRadius: 4,
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: (theme) => theme.customShadows.z24,
+                border: '1px solid',
+                borderColor: 'rgba(255,255,255,0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)',
+                backgroundSize: '40px 40px',
+              }}
+            >
+              {/* Glowing Gradient Background */}
               <Box
-                aria-hidden
                 sx={{
-                  inset: 0,
-                  borderRadius: 3,
                   position: 'absolute',
-                  bgcolor: 'primary.lighter',
-                  transform: 'translate(16px, 16px)',
+                  width: { xs: 200, md: 300 },
+                  height: { xs: 200, md: 300 },
+                  bgcolor: 'rgba(0, 184, 217, 0.15)',
+                  filter: 'blur(80px)',
+                  borderRadius: '50%',
+                  zIndex: 0,
                 }}
               />
-              <Image
-                alt={HERO.title}
-                src={asset('hero-team.webp')}
-                ratio="16/9"
-                visibleByDefault
-                slotProps={{ img: { fetchPriority: 'high' } }}
+
+              {/* Central Circle */}
+              <Box
+                component={m.div}
+                animate={{ y: [-8, 8, -8] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 sx={{
-                  position: 'relative',
-                  borderRadius: 3,
-                  boxShadow: (theme) => theme.customShadows.z16,
+                  width: { xs: 120, md: 180 },
+                  height: { xs: 120, md: 180 },
+                  borderRadius: '50%',
+                  bgcolor: '#00B8D9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0px 20px 40px rgba(0, 184, 217, 0.3)',
+                  zIndex: 2,
                 }}
-              />
+              >
+                <Iconify icon={"solar:megaphone-bold" as any} width={80} sx={{ color: 'common.white', display: { xs: 'none', md: 'block' } }} />
+                <Iconify icon={"solar:megaphone-bold" as any} width={56} sx={{ color: 'common.white', display: { xs: 'block', md: 'none' } }} />
+              </Box>
+
+              {/* Floating Icon 1 (Link) */}
+              <Box
+                component={m.div}
+                animate={{ y: [-10, 10, -10] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                sx={{
+                  position: 'absolute',
+                  top: '20%',
+                  left: '15%',
+                  width: { xs: 40, md: 56 },
+                  height: { xs: 40, md: 56 },
+                  borderRadius: 2,
+                  bgcolor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(4px)',
+                }}
+              >
+                <Iconify icon={"solar:link-bold" as any} width={24} sx={{ color: '#00B8D9' }} />
+              </Box>
+
+              {/* Floating Icon 2 (Image) */}
+              <Box
+                component={m.div}
+                animate={{ y: [10, -10, 10] }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                sx={{
+                  position: 'absolute',
+                  bottom: '25%',
+                  right: '15%',
+                  width: { xs: 48, md: 64 },
+                  height: { xs: 48, md: 64 },
+                  borderRadius: 2,
+                  bgcolor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(4px)',
+                }}
+              >
+                <Iconify icon={"solar:gallery-bold" as any} width={28} sx={{ color: '#FF5630' }} />
+              </Box>
+
+              {/* Floating Icon 3 (Heart) */}
+              <Box
+                component={m.div}
+                animate={{ y: [-12, 12, -12] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                sx={{
+                  position: 'absolute',
+                  top: '25%',
+                  right: '25%',
+                  width: { xs: 36, md: 48 },
+                  height: { xs: 36, md: 48 },
+                  borderRadius: '50%',
+                  bgcolor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(4px)',
+                }}
+              >
+                <Iconify icon="solar:heart-bold" width={20} sx={{ color: '#B76E00' }} />
+              </Box>
+
+              {/* Floating Icon 4 (Sparkle) */}
+              <Box
+                component={m.div}
+                animate={{ y: [8, -8, 8] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+                sx={{
+                  position: 'absolute',
+                  bottom: '20%',
+                  left: '25%',
+                  width: { xs: 36, md: 48 },
+                  height: { xs: 36, md: 48 },
+                  borderRadius: '50%',
+                  bgcolor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backdropFilter: 'blur(4px)',
+                }}
+              >
+                <Iconify icon={"solar:stars-bold" as any} width={20} sx={{ color: '#FFAB00' }} />
+              </Box>
             </Box>
 
             <Box

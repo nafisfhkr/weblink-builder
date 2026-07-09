@@ -110,7 +110,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       if (typeof initialData.pageSettings === "string") return JSON.parse(initialData.pageSettings);
       if (typeof initialData.pageSettings === "object" && initialData.pageSettings !== null) return initialData.pageSettings;
     } catch {}
-    return { type: "color", color: "#0a0a0a" };
+    return { type: "color", color: "#ffffff" };
   });
 
   const selectedBlock = blocks.find((b) => b.id === selectedBlockId) || null;
@@ -121,7 +121,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       ? { backgroundImage: `url(${pageSettings.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }
       : pageSettings.type === "gradient" && pageSettings.gradient
       ? { background: pageSettings.gradient }
-      : { backgroundColor: pageSettings.color || "#0a0a0a" };
+      : { backgroundColor: pageSettings.color || "#ffffff" };
 
   // --- DnD Sensors ---
   const sensors = useSensors(
@@ -335,14 +335,14 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
   const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-2xl";
 
   if (!mounted) {
-    return <div className="min-h-screen bg-zinc-950" />;
+    return <div className="min-h-screen bg-zinc-50" />;
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-zinc-50">
       {/* Floating Toolbar */}
       <FloatingToolbar
-        onAddBlock={() => setShowBlockPicker((v) => !v)}
+        onAddBlock={() => { setShowBlockPicker((v) => !v); setSelectedBlockId(null); setShowPageSettings(false); }}
         onUndo={handleUndo}
         onRedo={handleRedo}
         canUndo={undoStack.length > 0}
@@ -381,16 +381,12 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         />
       )}
 
-      {/* Block Picker Overlay */}
+      {/* Block Picker Sidebar */}
       {showBlockPicker && !isPreviewMode && (
-        <div
-          className="fixed inset-0 z-[45] flex items-start justify-center pt-20"
-          onClick={() => setShowBlockPicker(false)}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <BlockPicker onSelectBlock={handleAddBlock} />
-          </div>
-        </div>
+        <BlockPicker 
+          onSelectBlock={handleAddBlock} 
+          onClose={() => setShowBlockPicker(false)} 
+        />
       )}
 
       {/* Canvas Area */}
@@ -400,13 +396,13 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onDrop={handleCanvasDrop}
         onClick={() => { setSelectedBlockId(null); setShowBlockPicker(false); setShowPageSettings(false); }}
         className={`relative ${canvasWidth} mx-auto py-12 px-6 font-sans min-h-screen transition-all duration-300`}
-        style={bgStyle}
+        style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
-        {/* Dark overlay for image backgrounds */}
-        {pageSettings.type === "image" && pageSettings.imageUrl && (
+        {/* Dark overlay for backgrounds */}
+        {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
           <div 
-            className="absolute inset-0 pointer-events-none" 
-            style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.imageOverlayOpacity ?? 55) / 100})` }}
+            className="absolute inset-0 pointer-events-none z-0" 
+            style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
           />
         )}
         {/* Canvas OS Drop Overlay */}
@@ -440,29 +436,37 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         )}
 
         {/* Profile / Header Section in Canvas */}
-        <div className="w-full flex flex-col items-center relative z-10 mb-6">
-          {pageSettings.profileImageUrl || initialData.user?.image ? (
-            <img 
-              src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
-              alt={pageSettings.profileTitle || initialData.user?.name || "Profile"} 
-              className="w-24 h-24 rounded-full mb-4 border border-zinc-800 shadow-2xl object-cover"
-            />
-          ) : (
-            <div className="w-24 h-24 rounded-full bg-zinc-900 mb-4 border border-zinc-800 shadow-2xl" />
-          )}
+        {pageSettings.showProfile !== false && (
+          <div className="w-full flex flex-col items-center relative z-10" style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}>
+            {pageSettings.profileImageUrl || initialData.user?.image ? (
+              <img 
+                src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
+                alt={pageSettings.profileTitle || initialData.user?.name || "Profile"} 
+                className="w-24 h-24 rounded-full border shadow-xl object-cover"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-zinc-200 border shadow-xl" />
+            )}
 
-          {pageSettings.profileTitle && (
-            <h1 className="text-xl font-bold mb-1">{pageSettings.profileTitle}</h1>
-          )}
-          {pageSettings.profileBio && (
-            <p className="text-sm text-zinc-300 text-center max-w-md">{pageSettings.profileBio}</p>
-          )}
-        </div>
+            <div className="flex flex-col items-center" style={{ gap: `${(pageSettings.blockSpacing ?? 16) / 2}px` }}>
+              {(pageSettings.profileTitle || initialData.user?.name) && (
+                <h1 className="text-xl font-bold">{pageSettings.profileTitle || initialData.user?.name}</h1>
+              )}
+              {pageSettings.profileBio && (
+                <p className="text-sm opacity-80 text-center max-w-md">{pageSettings.profileBio}</p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Blocks */}
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
-            <div className="space-y-0.5" onClick={(e) => e.stopPropagation()}>
+            <div 
+              className="flex flex-col relative z-10" 
+              style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
+              onClick={(e) => e.stopPropagation()}
+            >
               {(() => {
                 const groupedBlocks: any[] = [];
                 let currentGroup: any[] = [];
@@ -485,7 +489,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                 return groupedBlocks.map((group) => {
                   if (group.type === "linkGroup") {
                     return (
-                      <div key={group.id} style={cardStyle} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] my-4 shadow-md border transition-all">
+                      <div key={group.id} style={cardStyle} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] shadow-md border transition-all">
                         {group.items.map((block: any) => (
                           <CanvasBlock
                             key={block.id}
@@ -522,13 +526,27 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
         {/* Empty state */}
         {blocks.length === 0 && !isPreviewMode && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl border border-dashed border-zinc-700 flex items-center justify-center mb-4 text-zinc-600">
+          <div className="flex flex-col items-center justify-center py-20 text-center relative z-10">
+            <div className="w-16 h-16 rounded-2xl border border-dashed border-zinc-400 flex items-center justify-center mb-4 text-zinc-500">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </div>
-            <p className="text-zinc-500 text-sm">Klik <kbd className="px-1.5 py-0.5 bg-zinc-800 border border-zinc-700 rounded text-xs font-mono">+</kbd> di toolbar untuk menambahkan blok pertama</p>
+            <p className="text-zinc-500 text-sm">Klik <kbd className="px-1.5 py-0.5 bg-zinc-200 border border-zinc-300 rounded text-xs font-mono text-zinc-700">+</kbd> di toolbar untuk menambahkan blok pertama</p>
+          </div>
+        )}
+
+        {/* Watermark Powered By */}
+        {blocks.length > 0 && (
+          <div className="mt-16 pb-8 flex justify-center relative z-10">
+            <a 
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] font-medium opacity-60 hover:opacity-100 transition-opacity"
+            >
+              Powered by <span className="font-bold">Weblink Builder</span>
+            </a>
           </div>
         )}
       </div>

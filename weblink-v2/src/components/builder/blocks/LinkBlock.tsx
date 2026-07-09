@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ExternalLink } from "lucide-react";
 import { WhatsappIcon, WebIcon } from "src/components/ui/SocialIcons";
@@ -25,7 +25,7 @@ export default function LinkBlock({ content, cardStyle }: LinkBlockDisplayProps)
     <div className="w-full">
       <div 
         style={cardStyle}
-        className="w-full flex items-center justify-between py-4 px-6 rounded-full border border-zinc-700/50 hover:bg-white/5 transition-all font-semibold tracking-wide shadow-md group cursor-default"
+        className="w-full flex items-center justify-between py-4 px-6 rounded-full border border-zinc-700/50 hover:bg-white/5 transition-all hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] font-semibold tracking-wide shadow-md group cursor-default"
       >
         <span className={!title ? "text-zinc-600 italic font-normal text-sm" : ""}>
           {title || "Judul Tautan..."}

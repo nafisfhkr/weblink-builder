@@ -55,16 +55,22 @@ function HeadingPanel({ content, onChange }: { content: any; onChange: (c: any) 
     <div className="flex flex-col gap-4">
       <div>
         <label className="sidebar-label">Site Title / Judul</label>
-        <input
+        <textarea
           id="sidebar-heading-title"
-          type="text"
           value={content?.title || ""}
-          maxLength={60}
+          maxLength={100}
+          rows={2}
           onChange={(e) => onChange({ ...content, title: e.target.value })}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              e.currentTarget.blur();
+            }
+          }}
           placeholder="Nama atau Judul Halaman"
-          className="sidebar-input"
+          className="sidebar-input resize-none"
         />
-        <p className="sidebar-hint">{(content?.title || "").length}/60</p>
+        <p className="sidebar-hint">{(content?.title || "").length}/100</p>
       </div>
       <div>
         <label className="sidebar-label">Bio / Deskripsi Halaman</label>
@@ -97,6 +103,29 @@ function HeadingPanel({ content, onChange }: { content: any; onChange: (c: any) 
           onChange={(e) => onChange({ ...content, textColor: e.target.value })}
           className="w-full h-10 rounded bg-zinc-950 border border-zinc-800 cursor-pointer"
         />
+      </div>
+      <div>
+        <label className="sidebar-label">Perataan Teks</label>
+        <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1">
+          {([
+            { value: "left", label: "Kiri" },
+            { value: "center", label: "Tengah" },
+            { value: "right", label: "Kanan" },
+            { value: "justify", label: "Rata Kiri-Kanan" },
+          ] as const).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onChange({ ...content, align: opt.value })}
+              className={`flex-1 text-[11px] py-1.5 rounded-md font-medium transition-all ${
+                (content?.align || "center") === opt.value
+                  ? "bg-zinc-700 text-white shadow"
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -137,6 +166,29 @@ function TextPanel({ content, onChange }: { content: any; onChange: (c: any) => 
           onChange={(e) => onChange({ ...content, textColor: e.target.value })}
           className="w-full h-10 rounded bg-zinc-950 border border-zinc-800 cursor-pointer"
         />
+      </div>
+      <div>
+        <label className="sidebar-label">Perataan Teks</label>
+        <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1">
+          {([
+            { value: "left", label: "Kiri" },
+            { value: "center", label: "Tengah" },
+            { value: "right", label: "Kanan" },
+            { value: "justify", label: "Rata Kiri-Kanan" },
+          ] as const).map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => onChange({ ...content, align: opt.value })}
+              className={`flex-1 text-[11px] py-1.5 rounded-md font-medium transition-all ${
+                (content?.align || "center") === opt.value
+                  ? "bg-zinc-700 text-white shadow"
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

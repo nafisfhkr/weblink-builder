@@ -1,23 +1,41 @@
-﻿"use client"
+"use client"
 
 import { signIn } from "next-auth/react"
-import { LogIn } from "lucide-react"
+
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+
+import { SimpleLayout } from 'src/layouts/simple';
+import { Iconify } from 'src/components/iconify';
 
 export default function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-zinc-950 text-white">
-      <div className="p-8 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl max-w-md w-full text-center">
-        <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
-        <p className="text-zinc-400 mb-8">Sign in to start building your micro-site</p>
-        
-        <button 
-          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-          className="w-full flex items-center justify-center gap-3 bg-white text-zinc-900 font-medium py-3 px-4 rounded-lg hover:bg-zinc-100 transition-colors cursor-pointer"
-        >
-          <LogIn size={20} />
-          Continue with Google
-        </button>
-      </div>
-    </div>
+    <SimpleLayout slotProps={{ content: { compact: true } }}>
+      <Stack spacing={3} sx={{ textAlign: 'center', mb: 5 }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Welcome Back</Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          Sign in to start building your Weblink digital identity.
+        </Typography>
+      </Stack>
+
+      <Button
+        fullWidth
+        size="large"
+        variant="outlined"
+        color="inherit"
+        onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+        startIcon={<Iconify icon="socials:google" />}
+        sx={{
+          borderColor: 'divider',
+          fontWeight: 'fontWeightMedium',
+          fontSize: '1rem',
+          py: 1.5
+        }}
+      >
+        Continue with Google
+      </Button>
+    </SimpleLayout>
   )
 }

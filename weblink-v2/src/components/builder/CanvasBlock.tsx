@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -69,7 +69,7 @@ export default function CanvasBlock({
           return (
             <div 
               style={cardStyle}
-              className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
+              className="w-full text-center border p-5 rounded-2xl transition-all shadow-md"
             >
               <HeadingBlock content={block.content || {}} textColor={cardStyle?.color} textSize={block.content?.textSize} />
             </div>
@@ -81,7 +81,7 @@ export default function CanvasBlock({
           return (
             <div 
               style={cardStyle}
-              className="w-full text-center border p-5 rounded-2xl mb-1 transition-all shadow-md"
+              className="w-full text-center border p-5 rounded-2xl transition-all shadow-md"
             >
               <TextBlock content={block.content || {}} textColor={cardStyle?.color} textSize={block.content?.textSize} />
             </div>
@@ -121,7 +121,7 @@ export default function CanvasBlock({
       ref={setNodeRef}
       style={combinedStyle}
       onClick={() => onSelect(block.id)}
-      className={`group flex items-start gap-3 border p-4 rounded-2xl mb-4 transition-all cursor-pointer ${
+      className={`group flex items-start gap-3 border p-4 rounded-2xl transition-all cursor-pointer ${
         isDragging
           ? "opacity-90 shadow-xl"
           : isSelected

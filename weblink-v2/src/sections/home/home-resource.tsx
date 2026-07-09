@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { m } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -42,46 +42,11 @@ export function HomeResource() {
             gap: { xs: 5, md: 8 },
             display: 'flex',
             alignItems: 'center',
-            flexDirection: { xs: 'column', md: 'row' },
+            flexDirection: 'column',
+            textAlign: 'center',
           }}
         >
-          <ButtonBase
-            component={m.div}
-            onClick={openVideo.onTrue}
-            initial={{ opacity: 0, scale: 0.94 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            sx={{
-              flex: 1,
-              width: 1,
-              borderRadius: 2,
-              overflow: 'hidden',
-              position: 'relative',
-              display: 'block',
-              boxShadow: (theme) => theme.customShadows.z16,
-            }}
-          >
-            <Box
-              component="img"
-              loading="lazy"
-              alt={RESOURCE.videoLabel}
-              src={RESOURCE.videoThumb}
-              sx={{ width: 1, display: 'block', aspectRatio: '16/9', objectFit: 'cover' }}
-            />
-            <Box
-              sx={{
-                inset: 0,
-                display: 'flex',
-                position: 'absolute',
-                alignItems: 'center',
-                justifyContent: 'center',
-                bgcolor: 'rgba(0,0,0,0.12)',
-              }}
-            >
-              <Iconify icon="solar:play-circle-bold" width={72} sx={{ color: 'error.main' }} />
-            </Box>
-          </ButtonBase>
+
 
           <MotionViewport sx={{ flex: 1 }}>
             <Typography component={m.h2} variants={varFade('inUp')} variant="h2" sx={{ mb: 3 }}>
@@ -99,9 +64,7 @@ export function HomeResource() {
         </Box>
       </Container>
 
-      {openVideo.value && (
-        <PlayerDialog controls open playing src={RESOURCE.videoUrl} onClose={openVideo.onFalse} />
-      )}
+
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Loader2, Globe } from "lucide-react";
@@ -64,7 +64,7 @@ export default function PublishButton({
       <button
         onClick={handlePublish}
         disabled={isPublishing || !showActive}
-        className={`relative px-5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all transition-colors cursor-pointer ${
+        className={`relative px-3 py-1 rounded text-[11px] font-semibold flex items-center gap-1.5 transition-all transition-colors cursor-pointer ${
           isPublishing
             ? "bg-[#008080]/60 text-white cursor-not-allowed"
             : showActive
@@ -73,17 +73,17 @@ export default function PublishButton({
         }`}
       >
         {isPublishing ? (
-          <Loader2 size={14} className="animate-spin" />
+          <Loader2 size={13} className="animate-spin" />
         ) : (
-          <Globe size={14} />
+          <Globe size={13} />
         )}
         {isPublishing ? "Publishing..." : showActive ? "Publish" : "Published"}
         
         {/* Glowing Indicator Dot for Changes */}
         {showActive && !isPublishing && (
-          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+          <span className="absolute -top-1 -right-1 flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span>
           </span>
         )}
       </button>

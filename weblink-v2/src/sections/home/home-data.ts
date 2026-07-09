@@ -1,4 +1,4 @@
-﻿import { CONFIG } from 'src/global-config';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ export const HERO = {
     { value: 10, suffix: 'K+', label: 'Pengguna Aktif' },
     { value: 100, suffix: '+', label: 'Desain Kustom' },
   ],
-  trustedLabel: 'Dipercaya Oleh:',
+  trustedLabel: 'Dipercaya Oleh Kreator & Bisnis:',
 };
 
 /**
@@ -49,69 +49,68 @@ export const CLIENTS: { name: string; logo: string }[] = [
 // ----------------------------------------------------------------------
 
 export const PROBLEM = {
-  caption: 'The Problem',
-  title: 'Proyek IT Anda Bermasalah?',
-  // TODO: user akan kirim foto "stressed man" → taruh di public/assets/venturo/problem-stress.webp
-  image: asset('problem-stress.webp'),
+  caption: 'Kenapa Butuh Weblink?',
+  title: 'Kesulitan Membagikan Banyak Tautan Sekaligus?',
+  image: asset('weblink/problem.webp'),
   items: [
     {
-      title: 'Kesulitan Menemukan Programmer yang Tepat',
+      title: 'Bio Sosial Media Hanya Memuat Satu Tautan',
       description:
-        'Lulusan IT melimpah, tapi menemukan programmer andal sesuai harapan bukanlah hal yang mudah.',
-      icon: 'solar:user-rounded-outline',
+        'Instagram dan TikTok hanya mengizinkan satu tautan di bio. Bagaimana jika Anda ingin mempromosikan beberapa produk, video, atau artikel sekaligus?',
+      icon: 'solar:link-broken-outline',
     },
     {
-      title: 'Proyek Molor, Melebihi Anggaran, Tak Sesuai Ekspektasi',
+      title: 'Portofolio dan Kontak Tersebar',
       description:
-        'Efeknya proyek makin lama selesai, budget makin bengkak, Anda makin kecewa. Anda tidak sendirian — banyak bisnis juga mengalaminya.',
-      icon: 'solar:hourglass-line-outline',
+        'Klien kesulitan menemukan portofolio, WhatsApp, dan sosial media Anda karena tersebar di berbagai tempat yang berbeda.',
+      icon: 'solar:folder-error-outline',
     },
     {
-      title: 'Tingkat Perputaran yang Tinggi di Industri Ini',
+      title: 'Sulit Melacak Kunjungan',
       description:
-        'Bosan gonta-ganti programmer! Tingkat turnover yang relatif tinggi mencapai 19,22% — lebih tinggi daripada industri lain.',
-      icon: 'solar:restart-bold',
+        'Membagikan tautan langsung tidak memberikan Anda wawasan analitik siapa saja dan berapa banyak orang yang mengklik tautan Anda.',
+      icon: 'solar:graph-down-outline',
     },
   ],
-  closing: 'Dan akhirnya… bisnis Anda kehilangan waktu, biaya, bahkan kepercayaan klien.',
+  closing: 'Dan akhirnya… Anda kehilangan potensi audiens, pelanggan, bahkan peluang kerja sama.',
 };
 
 // ----------------------------------------------------------------------
 
 export const SOLUTION = {
-  caption: 'Stress-Free Solutions',
-  title: 'Solusi Tanpa Drama untuk Proyek IT Anda',
-  image: asset('tim-expert-programmers.webp'),
+  caption: 'Solusi dari Weblink',
+  title: 'Satu Halaman untuk Berbagai Kebutuhan Digital Anda',
+  image: asset('weblink/solution.png'),
   items: [
     {
-      title: 'Tim yang Berdedikasi',
+      title: 'Satu Tautan untuk Semua',
       icon: asset('ikon-tim-programmer-berdedikasi.webp'),
       description:
-        'Bangun tim outsource full-time layaknya memiliki tim internal sendiri. Squad ini sepenuhnya fokus mengerjakan proyek Anda tanpa terbagi ke proyek lain.',
+        'Gabungkan tautan WhatsApp, Instagram, portofolio, toko online, hingga artikel terbaru Anda dalam satu link yang rapi dan mudah diakses.',
     },
     {
-      title: 'Supervisor Berpengalaman',
+      title: 'Kustomisasi Tema Bebas',
       icon: asset('ikon-quality-assurance-supervisi.webp'),
       description:
-        'Setiap tim didukung supervisor senior yang memastikan kualitas melalui analisa, pendampingan, dan review dari berbagai proyek serupa.',
+        'Sesuaikan warna, background, font, hingga bentuk tombol agar cocok dengan identitas personal atau merek bisnis Anda (Brand Identity).',
     },
     {
-      title: 'Respon Cepat',
+      title: 'Desain Super Cepat',
       icon: asset('ikon-respon-cepat.webp'),
       description:
-        'Selama masa kontrak berjalan, tim kami siap memberikan dukungan respons cepat melalui grup messenger online bersama seluruh PIC proyek Anda.',
+        'Dengan fitur Live Editor drag-and-drop, Anda bisa membuat dan memperbarui tampilan halaman Anda hanya dalam hitungan detik.',
     },
     {
-      title: 'Tes Otomatisasi',
+      title: 'Analitik Terintegrasi',
       icon: asset('ikon-otomatisasi-pengembangan-software.webp'),
       description:
-        'Pengujian otomatis untuk memastikan kualitas perangkat lunak secara cepat, akurat, konsisten, dan meminimalisir human error.',
+        'Pantau langsung statistik pengunjung, jumlah klik tombol, dan sumber traffic untuk membantu Anda mengukur efektivitas kampanye.',
     },
     {
-      title: 'Laporan Progresif',
+      title: 'SEO Friendly',
       icon: asset('ikon-laporan-progres-proyek.webp'),
       description:
-        'Laporan progress detail diberikan setiap minggu, sehingga Anda selalu mendapat update perkembangan proyek secara transparan.',
+        'Halaman Weblink Anda dioptimalkan untuk mesin pencari, membuat profil Anda lebih mudah ditemukan di Google pencarian.',
     },
   ],
 };
@@ -119,66 +118,66 @@ export const SOLUTION = {
 // ----------------------------------------------------------------------
 
 export const FOCUS = {
-  caption: 'Focus on Your Core Business',
-  title: 'Fokus pada Bisnis Inti Anda, Biar Urusan IT Kami yang Pegang',
+  caption: 'Fokus Kembangkan Diri Anda',
+  title: 'Fokus pada Konten Anda, Biar Urusan Tampilan Kami yang Tangani',
   description:
-    'Venturo, jasa pembuatan software house Malang, siap membantu dengan programmer profesional yang bekerja seolah tim in-house Anda sendiri.',
-  highlight: 'Tim IT Khusus Anda',
-  image: asset('diagram-outsourcing-tim-it-venturo.webp'),
+    'Weblink dirancang khusus agar Kreator, Influencer, dan Pelaku Usaha bisa lebih fokus menciptakan karya atau berjualan tanpa perlu repot membangun website dari nol.',
+  highlight: 'Siapa Saja Pengguna Weblink?',
+  image: asset('weblink/hero.png'),
   roles: [
-    'Project Manager',
-    'System Analyst',
-    'UI/UX Designer',
-    'Programmer / Developer',
-    'Quality Assurance (QA)',
-    'Automation Test Engineer',
-    'Technical Documentation',
+    'Content Creator & Influencer',
+    'Pemilik Bisnis (UMKM / Toko Online)',
+    'Freelancer & Desainer',
+    'Gamer & Streamer',
+    'Musisi & Seniman',
+    'Penulis & Blogger',
+    'Profesional & Konsultan',
   ],
 };
 
 // ----------------------------------------------------------------------
 
 export const MANAGEMENT = {
-  caption: 'We Already Have a Good Management',
-  title: 'Manajemen Proyek yang Sudah Teruji',
-  description: 'Jasa outsourcing programmer, perusahaan IT di Malang terbaik.',
+  caption: 'Fitur Terbaik',
+  title: 'Kemudahan yang Telah Teruji',
+  description: 'Ribuan kreator telah menggunakan Weblink sebagai identitas digital utama mereka.',
   phone: asset('app-phone.webp'),
   items: [
     {
-      title: 'Roadmap untuk Timeline Planning',
+      title: 'Dashboard Pengelolaan Mudah',
       icon: asset('ikon-penjadwalan-proyek.webp'),
       description:
-        'Roadmap berisi list task dan timeline project yang dapat Anda pantau setiap saat, dibuat berdasarkan kesepakatan dengan Anda.',
+        'Kelola semua link, tombol, teks, dan gambar Anda melalui satu layar kontrol (dashboard) yang responsif dan sangat mudah digunakan.',
     },
     {
-      title: 'Monitoring Sprint Mingguan',
+      title: 'Pratinjau Langsung (Live Preview)',
       icon: asset('ikon-monitoring-proyek.webp'),
       description:
-        'Mengontrol sprint dan memastikan programmer kami bekerja sesuai dengan waktu yang Anda beli.',
+        'Lihat perubahan halaman biolink Anda secara langsung di tampilan layar ponsel virtual tanpa perlu menyimpannya terlebih dahulu.',
     },
     {
-      title: 'Lacak Progress Terkini',
+      title: 'Banyak Pilihan Blok Konten',
       icon: asset('ikon-laporan-progres-proyek.webp'),
       description:
-        'Dengan sekali lihat, Anda dapat memantau modul mana yang sedang berjalan atau sudah selesai.',
+        'Tambahkan blok tautan dasar, tautan sosial media, video YouTube tertanam, gambar, hingga daftar panjang sekaligus dalam sekali klik.',
     },
     {
-      title: 'Tes Skenario untuk Mencegah Bug',
+      title: 'Ramah Seluler (Mobile-First)',
       icon: asset('ikon-otomatisasi-pengembangan-software.webp'),
       description:
-        'Setiap use case dicatat secara rinci pada Test Scenario sebagai langkah antisipasi terhadap bug/error.',
+        'Tampilan otomatis menyesuaikan dengan sempurna (seamless) di berbagai ukuran layar, khususnya di smartphone pengikut Anda.',
     },
     {
-      title: 'Layanan Maksimal untuk Klien',
+      title: 'Akses 24/7 Tanpa Down Time',
       icon: asset('garansi-bug-project-selesai.webp'),
       description:
-        'Kami menjamin pelayanan maksimal 48 jam penanganan bug dan improvement yang dapat Anda pantau.',
+        'Server kami dikelola secara profesional untuk memastikan tautan Anda dapat diakses kapan pun pengikut Anda membutuhkannya.',
     },
     {
-      title: 'Memantau Kinerja Setiap Squad',
+      title: 'Statistik Waktu Nyata (Real-time)',
       icon: asset('ikon-quality-assurance-supervisi.webp'),
       description:
-        'Setiap talenta memiliki target harian dan bulanan, dan bersaing untuk menjadi yang terbaik.',
+        'Ketahui persis tombol mana yang memiliki konversi (CTR) tertinggi setiap harinya melalui fitur insight bawaan.',
     },
   ],
 };
@@ -186,23 +185,23 @@ export const MANAGEMENT = {
 // ----------------------------------------------------------------------
 
 export const RESOURCE = {
-  titleLines: ['The Largest', 'Programmer Resource', 'in Malang'],
+  titleLines: ['Platform', 'Digital Identity Terdepan', 'di Indonesia'],
   description:
-    'Cari programmer terbaik di Malang? Venturo menghadirkan the largest programmer resource in Malang untuk kebutuhan outsourcing dan pengembangan software skala besar.',
+    'Bingung cara membuat website pribadi? Weblink hadir memberikan kemudahan membuat portofolio dan agregator tautan (link-in-bio) hanya dalam waktu kurang dari 5 menit.',
   videoUrl: 'https://www.youtube.com/watch?v=1W35KcCQqww',
   videoThumb: asset('video-thumb-manajemen-proyek.webp'),
-  videoLabel: 'Supervisor & Project Manager',
+  videoLabel: 'Cara Membuat Weblink Anda',
 };
 
 // ----------------------------------------------------------------------
 
 export const SPECIAL_OFFER = {
-  heading: 'SPECIAL OFFER!!',
-  promoStrong: '50% OFF hiring fee',
-  promo: 'khusus hingga 31 Mei 2026, siap menyelesaikan proyek IT Anda tanpa drama!',
-  cta: 'Hubungi Kami Sekarang',
-  note: 'Konsultasi gratis untuk kebutuhan bisnis Anda',
-  image: asset('person-arms.webp'),
+  heading: 'DAFTAR SEKARANG!!',
+  promoStrong: '100% GRATIS Selamanya',
+  promo: 'akses semua fitur inti Weblink tanpa batas dan bagikan ke audiens Anda tanpa syarat!',
+  cta: 'Buat Akun Anda',
+  note: 'Tanpa perlu kartu kredit',
+  image: asset('weblink/cta.webp')
 };
 
 // ----------------------------------------------------------------------
@@ -248,43 +247,43 @@ export const TECH_STACK = {
 // ----------------------------------------------------------------------
 
 export const FAQS = {
-  caption: 'FAQ',
-  title: 'Frequently Asked Questions',
+  caption: 'Tanya Jawab',
+  title: 'Pertanyaan yang Sering Diajukan',
   items: [
     {
       question:
-        'Apa keunggulan menggunakan layanan outsourcing programmer dibanding merekrut langsung?',
+        'Apakah Weblink benar-benar gratis untuk digunakan?',
       answer:
-        'Anda mendapatkan tim siap kerja tanpa repot rekrutmen, training, dan retensi. Hemat waktu dan biaya, dengan supervisor serta manajemen yang sudah terbukti, sehingga Anda bisa fokus ke core business.',
+        'Ya! Fitur-fitur utama pembuat tautan, kustomisasi dasar, dan analitik dapat Anda gunakan 100% gratis selamanya. Kami juga merencanakan fitur premium di masa depan, tetapi Anda tidak dipaksa untuk berlangganan.',
     },
     {
-      question: 'Apakah tim Anda berpengalaman dengan proyek AI atau machine learning?',
+      question: 'Berapa banyak jumlah tautan yang bisa saya masukkan?',
       answer:
-        'Ya. Tim kami menangani berbagai proyek termasuk integrasi AI/ML — mulai dari pengolahan data, model prediktif, hingga implementasi fitur berbasis AI pada aplikasi.',
+        'Tidak ada batasan! Anda dapat menambahkan sebanyak mungkin tautan (URL), menyematkan video, maupun membuat ikon media sosial sesuka hati Anda.',
     },
     {
-      question: 'Bagaimana model kerja outsourcing programmer di Venturo?',
+      question: 'Bagaimana cara menambahkan Weblink ke bio Instagram/TikTok saya?',
       answer:
-        'Anda membentuk dedicated squad full-time yang bekerja seperti tim in-house Anda, didampingi supervisor, dengan roadmap, sprint mingguan, dan laporan progres transparan.',
+        'Setelah halaman Anda dipublikasikan (Published), salin tautan unik (weblink.id/namakamu) lalu letakkan (paste) di kolom "Website" pada profil akun Instagram atau TikTok Anda.',
     },
     {
-      question: 'Berapa lama waktu Venturo untuk mempersiapkan tim hingga siap untuk Development?',
+      question: 'Apakah saya bisa mengubah tema atau desain latar belakang?',
       answer:
-        'Umumnya tim dapat disiapkan dalam hitungan hari setelah kebutuhan dan kesepakatan final, tergantung skala serta stack yang dibutuhkan.',
+        'Tentu. Anda dapat memilih latar belakang warna padat (solid color), efek gradasi (gradient), maupun mengunggah gambar latar belakang kustom Anda sendiri pada menu Settings proyek.',
     },
     {
-      question: 'Apakah saya menerima source code setelah proses development selesai?',
-      answer: 'Ya. Seluruh source code menjadi milik Anda dan diserahkan sesuai kesepakatan kerja.',
+      question: 'Apakah pengunjung perlu mengunduh aplikasi untuk melihat Weblink saya?',
+      answer: 'Tidak. Weblink adalah aplikasi berbasis web. Halaman Anda dapat diakses langsung melalui browser apa pun di ponsel atau komputer pengunjung Anda.',
     },
     {
-      question: 'Apakah ada garansi setelah melakukan development?',
+      question: 'Apakah saya dapat mengelola beberapa proyek sekaligus?',
       answer:
-        'Ada. Kami pastikan sistem bebas dari bug kritis pasca serah terima, dengan garansi perbaikan hingga 30 hari tanpa biaya tambahan.',
+        'Ya. Anda bisa membuat banyak halaman Weblink (Multiple Projects) dengan satu akun saja, misalnya untuk profil pribadi dan untuk bisnis online yang Anda kelola.',
     },
     {
-      question: 'Bagaimana jika programmer yang diberikan tidak cocok?',
+      question: 'Bagaimana keamanan data saya?',
       answer:
-        'Kami akan melakukan evaluasi dan penggantian talenta agar tim benar-benar sesuai dengan kebutuhan dan ekspektasi proyek Anda.',
+        'Kami sangat menjaga privasi dan keamanan basis data kami dengan infrastruktur cloud modern bersertifikasi keamanan. Kata sandi Anda juga terenkripsi sehingga tidak dapat diintip oleh siapapun.',
     },
   ],
 };
@@ -292,11 +291,11 @@ export const FAQS = {
 // ----------------------------------------------------------------------
 
 export const CLOSING_CTA = {
-  title: 'Garansi Bug Setelah Project Selesai',
-  descriptionStrong: '30 Hari Tanpa Biaya Tambahan',
+  title: 'Jadilah Bagian dari Ribuan Kreator',
+  descriptionStrong: 'Klaim Tautan Unik Anda',
   description:
-    'Kami pastikan sistem bebas dari bug kritis pasca serah terima, dengan garansi perbaikan hingga',
-  descriptionEnd: 'Jika Anda serius maka tim kami siap mendukung dari awal hingga selesai.',
-  cta: 'Mulai Konsultasi',
-  image: asset('person-laptop.webp'),
+    'Buat, bagikan, dan kembangkan bisnis serta audiens Anda hari ini juga. Gratis, mudah, dan',
+  descriptionEnd: 'jika tidak puas, Anda bisa menghapus akun kapan saja.',
+  cta: 'Mulai Membuat Weblink',
+  image: asset('weblink/dashboard.png'),
 };

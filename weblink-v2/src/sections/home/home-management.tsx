@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { m } from 'framer-motion';
 
@@ -64,17 +64,7 @@ export function HomeManagement() {
             ))}
           </MotionViewport>
 
-          <Box
-            component={m.img}
-            loading="lazy"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            alt="Venturo app"
-            src={MANAGEMENT.phone}
-            sx={{ flexShrink: 0, width: { xs: 220, md: 280 }, height: 'auto' }}
-          />
+
 
           <MotionViewport sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
             {right.map((item) => (

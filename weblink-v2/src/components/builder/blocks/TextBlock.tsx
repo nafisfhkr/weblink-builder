@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 interface TextBlockDisplayProps {
   content: {
     text?: string;
+    align?: string;
   };
   textColor?: string;
   textSize?: string;
@@ -12,6 +13,8 @@ export default function TextBlock({ content, textColor, textSize }: TextBlockDis
   const customStyle: React.CSSProperties = {
     color: textColor,
     fontSize: textSize ? `${textSize}px` : undefined,
+    textAlign: (content?.align as any) || "center",
+    textAlignLast: content?.align === "justify" ? "center" : undefined,
   };
   
   return (

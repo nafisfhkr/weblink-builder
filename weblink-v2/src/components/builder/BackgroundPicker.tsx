@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef } from "react";
 import { UploadCloud, Loader2, Trash2, Palette } from "lucide-react";
@@ -23,6 +23,10 @@ export interface PageSettings {
   profileImageUrl?: string;
   profileTitle?: string;
   profileBio?: string;
+  fontFamily?: string;
+  blockSpacing?: number;
+  showProfile?: boolean;
+  backgroundOverlayOpacity?: number;
 }
 
 interface BackgroundPickerProps {
@@ -97,7 +101,7 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
 
       {/* Tab Selector */}
       <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1 flex-wrap">
-        {(["color", "gradient", "image", "Card", "Profil"] as const).map((tab) => (
+        {(["color", "gradient", "image", "Layout", "Card"] as const).map((tab) => (
           <button
             key={tab}
             id={`bg-tab-${tab}`}
@@ -234,8 +238,8 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
                 type="range"
                 min="0"
                 max="100"
-                value={settings.imageOverlayOpacity ?? 55}
-                onChange={(e) => onChange({ ...settings, imageOverlayOpacity: parseInt(e.target.value) })}
+                value={settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 55}
+                onChange={(e) => onChange({ ...settings, backgroundOverlayOpacity: parseInt(e.target.value), imageOverlayOpacity: parseInt(e.target.value) })}
                 className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
               />
             </div>
@@ -263,10 +267,10 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
               : { backgroundColor: settings.color || "#0a0a0a" }
           }
         >
-          {settings.type === "image" && settings.imageUrl && (
+          {(settings.type === "image" || settings.type === "color" || settings.type === "gradient") && (
             <div 
               className="absolute inset-0" 
-              style={{ backgroundColor: `rgba(0, 0, 0, ${(settings.imageOverlayOpacity ?? 55) / 100})` }}
+              style={{ backgroundColor: `rgba(0, 0, 0, ${(settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 0) / 100})` }}
             />
           )}
           <div className="absolute inset-0 flex items-center justify-center">
@@ -275,8 +279,91 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
         </div>
       </div>
 
+      {/* Layout & Profil Tab */}
+      {activeTab === "Layout" as any && (
+        <div className="flex flex-col gap-6">
+          {/* Overlay Background Global */}
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between items-center text-[11px] text-zinc-400">
+              <span>Pencahayaan / Gelap Background</span>
+              <span className="font-mono">{settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 0}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 0}
+              onChange={(e) => onChange({ ...settings, backgroundOverlayOpacity: parseInt(e.target.value), imageOverlayOpacity: parseInt(e.target.value) })}
+              className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+            />
+            <p className="text-[9px] text-zinc-500 mt-1">Menggelapkan latar belakang agar teks lebih terbaca.</p>
+          </div>
+
+          <div className="w-full h-px bg-zinc-800" />
+
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between items-center text-[11px] text-zinc-400">
+              <span>Jarak Antar Blok (Gap)</span>
+              <span className="font-mono">{settings.blockSpacing ?? 16}px</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="40"
+              value={settings.blockSpacing ?? 16}
+              onChange={(e) => onChange({ ...settings, blockSpacing: parseInt(e.target.value) })}
+              className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
+            />
+            <p className="text-[9px] text-zinc-500 mt-1">Mengatur jarak renggang/mepet antar card.</p>
+          </div>
+
+          <div className="w-full h-px bg-zinc-800" />
+
+          {/* Font Picker */}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-[11px] text-zinc-400 font-semibold">
+              <span>Jenis Font Halaman</span>
+            </div>
+            <select
+              value={settings.fontFamily || "inherit"}
+              onChange={(e) => onChange({ ...settings, fontFamily: e.target.value })}
+              className="bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-300 outline-none w-full appearance-none cursor-pointer focus:border-teal-500 transition-colors"
+            >
+              <option value="inherit">Default (Sans-Serif)</option>
+              <option value="var(--font-dm-sans), sans-serif">Modern (DM Sans)</option>
+              <option value="var(--font-barlow), sans-serif">Bold (Barlow)</option>
+              <option value="Georgia, serif">Klasik (Serif)</option>
+              <option value="'Courier New', monospace">Monospace (Courier)</option>
+            </select>
+          </div>
+
+          <div className="w-full h-px bg-zinc-800" />
+
+          {/* Profil Visibility */}
+          <div className="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2">
+            <div className="flex flex-col">
+              <span className="text-[11px] text-zinc-300 font-semibold">Tampilkan Info Profil</span>
+              <span className="text-[9px] text-zinc-500">Foto profil, nama, dan deskripsi singkat di atas</span>
+            </div>
+            <button
+              onClick={() => onChange({ ...settings, showProfile: settings.showProfile === false ? true : false })}
+              className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer ${
+                settings.showProfile !== false ? "bg-teal-500" : "bg-zinc-700"
+              }`}
+            >
+              <div
+                className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                  settings.showProfile !== false ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Pengaturan Card Styling */}
-      <div className="mt-6 border-t border-zinc-800 pt-5 flex flex-col gap-4">
+      {activeTab === "Card" as any && (
+      <div className="flex flex-col gap-4">
         <div className="flex items-center gap-1.5">
           <Palette size={14} className="text-teal-400" />
           <label className="sidebar-label !mb-0">Desain Kartu (Card)</label>
@@ -410,6 +497,7 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }

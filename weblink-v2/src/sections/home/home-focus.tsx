@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -40,20 +40,7 @@ export function HomeFocus() {
             ))}
           </Box>
 
-          <Box
-            component="img"
-            loading="lazy"
-            alt={FOCUS.highlight}
-            src={FOCUS.image}
-            sx={{
-              mt: { xs: 4, md: 6 },
-              mx: 'auto',
-              width: 1,
-              maxWidth: 900,
-              height: 'auto',
-              display: 'block',
-            }}
-          />
+
         </Card>
       </Container>
     </Box>

@@ -1,4 +1,4 @@
-﻿import { MainLayout } from 'src/layouts/main';
+import { MainLayout } from 'src/layouts/main';
 
 type Props = {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ export default function Layout({ children }: Props) {
         },
       }}
     >
-      <div className="pt-20">
+      <div>
         {children}
       </div>
     </MainLayout>

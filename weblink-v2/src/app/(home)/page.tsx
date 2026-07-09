@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 import { CONFIG } from 'src/global-config';
 import { getFaqGroups, getWhatsAppLink } from 'src/lib/api';
@@ -9,9 +9,9 @@ import { HomeView } from 'src/sections/home/view/home-view';
 
 // ----------------------------------------------------------------------
 
-const TITLE = 'Jasa Outsourcing Programmer Malang | Software House Venturo';
+const TITLE = 'Weblink - Buat Biolink & Identitas Digital Anda dengan Mudah';
 const DESCRIPTION =
-  'Venturo adalah jasa outsource programmer terbesar di Malang dengan 130+ talenta dedicated team. Garansi 30 hari, supervisor berpengalaman, laporan progres mingguan. Konsultasi gratis.';
+  'Weblink adalah platform terbaik untuk menggabungkan semua tautan, portofolio, dan media sosial Anda ke dalam satu halaman yang elegan, profesional, dan gratis.';
 
 export const metadata: Metadata = {
   // Full custom title — `absolute` opts out of the root '%s - Venturo' template.

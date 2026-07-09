@@ -74,11 +74,13 @@ export const auth = async (...args: any[]) => {
   try {
     return await (nextAuth.auth as any)(...args);
   } catch (error: any) {
-    if (error?.name === "JWTSessionError" || error?.message?.includes("JWTSessionError")) {
-      console.warn("Caught JWTSessionError: Your session cookie might be invalid due to a secret change. Returning null.");
-      return null;
+    // Next.js redirect() throws an error with a specific digest
+    if (error?.digest && error.digest.startsWith('NEXT_REDIRECT')) {
+      throw error;
     }
-    // Only rethrow if it's a redirect or other Next.js error
-    throw error;
+    
+    // Catch JWTSessionError or any other Auth errors to prevent crashing the page
+    console.warn("Caught Auth Error (likely JWTSessionError). Returning null session. Please clear your cookies if this persists.", error.message);
+    return null;
   }
 };
