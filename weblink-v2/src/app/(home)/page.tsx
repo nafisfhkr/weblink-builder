@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { CONFIG } from 'src/global-config';
 import { getFaqGroups, getWhatsAppLink } from 'src/lib/api';
 import { webSiteJsonLd, toJsonLdScript, organizationJsonLd } from 'src/lib/seo';
+import { auth } from 'auth';
 
 import { CONTACT } from 'src/sections/home/home-data';
 import { HomeView } from 'src/sections/home/view/home-view';
@@ -45,6 +46,9 @@ export default async function Page() {
     webSiteJsonLd(),
   ];
 
+  const session = await auth();
+  const isAuthenticated = !!session?.user;
+
   return (
     <>
       <script
@@ -52,7 +56,7 @@ export default async function Page() {
         dangerouslySetInnerHTML={{ __html: toJsonLdScript(jsonLd) }}
       />
 
-      <HomeView faqGroups={faqGroups} waLink={waLink} />
+      <HomeView faqGroups={faqGroups} waLink={waLink} isAuthenticated={isAuthenticated} />
     </>
   );
 }

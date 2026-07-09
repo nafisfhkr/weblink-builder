@@ -22,12 +22,13 @@ import { HomeSpecialOffer } from '../home-special-offer';
 type HomeViewProps = {
   faqGroups?: FaqGroup[] | null;
   waLink?: string | null;
+  isAuthenticated?: boolean;
 };
 
-export function HomeView({ faqGroups, waLink }: HomeViewProps) {
+export function HomeView({ faqGroups, waLink, isAuthenticated }: HomeViewProps) {
   return (
     <>
-      <HomeHero waLink={waLink} />
+      <HomeHero waLink={waLink} isAuthenticated={isAuthenticated} />
       <HomeClients />
       <HomeProblem />
       <HomeSolution />
