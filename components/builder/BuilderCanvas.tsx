@@ -330,7 +330,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     WebkitBackdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
   };
 
-  const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-2xl";
+  const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-[500px]";
 
   if (!mounted) {
     return <div className="min-h-screen bg-zinc-950" />;
@@ -463,7 +463,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                 return groupedBlocks.map((group) => {
                   if (group.type === "linkGroup") {
                     return (
-                      <div key={group.id} style={cardStyle} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] my-4 shadow-md border transition-all">
+                      <div key={group.id} style={cardStyle} className="w-full flex flex-col gap-3 p-6 rounded-[32px] my-4 shadow-md border transition-all">
                         {group.items.map((block: any) => (
                           <CanvasBlock
                             key={block.id}

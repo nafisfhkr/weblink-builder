@@ -67,6 +67,19 @@ function HeadingPanel({ content, onChange }: { content: any; onChange: (c: any) 
         <p className="sidebar-hint">{(content?.title || "").length}/60</p>
       </div>
       <div>
+        <label className="sidebar-label">Bio / Deskripsi Halaman</label>
+        <textarea
+          id="sidebar-heading-bio"
+          value={content?.bio !== undefined ? content.bio : ""}
+          maxLength={150}
+          rows={3}
+          onChange={(e) => onChange({ ...content, bio: e.target.value })}
+          placeholder="Deskripsi singkat atau subjudul"
+          className="sidebar-input resize-none"
+        />
+        <p className="sidebar-hint">{(content?.bio || "").length}/150</p>
+      </div>
+      <div>
         <label className="sidebar-label">Ukuran Font (px)</label>
         <input
           type="number"
