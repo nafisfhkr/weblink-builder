@@ -168,10 +168,10 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="min-h-screen flex flex-col items-center py-20 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
-      {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
+      {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 55) > 0) && (
         <div 
           className="absolute inset-0 pointer-events-none z-0" 
-          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
+          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 55) / 100})` }}
         />
       )}
       <div className="w-full max-w-[680px] flex flex-col items-center relative z-10">
@@ -179,11 +179,10 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         {pageSettings.showProfile !== false && (
           <div className="w-full flex flex-col items-center relative z-10 mb-6">
             {pageSettings.profileImageUrl || project.user?.image ? (
-              <Image 
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
                 src={pageSettings.profileImageUrl || project.user?.image || ""} 
                 alt={pageSettings.profileTitle || project.user?.name || "Profile"} 
-                width={96} 
-                height={96} 
                 className="rounded-full mb-4 border shadow-xl object-cover h-24 w-24"
               />
             ) : (
