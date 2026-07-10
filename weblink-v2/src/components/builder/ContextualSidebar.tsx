@@ -405,18 +405,37 @@ function ButtonsPanel({ content, onChange, activeTab }: any) {
                 <SInput value={item.url || ""} onChange={(e) => updateItem(i, "url", e.target.value)} placeholder="https://..." className="font-mono text-xs" />
               </div>
               <div className="border-t border-zinc-800 pt-2">
-                <Label>Color (Opsional)</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <Label>Style Tombol</Label>
+                <div className="grid grid-cols-2 gap-2 mt-2">
                   <div>
-                    <span className="text-[9px] text-zinc-600 block mb-1">Background</span>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Ikon</span>
+                    <SSelect value={item.icon || "none"} onChange={(e) => updateItem(i, "icon", e.target.value)}>
+                      <option value="none">Tanpa Ikon</option>
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="website">Website (Globe)</option>
+                    </SSelect>
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Tebal Border</span>
+                    <SInput type="number" value={item.borderWidth || 0} min={0} max={10} onChange={(e) => updateItem(i, "borderWidth", Number(e.target.value))} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 mt-2">
+                  <div>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Bg Color</span>
                     <input type="color" value={item.bgColor || "#14b8a6"} onChange={(e) => updateItem(i, "bgColor", e.target.value)} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" />
                   </div>
                   <div>
-                    <span className="text-[9px] text-zinc-600 block mb-1">Hover</span>
-                    <input type="color" value={item.hoverColor || item.bgColor || "#0d9488"} onChange={(e) => updateItem(i, "hoverColor", e.target.value)} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" />
+                    <span className="text-[9px] text-zinc-600 block mb-1">Bg Opacity</span>
+                    <SInput type="number" value={item.bgOpacity ?? 100} min={0} max={100} onChange={(e) => updateItem(i, "bgOpacity", Number(e.target.value))} />
                   </div>
                   <div>
-                    <span className="text-[9px] text-zinc-600 block mb-1">Label</span>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Border</span>
+                    <input type="color" value={item.borderColor || "#ffffff"} onChange={(e) => updateItem(i, "borderColor", e.target.value)} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Teks</span>
                     <input type="color" value={item.textColor || "#ffffff"} onChange={(e) => updateItem(i, "textColor", e.target.value)} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" />
                   </div>
                 </div>
@@ -432,6 +451,16 @@ function ButtonsPanel({ content, onChange, activeTab }: any) {
           className="w-full py-2.5 text-xs font-semibold text-teal-400 hover:text-teal-300 bg-teal-950/30 hover:bg-teal-950/50 border border-teal-800/50 border-dashed rounded-xl transition-all flex items-center justify-center gap-1.5">
           <Plus size={13}/> Add Button
         </button>
+
+        <div className="border-t border-zinc-800 pt-4 mt-4">
+          <Label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={c.useGlassContainer || false} onChange={(e) => onChange({ ...c, useGlassContainer: e.target.checked })} className="accent-teal-500" />
+            Gunakan Wadah Kaca (Glass Container)
+          </Label>
+          <p className="text-[10px] text-zinc-500 mt-1">
+            Bungkus semua tombol di dalam kotak semi-transparan dengan efek blur (Glassmorphism).
+          </p>
+        </div>
       </div>
     );
   }

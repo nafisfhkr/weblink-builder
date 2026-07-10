@@ -4,12 +4,12 @@ import { prisma } from "src/lib/prisma";
 import { z } from "zod";
 
 const headingContentSchema = z.object({
-  title: z.string().max(60, "Judul halaman maksimal 60 karakter").optional().or(z.literal("")),
-  bio: z.string().max(120, "Bio maksimal 120 karakter").optional().or(z.literal("")),
+  title: z.string().optional().or(z.literal("")),
+  bio: z.string().optional().or(z.literal("")),
 }).passthrough();
 
 const textContentSchema = z.object({
-  text: z.string().max(200, "Deskripsi maksimal 200 karakter").optional().or(z.literal("")),
+  text: z.string().optional().or(z.literal("")),
 }).passthrough();
 
 const linkContentSchema = z.object({
