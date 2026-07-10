@@ -78,13 +78,12 @@ export default async function DashboardPage() {
           return (
             <div
               key={project.id}
-              className="flex flex-col w-full overflow-hidden bg-[#121212] border border-[#2a2a2a] rounded-xl hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] transition-all group relative"
+              className="flex flex-col w-full overflow-hidden bg-[#121212] border border-[#2a2a2a] rounded-xl hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] transition-all group"
             >
-              <Link href={`/editor/${project.id}`} className="block h-full absolute inset-0 z-0"></Link>
-
               {/* Thumbnail Preview Area */}
-              <div
-                className="relative aspect-video w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 pointer-events-none"
+              <Link
+                href={`/editor/${project.id}`}
+                className="relative aspect-video w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 hover:opacity-90 transition-opacity"
                 style={bgStyle}
               >
                 <div className="bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -92,27 +91,32 @@ export default async function DashboardPage() {
                     {project.title}
                   </span>
                 </div>
-              </div>
+              </Link>
 
               {/* Card Info Area */}
-              <div className="p-4 bg-[#141414] relative z-10 flex-1 flex flex-col w-full">
-                <div className="flex items-center justify-between mb-2 gap-2 w-full pointer-events-none">
-                  <h2 className="text-[15px] sm:text-[17px] font-semibold truncate text-white flex-1 min-w-0">{project.title}</h2>
-                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border shrink-0 ${project.isPublished
-                    ? "bg-emerald-950/60 text-emerald-400 border-emerald-800"
+              <div className="p-3 bg-[#141414] relative z-10 flex-1 flex flex-col w-full">
+                {/* Baris 1: Judul Proyek & Badge Status */}
+                <div className="flex items-center justify-between gap-2 w-full mb-1">
+                  <Link href={`/editor/${project.id}`} className="hover:underline flex-1 min-w-0">
+                    <h2 className="text-[14px] sm:text-[15px] font-bold truncate text-white leading-snug">{project.title}</h2>
+                  </Link>
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wider ${project.isPublished
+                    ? "bg-emerald-950/40 text-emerald-400 border-emerald-800/40"
                     : "bg-zinc-900 text-zinc-400 border-zinc-800"
                     }`}>
                     {project.isPublished ? "Published" : "Draft"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-zinc-900 w-full">
-                  <div className="flex-1 min-w-0 mr-1">
-                    <EditSlugForm projectId={project.id} initialSlug={project.slug} host={host} />
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <CopyLinkButton url={fullUrl} />
-                    <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
-                  </div>
+
+                {/* Baris 2: Komponen EditSlugForm (Inline Slug & Pencil) */}
+                <div className="mb-2.5 w-full">
+                  <EditSlugForm projectId={project.id} initialSlug={project.slug} host={host} />
+                </div>
+
+                {/* Baris 3: Footer Aksi (Hanya Salin & Hapus Icon di Kanan) */}
+                <div className="flex items-center justify-end gap-2 mt-auto pt-2.5 border-t border-zinc-900 w-full">
+                  <CopyLinkButton url={fullUrl} />
+                  <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
                 </div>
               </div>
             </div>
