@@ -30,12 +30,16 @@ export default function BlankPageCard() {
     <button
       onClick={createProject}
       disabled={loading}
-      className="flex flex-col items-center justify-center w-full h-full min-h-[220px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl hover:border-[#4a4a4a] hover:bg-[#1f1f1f] transition-all group cursor-pointer disabled:opacity-50"
+      style={{ backgroundColor: "#ffffff", borderColor: "#a1a1aa", borderWidth: "3px" }}
+      className="flex flex-col items-center justify-center w-full h-full min-h-[160px] border-dashed rounded-xl hover:border-zinc-400 hover:bg-zinc-50/50 transition-all group cursor-pointer disabled:opacity-50"
     >
-      <div className="w-[50px] h-[50px] flex items-center justify-center rounded-full border-[1.5px] border-dashed border-gray-500 mb-5 group-hover:border-gray-300 transition-colors bg-transparent">
-        <Plus size={20} className="text-gray-400 group-hover:text-white transition-colors" />
+      <div 
+        className="w-[40px] h-[40px] flex items-center justify-center rounded-full border-dashed mb-3 transition-colors bg-transparent"
+        style={{ borderColor: "#a1a1aa", borderWidth: "2px" }}
+      >
+        <Plus size={18} className="text-zinc-500 group-hover:text-zinc-700 transition-colors" />
       </div>
-      <span className="text-gray-300 font-semibold text-[17px] tracking-wide">
+      <span className="text-zinc-700 font-semibold text-[15px] tracking-wide group-hover:text-zinc-900 transition-colors">
         {loading ? "Membuat..." : "Buat Halaman Baru"}
       </span>
     </button>

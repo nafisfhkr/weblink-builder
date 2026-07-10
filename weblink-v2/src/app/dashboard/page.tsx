@@ -7,6 +7,7 @@ import DeleteProjectButton from "src/components/dashboard/DeleteProjectButton";
 import CopyLinkButton from "src/components/dashboard/CopyLinkButton";
 import EditSlugForm from "src/components/dashboard/EditSlugForm";
 import { headers } from "next/headers";
+import Container from "@mui/material/Container";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -35,7 +36,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-8 pb-12 sm:pt-12 sm:pb-16">
+    <Container maxWidth={false} className="pt-8 pb-12 sm:pt-12 sm:pb-16">
       <header className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 text-zinc-900 tracking-tight">Proyek Saya</h1>
         <p className="text-gray-500 text-sm sm:text-[15px]">Kelola identitas digital dan halaman biolink Anda.</p>
@@ -49,7 +50,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
         {/* Kartu Tombol Buat Proyek Baru */}
         <BlankPageCard />
 
@@ -78,12 +79,12 @@ export default async function DashboardPage() {
           return (
             <div
               key={project.id}
-              className="flex flex-col w-full overflow-hidden bg-[#121212] border border-[#2a2a2a] rounded-xl hover:border-teal-500/50 hover:shadow-[0_0_20px_rgba(20,184,166,0.1)] transition-all group"
+              className="flex flex-col w-full overflow-hidden bg-white border border-zinc-200 rounded-xl shadow-sm hover:border-zinc-300 hover:shadow-md transition-all group"
             >
               {/* Thumbnail Preview Area */}
               <Link
                 href={`/editor/${project.id}`}
-                className="relative aspect-video w-full border-b border-[#2a2a2a] overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 hover:opacity-90 transition-opacity"
+                className="relative aspect-video w-full border-b border-zinc-100 overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 hover:opacity-90 transition-opacity"
                 style={bgStyle}
               >
                 <div className="bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -94,15 +95,15 @@ export default async function DashboardPage() {
               </Link>
 
               {/* Card Info Area */}
-              <div className="p-3 bg-[#141414] relative z-10 flex-1 flex flex-col w-full">
+              <div className="p-3 bg-white relative z-10 flex-1 flex flex-col w-full">
                 {/* Baris 1: Judul Proyek & Badge Status */}
                 <div className="flex items-center justify-between gap-2 w-full mb-1">
                   <Link href={`/editor/${project.id}`} className="hover:underline flex-1 min-w-0">
-                    <h2 className="text-[14px] sm:text-[15px] font-bold truncate text-white leading-snug">{project.title}</h2>
+                    <h2 className="text-[14px] sm:text-[15px] font-bold truncate text-zinc-900 leading-snug">{project.title}</h2>
                   </Link>
                   <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wider ${project.isPublished
-                    ? "bg-emerald-950/40 text-emerald-400 border-emerald-800/40"
-                    : "bg-zinc-900 text-zinc-400 border-zinc-800"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-zinc-100 text-zinc-600 border-zinc-200"
                     }`}>
                     {project.isPublished ? "Published" : "Draft"}
                   </span>
@@ -114,7 +115,7 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* Baris 3: Footer Aksi (Hanya Salin & Hapus Icon di Kanan) */}
-                <div className="flex items-center justify-end gap-2 mt-auto pt-2.5 border-t border-zinc-900 w-full">
+                <div className="flex items-center justify-end gap-2 mt-auto pt-2.5 border-t border-zinc-100 w-full">
                   <CopyLinkButton url={fullUrl} />
                   <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
                 </div>
@@ -123,6 +124,6 @@ export default async function DashboardPage() {
           );
         })}
       </div>
-    </div>
+    </Container>
   );
 }
