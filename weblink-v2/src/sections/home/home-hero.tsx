@@ -80,7 +80,7 @@ export function HomeHero({ waLink, isAuthenticated }: HomeHeroProps) {
                 href={isAuthenticated ? "/dashboard" : "/login"}
                 endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
               >
-                {isAuthenticated ? HERO.cta : "Login"}
+                {HERO.cta}
               </Button>
             </Box>
 
