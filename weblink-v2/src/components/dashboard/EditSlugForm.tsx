@@ -25,9 +25,11 @@ export default function EditSlugForm({ projectId, initialSlug, host }: EditSlugF
     setIsEditing(true);
   };
 
-  const cancelEdit = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const cancelEdit = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setIsEditing(false);
     setError(null);
   };
@@ -57,70 +59,87 @@ export default function EditSlugForm({ projectId, initialSlug, host }: EditSlugF
 
   if (!isEditing) {
     return (
-      <div className="flex flex-col gap-1.5 w-full">
-        <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Link Weblink</span>
-        <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800/80 rounded-lg p-2.5 gap-2 hover:border-zinc-700 transition-colors">
-          <span className="text-xs text-zinc-300 truncate flex-1 font-mono font-medium">
-            {host}/{slug}
-          </span>
-          <button
-            type="button"
-            onClick={startEdit}
-            title="Kustomisasi Slug"
-            className="flex items-center justify-center w-7 h-7 rounded bg-zinc-800 hover:bg-teal-600 text-zinc-400 hover:text-white transition-all shrink-0 cursor-pointer"
-          >
-            <Pencil size={11} />
-          </button>
-        </div>
+      <div className="flex items-center gap-1 min-w-0 w-full text-zinc-500 font-mono text-[11px] group/slug">
+        <span className="truncate flex-1">{host}/{slug}</span>
+        <button
+          type="button"
+          onClick={startEdit}
+          title="Kustomisasi Slug"
+          className="text-zinc-500 hover:text-teal-400 transition-colors shrink-0 p-1 cursor-pointer opacity-70 group-hover/slug:opacity-100"
+        >
+          <Pencil size={11} />
+        </button>
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-1.5 w-full"
-    >
-      <span className="text-[10px] text-teal-400 uppercase tracking-wider font-bold">Kustomisasi Slug</span>
-      <div className="flex items-center gap-1.5 w-full">
-        <div className="flex items-center bg-zinc-950 border border-teal-500/50 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 w-full min-w-0 shadow-[0_0_10px_rgba(20,184,166,0.05)]">
-          <span className="text-zinc-500 select-none shrink-0 font-mono font-medium">{host}/</span>
-          <input
-            type="text"
-            value={inputVal}
-            onChange={(e) => setInputVal(e.target.value)}
-            disabled={loading}
-            className="bg-transparent border-none outline-none text-zinc-100 w-full ml-0.5 focus:ring-0 p-0 font-mono font-semibold"
-            autoFocus
-          />
-        </div>
-
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="submit"
-            disabled={loading}
-            title="Simpan"
-            className="flex items-center justify-center w-7 h-7 rounded-md bg-teal-600 hover:bg-teal-500 text-white disabled:opacity-50 transition-colors cursor-pointer"
-          >
-            {loading ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
-          </button>
-          <button
-            type="button"
-            onClick={cancelEdit}
-            disabled={loading}
-            title="Batal"
-            className="flex items-center justify-center w-7 h-7 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 disabled:opacity-50 transition-colors border border-zinc-700 cursor-pointer"
-          >
-            <X size={13} />
-          </button>
-        </div>
+    <>
+      {/* Normal display slot to preserve local layout flow underneath */}
+      <div className="flex items-center gap-1 min-w-0 w-full text-zinc-500 font-mono text-[11px]">
+        <span className="truncate flex-1">{host}/{slug}</span>
+        <button type="button" disabled className="text-zinc-600 opacity-50 shrink-0 p-1">
+          <Pencil size={11} />
+        </button>
       </div>
 
-      {error && (
-        <span className="text-[10px] text-red-400 font-medium mt-0.5 px-1 leading-tight">
-          {error}
-        </span>
-      )}
-    </form>
+      {/* Modal / Popup Overlay */}
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4"
+        onClick={cancelEdit}
+      >
+        {/* Modal Content Card */}
+        <div
+          className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 w-full max-w-md shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex flex-col gap-1">
+            <h3 className="text-[15px] font-bold text-white">Kustomisasi Slug URL</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Tentukan alamat unik untuk mempublikasikan halaman biolink Anda agar mudah diakses publik.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <div className="flex items-center bg-zinc-900 border border-zinc-800 focus-within:border-teal-500/50 rounded-xl px-3.5 py-2.5 text-xs text-zinc-300 w-full min-w-0 transition-colors">
+              <span className="text-zinc-500 select-none shrink-0 font-mono font-medium">{host}/</span>
+              <input
+                type="text"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                disabled={loading}
+                className="bg-transparent border-none outline-none text-zinc-100 w-full ml-0.5 focus:ring-0 p-0 font-mono font-semibold"
+                autoFocus
+              />
+            </div>
+
+            {error && (
+              <span className="text-[10px] text-red-400 font-semibold leading-tight px-1">
+                {error}
+              </span>
+            )}
+
+            <div className="flex items-center justify-end gap-2.5 mt-2">
+              <button
+                type="button"
+                onClick={cancelEdit}
+                disabled={loading}
+                className="px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-900 hover:bg-zinc-850 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer border border-zinc-800"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                {loading && <Loader2 size={12} className="animate-spin" />}
+                {loading ? "Menyimpan..." : "Simpan Perubahan"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }
