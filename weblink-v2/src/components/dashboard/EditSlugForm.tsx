@@ -32,13 +32,6 @@ export default function EditSlugForm({ projectId, initialSlug, host }: EditSlugF
     setError(null);
   };
 
-  const handleContainerClick = (e: React.MouseEvent) => {
-    if (isEditing) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -64,17 +57,21 @@ export default function EditSlugForm({ projectId, initialSlug, host }: EditSlugF
 
   if (!isEditing) {
     return (
-      <div className="flex items-center gap-1.5 min-w-0 max-w-full">
-        <p className="text-xs text-gray-500 truncate min-w-0 flex-1">
-          {host}/{slug}
-        </p>
-        <button
-          onClick={startEdit}
-          title="Ubah Slug URL"
-          className="flex items-center justify-center w-7 h-7 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors shrink-0"
-        >
-          <Pencil size={12} />
-        </button>
+      <div className="flex flex-col gap-1.5 w-full">
+        <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold">Link Weblink</span>
+        <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800/80 rounded-lg p-2.5 gap-2 hover:border-zinc-700 transition-colors">
+          <span className="text-xs text-zinc-300 truncate flex-1 font-mono font-medium">
+            {host}/{slug}
+          </span>
+          <button
+            type="button"
+            onClick={startEdit}
+            title="Kustomisasi Slug"
+            className="flex items-center justify-center w-7 h-7 rounded bg-zinc-800 hover:bg-teal-600 text-zinc-400 hover:text-white transition-all shrink-0 cursor-pointer"
+          >
+            <Pencil size={11} />
+          </button>
+        </div>
       </div>
     );
   }
@@ -82,18 +79,18 @@ export default function EditSlugForm({ projectId, initialSlug, host }: EditSlugF
   return (
     <form
       onSubmit={handleSubmit}
-      onClick={handleContainerClick}
-      className="flex flex-col gap-1 w-full relative z-20"
+      className="flex flex-col gap-1.5 w-full"
     >
-      <div className="flex items-center gap-1 w-full">
-        <div className="flex items-center bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-zinc-300 w-full min-w-0">
-          <span className="text-zinc-500 select-none shrink-0 font-medium">/</span>
+      <span className="text-[10px] text-teal-400 uppercase tracking-wider font-bold">Kustomisasi Slug</span>
+      <div className="flex items-center gap-1.5 w-full">
+        <div className="flex items-center bg-zinc-950 border border-teal-500/50 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 w-full min-w-0 shadow-[0_0_10px_rgba(20,184,166,0.05)]">
+          <span className="text-zinc-500 select-none shrink-0 font-mono font-medium">{host}/</span>
           <input
             type="text"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
             disabled={loading}
-            className="bg-transparent border-none outline-none text-zinc-100 w-full ml-0.5 focus:ring-0 p-0 font-medium"
+            className="bg-transparent border-none outline-none text-zinc-100 w-full ml-0.5 focus:ring-0 p-0 font-mono font-semibold"
             autoFocus
           />
         </div>
@@ -103,7 +100,7 @@ export default function EditSlugForm({ projectId, initialSlug, host }: EditSlugF
             type="submit"
             disabled={loading}
             title="Simpan"
-            className="flex items-center justify-center w-7 h-7 rounded-md bg-emerald-900 hover:bg-emerald-800 text-emerald-400 hover:text-emerald-200 disabled:opacity-50 transition-colors"
+            className="flex items-center justify-center w-7 h-7 rounded-md bg-teal-600 hover:bg-teal-500 text-white disabled:opacity-50 transition-colors cursor-pointer"
           >
             {loading ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
           </button>
@@ -112,7 +109,7 @@ export default function EditSlugForm({ projectId, initialSlug, host }: EditSlugF
             onClick={cancelEdit}
             disabled={loading}
             title="Batal"
-            className="flex items-center justify-center w-7 h-7 rounded-md bg-zinc-850 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 disabled:opacity-50 transition-colors border border-zinc-800"
+            className="flex items-center justify-center w-7 h-7 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 disabled:opacity-50 transition-colors border border-zinc-700 cursor-pointer"
           >
             <X size={13} />
           </button>
