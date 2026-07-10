@@ -30,7 +30,7 @@ import { processImageToBase64 } from "src/lib/imageProcessor";
 
 interface BlockItem {
   id: string;
-  type: "heading" | "text" | "link" | "image" | "divider" | "social";
+  type: "text" | "container" | "buttons" | "image" | "divider";
   content: any;
   order: number;
 }
@@ -194,22 +194,13 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     autoSave(newBlocks);
   };
 
-  const handleAddBlock = (type: "heading" | "text" | "link" | "image" | "divider" | "social") => {
-    if (type === "link") {
-      const linkCount = blocks.filter((b) => b.type === "link").length;
-      if (linkCount >= 15) {
-        showToast("Batas maksimal adalah 15 tautan", "error");
-        return;
-      }
-    }
-
+  const handleAddBlock = (type: "text" | "container" | "buttons" | "image" | "divider") => {
     const defaultContent: Record<string, any> = {
-      heading: { title: "Halo, saya " + (initialData.title || "User"), bio: "Selamat datang di halaman saya" },
       text: { text: "Tulis paragraf atau deskripsi Anda di sini..." },
-      link: { title: "Hubungi Saya", url: "https://example.com" },
-      image: { url: "", alt: "", storageKey: "" },
-      social: { items: [] },
-      divider: {},
+      container: { layout: "default" },
+      buttons: { items: [{ id: nanoid(), label: "Tombol Saya", url: "https://", bgColor: "#14b8a6", textColor: "#ffffff" }] },
+      image: { url: "", alt: "", title: "", storageKey: "" },
+      divider: { style: "single", orientation: "horizontal", color: "#52525b", width: 80, thickness: 1, margin: 24 },
     };
 
     const newBlock: BlockItem = {
@@ -225,11 +216,20 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     setShowBlockPicker(false);
   };
 
+  const handleDuplicateBlock = (id: string) => {
+    const block = blocks.find((b) => b.id === id);
+    if (!block) return;
+    const newBlock: BlockItem = { ...block, id: nanoid(), order: blocks.length };
+    const updated = [...blocks, newBlock];
+    applyUpdate(updated, blocks);
+  };
+
   const handleUpdateBlock = (id: string, content: any) => {
     const updated = blocks.map((b) => (b.id === id ? { ...b, content } : b));
     setBlocks(updated);
     autoSave(updated);
   };
+
 
   const handleDeleteBlock = (id: string) => {
     const updated = blocks.filter((b) => b.id !== id);
@@ -332,7 +332,8 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     WebkitBackdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
   };
 
-  const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-2xl";
+  // Editor: max-w-2xl centered. Preview Desktop: truly full-screen. Preview Mobile: narrow (handled via wrapper).
+  const canvasWidth = isPreviewMode ? (isMobileView ? "max-w-[390px]" : "w-full max-w-none") : "max-w-2xl";
 
   if (!mounted) {
     return <div className="min-h-screen bg-zinc-50" />;
@@ -372,6 +373,8 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         <ContextualSidebar
           selectedBlock={selectedBlock}
           onUpdate={handleUpdateBlock}
+          onDelete={handleDeleteBlock}
+          onDuplicate={handleDuplicateBlock}
           onClose={() => { setSelectedBlockId(null); setShowPageSettings(false); }}
           onImageUploadStart={(id) => setUploadingBlockIds((s) => new Set(s).add(id))}
           onImageUploadEnd={(id) => setUploadingBlockIds((s) => { const ns = new Set(s); ns.delete(id); return ns; })}
@@ -395,7 +398,13 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onDragLeave={() => setCanvasDragOver(false)}
         onDrop={handleCanvasDrop}
         onClick={() => { setSelectedBlockId(null); setShowBlockPicker(false); setShowPageSettings(false); }}
-        className={`relative ${canvasWidth} mx-auto py-12 px-6 font-sans min-h-screen transition-all duration-300`}
+        className={`relative ${canvasWidth} mx-auto ${
+          isPreviewMode && isMobileView
+            ? "min-h-screen py-16 shadow-2xl overflow-hidden"
+            : isPreviewMode
+            ? "min-h-screen py-16 px-0"
+            : "py-12 px-6 min-h-screen"
+        } font-sans transition-all duration-300`}
         style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
         {/* Dark overlay for backgrounds */}
@@ -415,114 +424,57 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
           </div>
         )}
 
-        {/* Canvas Header */}
-        {!isPreviewMode && (
-          <header className="mb-8 flex items-center justify-between border-b border-zinc-900 pb-5">
-            <div>
-              <h1 className="text-2xl font-bold text-white mb-1">{initialData.title}</h1>
-              <p className="text-sm text-zinc-500">/{initialData.slug}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-zinc-600 font-mono">
-                {isSaving ? "Menyimpan..." : "Tersimpan"}
-              </span>
-              {hasChanges && (
-                <span className="text-[10px] bg-amber-950/60 border border-amber-800/60 text-amber-400 px-2 py-0.5 rounded-full">
-                  Draft belum dipublikasikan
-                </span>
+        {/* Content Wrapper */}
+        <div className="w-full max-w-2xl mx-auto px-4 md:px-8 pb-20 flex flex-col items-center">
+          {/* Profile / Header Section in Canvas */}
+          {pageSettings.showProfile !== false && (
+            <div className="w-full flex flex-col items-center relative z-10 mb-8" style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}>
+              {pageSettings.profileImageUrl || initialData.user?.image ? (
+                <img 
+                  src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
+                  alt={pageSettings.profileTitle || "Profile"} 
+                  className="w-16 h-16 rounded-full border shadow-xl object-cover"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-zinc-200 border shadow-xl" />
               )}
+
+              <div className="flex flex-col items-center" style={{ gap: `${(pageSettings.blockSpacing ?? 16) / 2}px` }}>
+                {pageSettings.profileTitle && (
+                  <h1 className="text-xl font-bold">{pageSettings.profileTitle}</h1>
+                )}
+                {pageSettings.profileBio && (
+                  <p className="text-sm opacity-80 text-center max-w-md">{pageSettings.profileBio}</p>
+                )}
+              </div>
             </div>
-          </header>
-        )}
+          )}
 
-        {/* Profile / Header Section in Canvas */}
-        {pageSettings.showProfile !== false && (
-          <div className="w-full flex flex-col items-center relative z-10" style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}>
-            {pageSettings.profileImageUrl || initialData.user?.image ? (
-              <img 
-                src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
-                alt={pageSettings.profileTitle || initialData.user?.name || "Profile"} 
-                className="w-24 h-24 rounded-full border shadow-xl object-cover"
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-zinc-200 border shadow-xl" />
-            )}
-
-            <div className="flex flex-col items-center" style={{ gap: `${(pageSettings.blockSpacing ?? 16) / 2}px` }}>
-              {(pageSettings.profileTitle || initialData.user?.name) && (
-                <h1 className="text-xl font-bold">{pageSettings.profileTitle || initialData.user?.name}</h1>
-              )}
-              {pageSettings.profileBio && (
-                <p className="text-sm opacity-80 text-center max-w-md">{pageSettings.profileBio}</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Blocks */}
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
-            <div 
-              className="flex flex-col relative z-10" 
-              style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {(() => {
-                const groupedBlocks: any[] = [];
-                let currentGroup: any[] = [];
-
-                blocks.forEach((block, i) => {
-                  if (block.type === "link") {
-                    currentGroup.push(block);
-                  } else {
-                    if (currentGroup.length > 0) {
-                      groupedBlocks.push({ type: "linkGroup", id: `group-${i}`, items: currentGroup });
-                      currentGroup = [];
-                    }
-                    groupedBlocks.push(block);
-                  }
-                });
-                if (currentGroup.length > 0) {
-                  groupedBlocks.push({ type: "linkGroup", id: `group-end`, items: currentGroup });
-                }
-
-                return groupedBlocks.map((group) => {
-                  if (group.type === "linkGroup") {
-                    return (
-                      <div key={group.id} style={cardStyle} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] shadow-md border transition-all">
-                        {group.items.map((block: any) => (
-                          <CanvasBlock
-                            key={block.id}
-                            block={block}
-                            onDelete={handleDeleteBlock}
-                            isSelected={block.id === selectedBlockId}
-                            onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
-                            isPreviewMode={isPreviewMode}
-                            uploadingBlockIds={uploadingBlockIds}
-                          />
-                        ))}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <CanvasBlock
-                      key={group.id}
-                      block={group}
-                      onDelete={handleDeleteBlock}
-                      isSelected={group.id === selectedBlockId}
-                      onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
-                      isPreviewMode={isPreviewMode}
-                      uploadingBlockIds={uploadingBlockIds}
-                      cardStyle={cardStyle}
-                      cardShowHeadingCard={pageSettings.cardShowHeadingCard ?? false}
-                    />
-                  );
-                });
-              })()}
-            </div>
-          </SortableContext>
-        </DndContext>
+          {/* Blocks */}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
+              <div 
+                className="flex flex-col relative z-10 w-full" 
+                style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {blocks.map((block) => (
+                  <CanvasBlock
+                    key={block.id}
+                    block={block}
+                    onDelete={handleDeleteBlock}
+                    isSelected={block.id === selectedBlockId}
+                    onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
+                    isPreviewMode={isPreviewMode}
+                    uploadingBlockIds={uploadingBlockIds}
+                    cardStyle={cardStyle}
+                    cardShowHeadingCard={pageSettings.cardShowHeadingCard ?? false}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
 
         {/* Empty state */}
         {blocks.length === 0 && !isPreviewMode && (

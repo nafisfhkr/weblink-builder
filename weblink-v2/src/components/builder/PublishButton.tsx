@@ -64,7 +64,7 @@ export default function PublishButton({
       <button
         onClick={handlePublish}
         disabled={isPublishing || !showActive}
-        className={`relative px-3 py-1 rounded text-[11px] font-semibold flex items-center gap-1.5 transition-all transition-colors cursor-pointer ${
+        className={`relative h-[26px] px-2.5 rounded-md text-[10px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
           isPublishing
             ? "bg-[#008080]/60 text-white cursor-not-allowed"
             : showActive

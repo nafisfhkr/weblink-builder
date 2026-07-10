@@ -1,503 +1,603 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { UploadCloud, Loader2, Trash2, Plus, X, Globe } from "lucide-react";
+import {
+  X, Copy, Trash2, Check,
+  Type, Brush, Play, Settings, ImageIcon,
+  Minus, Box, MousePointerClick, Plus, Loader2,
+} from "lucide-react";
 import { useToast } from "src/components/ui/Toast";
-import BackgroundPicker, { type PageSettings } from "src/components/builder/BackgroundPicker";
-import { InstagramIcon, TiktokIcon, XIcon, YoutubeIcon, FacebookIcon } from "src/components/ui/SocialIcons";
+import { nanoid } from "nanoid";
 import { processImageToBase64 } from "src/lib/imageProcessor";
+import BackgroundPicker, { type PageSettings } from "./BackgroundPicker";
+
+type BlockType = "text" | "container" | "buttons" | "image" | "divider";
 
 interface BlockItem {
   id: string;
-  type: "heading" | "text" | "link" | "image" | "divider" | "social";
+  type: BlockType | "page-settings";
   content: any;
   order: number;
-}
-
-interface SocialItem {
-  platform: string;
-  url: string;
 }
 
 interface ContextualSidebarProps {
   selectedBlock: BlockItem | null;
   onUpdate: (id: string, content: any) => void;
+  onDelete?: (id: string) => void;
+  onDuplicate?: (id: string) => void;
   onClose: () => void;
   onImageUploadStart?: (blockId: string) => void;
   onImageUploadEnd?: (blockId: string) => void;
-  // Page settings mode
   showPageSettings?: boolean;
   pageSettings?: PageSettings;
   onPageSettingsChange?: (settings: PageSettings) => void;
 }
 
-const AVAILABLE_PLATFORMS = [
-  { value: "instagram", label: "Instagram", icon: InstagramIcon },
-  { value: "tiktok", label: "TikTok", icon: TiktokIcon },
-  { value: "x", label: "X / Twitter", icon: XIcon },
-  { value: "youtube", label: "YouTube", icon: YoutubeIcon },
-  { value: "facebook", label: "Facebook", icon: FacebookIcon },
+// ─── Tab Config ─────────────────────────────────────────────────────────────
+
+const TABS = [
+  { id: "properties", label: "Properties", icon: Type },
+  { id: "appearance", label: "Appearance", icon: Brush },
+  { id: "animation",  label: "Animation",  icon: Play },
+  { id: "settings",   label: "Settings",   icon: Settings },
 ];
 
-const BLOCK_TYPE_LABELS: Record<string, string> = {
-  heading: "HEADING",
-  text: "TEXT",
-  link: "LINK",
-  image: "IMAGE",
-  divider: "DIVIDER",
-  social: "SOCIAL",
-  "page-settings": "BACKGROUND",
+const BLOCK_ICONS: Record<string, React.ElementType> = {
+  text: Type,
+  container: Box,
+  buttons: MousePointerClick,
+  image: ImageIcon,
+  divider: Minus,
 };
 
-// --- Heading Panel ---
-function HeadingPanel({ content, onChange }: { content: any; onChange: (c: any) => void }) {
-  return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <label className="sidebar-label">Site Title / Judul</label>
-        <textarea
-          id="sidebar-heading-title"
-          value={content?.title || ""}
-          maxLength={100}
-          rows={2}
-          onChange={(e) => onChange({ ...content, title: e.target.value })}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              e.currentTarget.blur();
-            }
-          }}
-          placeholder="Nama atau Judul Halaman"
-          className="sidebar-input resize-none"
-        />
-        <p className="sidebar-hint">{(content?.title || "").length}/100</p>
-      </div>
-      <div>
-        <label className="sidebar-label">Bio / Deskripsi Halaman</label>
-        <textarea
-          id="sidebar-heading-bio"
-          value={content?.bio !== undefined ? content.bio : ""}
-          maxLength={150}
-          rows={3}
-          onChange={(e) => onChange({ ...content, bio: e.target.value })}
-          placeholder="Deskripsi singkat atau subjudul"
-          className="sidebar-input resize-none"
-        />
-        <p className="sidebar-hint">{(content?.bio || "").length}/150</p>
-      </div>
-      <div>
-        <label className="sidebar-label">Ukuran Font (px)</label>
-        <input
-          type="number"
-          value={content?.textSize || 30}
-          onChange={(e) => onChange({ ...content, textSize: e.target.value })}
-          placeholder="30"
-          className="sidebar-input"
-        />
-      </div>
-      <div>
-        <label className="sidebar-label">Warna Teks</label>
-        <input
-          type="color"
-          value={content?.textColor || "#ffffff"}
-          onChange={(e) => onChange({ ...content, textColor: e.target.value })}
-          className="w-full h-10 rounded bg-zinc-950 border border-zinc-800 cursor-pointer"
-        />
-      </div>
-      <div>
-        <label className="sidebar-label">Perataan Teks</label>
-        <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1">
-          {([
-            { value: "left", label: "Kiri" },
-            { value: "center", label: "Tengah" },
-            { value: "right", label: "Kanan" },
-            { value: "justify", label: "Rata Kiri-Kanan" },
-          ] as const).map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => onChange({ ...content, align: opt.value })}
-              className={`flex-1 text-[11px] py-1.5 rounded-md font-medium transition-all ${
-                (content?.align || "center") === opt.value
-                  ? "bg-zinc-700 text-white shadow"
-                  : "text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+const BLOCK_LABELS: Record<string, string> = {
+  text: "Text",
+  container: "Container",
+  buttons: "Buttons",
+  image: "Image",
+  divider: "Divider",
+  "page-settings": "Background",
+};
+
+// ─── Shared form primitives ───────────────────────────────────────────────────
+
+function Label({ children }: { children: React.ReactNode }) {
+  return <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-1">{children}</p>;
 }
-
-// --- Text Panel ---
-function TextPanel({ content, onChange }: { content: any; onChange: (c: any) => void }) {
-  return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <label className="sidebar-label">Bio / Deskripsi</label>
-        <textarea
-          id="sidebar-text-content"
-          value={content?.text || ""}
-          maxLength={200}
-          rows={4}
-          onChange={(e) => onChange({ ...content, text: e.target.value })}
-          placeholder="Tuliskan deskripsi..."
-          className="sidebar-input resize-none"
-        />
-        <p className="sidebar-hint">{(content?.text || "").length}/200</p>
-      </div>
-      <div>
-        <label className="sidebar-label">Ukuran Font (px)</label>
-        <input
-          type="number"
-          value={content?.textSize || 14}
-          onChange={(e) => onChange({ ...content, textSize: e.target.value })}
-          placeholder="14"
-          className="sidebar-input"
-        />
-      </div>
-      <div>
-        <label className="sidebar-label">Warna Teks</label>
-        <input
-          type="color"
-          value={content?.textColor || "#a1a1aa"}
-          onChange={(e) => onChange({ ...content, textColor: e.target.value })}
-          className="w-full h-10 rounded bg-zinc-950 border border-zinc-800 cursor-pointer"
-        />
-      </div>
-      <div>
-        <label className="sidebar-label">Perataan Teks</label>
-        <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1">
-          {([
-            { value: "left", label: "Kiri" },
-            { value: "center", label: "Tengah" },
-            { value: "right", label: "Kanan" },
-            { value: "justify", label: "Rata Kiri-Kanan" },
-          ] as const).map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => onChange({ ...content, align: opt.value })}
-              className={`flex-1 text-[11px] py-1.5 rounded-md font-medium transition-all ${
-                (content?.align || "center") === opt.value
-                  ? "bg-zinc-700 text-white shadow"
-                  : "text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+function SInput({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} className={`w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors ${props.className || ""}`} />;
 }
-
-// --- Link Panel ---
-function LinkPanel({ content, onChange }: { content: any; onChange: (c: any) => void }) {
-  const handleUrlBlur = () => {
-    const url = (content?.url || "").trim();
-    if (url && !/^https?:\/\//i.test(url)) {
-      onChange({ ...content, url: `https://${url}` });
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <label className="sidebar-label">Judul Link</label>
-        <input
-          id="sidebar-link-title"
-          type="text"
-          value={content?.title || ""}
-          maxLength={40}
-          onChange={(e) => onChange({ ...content, title: e.target.value })}
-          placeholder="My Portfolio Website"
-          className="sidebar-input"
-        />
-        <p className="sidebar-hint">{(content?.title || "").length}/40</p>
-      </div>
-      <div>
-        <label className="sidebar-label">URL Tujuan</label>
-        <input
-          id="sidebar-link-url"
-          type="text"
-          value={content?.url || ""}
-          onChange={(e) => onChange({ ...content, url: e.target.value })}
-          onBlur={handleUrlBlur}
-          placeholder="https://example.com"
-          className="sidebar-input font-mono text-xs"
-        />
-      </div>
-      <div>
-        <label className="sidebar-label flex items-center justify-between">
-          <span>Ikon Tautan</span>
-        </label>
-        <select
-          value={content?.icon || "default"}
-          onChange={(e) => onChange({ ...content, icon: e.target.value })}
-          className="sidebar-input w-full bg-zinc-950 border border-zinc-800 focus:border-teal-500 rounded-lg p-3 text-white appearance-none"
-        >
-          <option value="default">Default (Panah)</option>
-          <option value="whatsapp">WhatsApp</option>
-          <option value="web">Web / Internet</option>
-          <option value="none">Tanpa Ikon</option>
-        </select>
-      </div>
-    </div>
-  );
+function STextArea({ ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea {...props} className={`w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-600 outline-none focus:border-zinc-600 transition-colors resize-y ${props.className || ""}`} />;
 }
-
-// --- Image Panel ---
-function ImagePanel({
-  content,
-  onChange,
-  onUploadStart,
-  onUploadEnd,
-}: {
-  content: any;
-  onChange: (c: any) => void;
-  onUploadStart?: () => void;
-  onUploadEnd?: () => void;
+function SSelect({ ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select {...props} className={`w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-zinc-600 transition-colors ${props.className || ""}`} />;
+}
+function SSlider({ label, value, min, max, unit = "", onChange }: {
+  label: string; value: number; min: number; max: number; unit?: string; onChange: (v: number) => void;
 }) {
-  const { showToast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div>
+      <div className="flex justify-between mb-1">
+        <Label>{label}</Label>
+        <span className="text-[10px] text-zinc-500">{value}{unit}</span>
+      </div>
+      <input type="range" min={min} max={max} value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full accent-teal-500 h-1.5" />
+    </div>
+  );
+}
+function ComingSoon({ tab }: { tab: string }) {
+  return <p className="text-center text-zinc-700 text-xs py-8 italic">Tab {tab} akan segera hadir.</p>;
+}
 
-  const handleUpload = async (file: File) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      showToast("Format file tidak didukung, gunakan JPG/PNG/WebP", "error");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      showToast("Ukuran file melebihi 5MB", "error");
-      return;
-    }
+// ─── Text Panel ──────────────────────────────────────────────────────────────
 
-    setIsUploading(true);
-    onUploadStart?.();
-    const formData = new FormData();
-    formData.append("file", file);
+function TextPanel({ content, onChange, activeTab }: any) {
+  const c = content || {};
+  if (activeTab === "properties") {
+    return (
+      <div className="space-y-4">
+        <div>
+          <Label>Text / Konten</Label>
+          <STextArea
+            rows={8}
+            value={c.text || ""}
+            onChange={(e) => onChange({ ...c, text: e.target.value })}
+            placeholder="Tulis teks di sini..."
+            className="font-mono text-xs"
+          />
+        </div>
+        <div className="space-y-3 pt-3 border-t border-zinc-800">
+          <div>
+            <Label>Tipe Teks</Label>
+            <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+              {(["paragraph","heading"] as const).map((t) => (
+                <button key={t} onClick={() => onChange({ ...c, as: t })}
+                  className={`flex-1 text-xs py-1.5 rounded-md capitalize transition-all font-medium ${(c.as || "paragraph") === t ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white"}`}>
+                  {t === "heading" ? "Judul" : "Paragraf"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <Label>Jenis Font</Label>
+              <SSelect value={c.fontFamily || "inherit"} onChange={(e) => onChange({ ...c, fontFamily: e.target.value })} className="text-xs py-1.5">
+                <option value="inherit">Bawaan Tema</option>
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="'Courier New', Courier, monospace">Courier New</option>
+                <option value="'Georgia', serif">Georgia</option>
+                <option value="'Times New Roman', Times, serif">Times New Roman</option>
+                <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                <option value="'Verdana', sans-serif">Verdana</option>
+              </SSelect>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Ukuran Font</Label>
+                <SInput type="number" value={c.textSize || 16} min={8} max={120}
+                  onChange={(e) => onChange({ ...c, textSize: Number(e.target.value) })} className="text-xs py-1.5" />
+              </div>
+              <div>
+                <Label>Spasi Baris</Label>
+                <SInput type="number" step="0.1" value={c.lineHeight || (c.as === 'heading' ? 1.2 : 1.5)} min={0.5} max={5}
+                  onChange={(e) => onChange({ ...c, lineHeight: Number(e.target.value) })} className="text-xs py-1.5" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (activeTab === "appearance") {
+    return (
+      <div className="space-y-4">
+        <div>
+          <Label>Perataan Teks</Label>
+          <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+            {(["left","center","right","justify"] as const).map((a) => (
+              <button key={a} onClick={() => onChange({ ...c, align: a })}
+                className={`flex-1 text-[10px] py-1.5 rounded-md capitalize transition-all ${(c.align || "center") === a ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white"}`}>
+                {a}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Label>Warna Teks</Label>
+          <input type="color" value={c.color || "#ffffff"}
+            onChange={(e) => onChange({ ...c, color: e.target.value })}
+            className="w-full h-10 rounded-lg cursor-pointer border border-zinc-800 bg-zinc-900 p-1" />
+        </div>
+      </div>
+    );
+  }
+  return <ComingSoon tab={activeTab} />;
+}
 
-    try {
-      const result = await processImageToBase64(file);
-      onChange({ ...content, url: result.url, storageKey: result.storageKey });
-      showToast("Gambar berhasil diunggah", "success");
-    } catch (e: any) {
-      showToast(e.message || "Upload foto gagal, coba lagi", "error");
-    } finally {
-      setIsUploading(false);
-      onUploadEnd?.();
-    }
+// ─── Container Panel ─────────────────────────────────────────────────────────
+
+function ContainerPanel({ content, onChange, activeTab }: any) {
+  const c = content || {};
+  const columns: any[] = c.columns_data || [{ width: 50, align: "center", spacer: false, mobileTop: false }];
+
+  const updateColumn = (i: number, key: string, value: any) => {
+    const newCols = [...columns]; newCols[i] = { ...newCols[i], [key]: value };
+    onChange({ ...c, columns_data: newCols });
+  };
+  const addColumn = () => {
+    if (columns.length >= 5) return;
+    onChange({ ...c, columns_data: [...columns, { width: 50, align: "center", spacer: false, mobileTop: false }] });
+  };
+  const removeColumn = (i: number) => {
+    onChange({ ...c, columns_data: columns.filter((_, idx) => idx !== i) });
   };
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <label className="sidebar-label">Foto / Gambar</label>
+  if (activeTab === "properties") {
+    return (
+      <div className="space-y-4">
+        <div>
+          <Label>Tipe Layout</Label>
+          <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+            {(["default","columns"] as const).map((t) => (
+              <button key={t} onClick={() => onChange({ ...c, layout: t })}
+                className={`flex-1 text-xs py-2 rounded-md capitalize transition-all font-medium ${(c.layout || "default") === t ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white"}`}>
+                {t === "default" ? "Default" : "Columns"}
+              </button>
+            ))}
+          </div>
+        </div>
 
-        {/* Dropzone */}
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files[0]) handleUpload(e.dataTransfer.files[0]); }}
-          onClick={() => !isUploading && fileInputRef.current?.click()}
-          className={`relative min-h-[130px] border border-dashed rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all p-4 overflow-hidden ${
-            dragOver ? "border-teal-500 bg-teal-950/20" :
-            content?.url ? "border-zinc-700 bg-zinc-900/30" :
-            "border-zinc-700 bg-zinc-900/40 hover:border-zinc-600"
-          }`}
-        >
-          <input
-            id="sidebar-image-upload"
-            type="file"
-            ref={fileInputRef}
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-            onChange={(e) => { if (e.target.files?.[0]) handleUpload(e.target.files[0]); }}
-          />
-          {isUploading ? (
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="animate-spin text-teal-400" size={24} />
-              <span className="text-xs text-zinc-400">Uploading...</span>
-            </div>
-          ) : content?.url ? (
-            <div className="relative group w-full flex flex-col items-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={content.url} alt={content.alt || ""} className="max-h-[110px] rounded-lg object-contain border border-zinc-800" />
-              <span className="text-[10px] text-zinc-500 mt-2">Drag atau klik untuk Replace Image</span>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center text-center gap-2">
-              <UploadCloud className="text-zinc-500" size={26} />
-              <div>
-                <p className="text-xs text-zinc-300 font-medium">Drag foto ke sini atau klik untuk pilih file</p>
-                <p className="text-[10px] text-zinc-600 mt-0.5">JPG, PNG, WebP · Max 5MB</p>
+        {(c.layout || "default") === "columns" && (
+          <div className="space-y-3">
+            <Label>Konfigurasi Kolom</Label>
+            {columns.map((col: any, i: number) => (
+              <div key={i} className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3 space-y-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-semibold text-zinc-400">Kolom {i + 1}</span>
+                  <button onClick={() => removeColumn(i)} className="text-zinc-600 hover:text-red-400 transition-colors"><Trash2 size={12}/></button>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500">Width: {col.width}%</span>
+                  <input type="range" min={10} max={90} value={col.width}
+                    onChange={(e) => updateColumn(i, "width", Number(e.target.value))}
+                    className="w-full accent-teal-500 h-1.5 mt-1" />
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 block mb-1">Alignment</span>
+                  <div className="flex gap-1">
+                    {(["left","center","right","auto"] as const).map((a) => (
+                      <button key={a} onClick={() => updateColumn(i, "align", a)}
+                        className={`flex-1 text-[9px] py-1 rounded transition-all capitalize ${col.align === a ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white bg-zinc-900"}`}>
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={col.spacer || false}
+                    onChange={(e) => updateColumn(i, "spacer", e.target.checked)}
+                    className="rounded accent-teal-500" />
+                  <span className="text-[10px] text-zinc-400">Use as spacer</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={col.mobileTop || false}
+                    onChange={(e) => updateColumn(i, "mobileTop", e.target.checked)}
+                    className="rounded accent-teal-500" />
+                  <span className="text-[10px] text-zinc-400">(Mobile) Stack on top</span>
+                </label>
+              </div>
+            ))}
+            {columns.length < 5 && (
+              <button onClick={addColumn}
+                className="w-full py-2 text-xs text-zinc-400 hover:text-white bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 border-dashed rounded-xl transition-all flex items-center justify-center gap-1">
+                <Plus size={13}/> Tambah Kolom
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (activeTab === "appearance") {
+    return (
+      <div className="space-y-4">
+        {/* Layout direction */}
+        <div>
+          <Label>Arah Layout</Label>
+          <SSelect value={c.flexDir || "default"} onChange={(e) => onChange({ ...c, flexDir: e.target.value })}>
+            <option value="default">Default</option>
+            <option value="row">Row</option>
+            <option value="column">Column</option>
+          </SSelect>
+        </div>
+        {/* Width */}
+        <div>
+          <Label>Width</Label>
+          <SSelect value={c.maxWidth || "max"} onChange={(e) => onChange({ ...c, maxWidth: e.target.value })}>
+            <option value="max">Max</option>
+            <option value="custom">Custom</option>
+          </SSelect>
+          {c.maxWidth === "custom" && (
+            <SInput type="number" className="mt-2" placeholder="px" value={c.customWidth || 800}
+              onChange={(e) => onChange({ ...c, customWidth: Number(e.target.value) })} />
+          )}
+        </div>
+        {/* Height */}
+        <div>
+          <Label>Height</Label>
+          <SSelect value={c.height || "auto"} onChange={(e) => onChange({ ...c, height: e.target.value })}>
+            <option value="auto">Auto</option>
+            <option value="full">Full Screen</option>
+            <option value="custom">Custom</option>
+          </SSelect>
+          {c.height === "custom" && (
+            <SInput type="number" className="mt-2" placeholder="px" value={c.customHeight || 400}
+              onChange={(e) => onChange({ ...c, customHeight: Number(e.target.value) })} />
+          )}
+        </div>
+        {/* Padding */}
+        <div className="grid grid-cols-2 gap-2">
+          <div><Label>Padding V</Label><SInput type="number" value={c.paddingV ?? 16} onChange={(e) => onChange({ ...c, paddingV: Number(e.target.value) })} /></div>
+          <div><Label>Padding H</Label><SInput type="number" value={c.paddingH ?? 16} onChange={(e) => onChange({ ...c, paddingH: Number(e.target.value) })} /></div>
+        </div>
+        {/* Gutter */}
+        <SSlider label="Gutter (Jarak Kolom)" value={c.gutter ?? 16} min={0} max={80} unit="px" onChange={(v) => onChange({ ...c, gutter: v })} />
+
+        {/* Background */}
+        <div className="border-t border-zinc-800 pt-4">
+          <Label>Background</Label>
+          <SSelect value={c.bgType || "none"} onChange={(e) => onChange({ ...c, bgType: e.target.value })}>
+            <option value="none">None</option>
+            <option value="color">Color</option>
+            <option value="gradient">Gradient</option>
+            <option value="image">Image</option>
+          </SSelect>
+          {c.bgType === "color" && (
+            <input type="color" value={c.bgColor || "#000000"} onChange={(e) => onChange({ ...c, bgColor: e.target.value })}
+              className="w-full h-10 mt-2 rounded-lg border border-zinc-800 bg-zinc-900 p-1 cursor-pointer" />
+          )}
+          {c.bgType === "gradient" && (
+            <div className="mt-2 space-y-2">
+              <div><Label>Sudut (Angle)</Label><SInput type="number" value={c.gradAngle ?? 90} min={0} max={360} onChange={(e) => onChange({ ...c, gradAngle: Number(e.target.value) })} /></div>
+              <div className="grid grid-cols-2 gap-2">
+                <div><Label>Warna 1</Label><input type="color" value={c.gradColor1 || "#000000"} onChange={(e) => onChange({ ...c, gradColor1: e.target.value })} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" /></div>
+                <div><Label>Warna 2</Label><input type="color" value={c.gradColor2 || "#333333"} onChange={(e) => onChange({ ...c, gradColor2: e.target.value })} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" /></div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Replace/Remove buttons */}
-        {content?.url && !isUploading && (
-          <div className="flex gap-2 mt-2">
-            <button
-              id="sidebar-image-replace"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex-1 text-xs bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg transition-all"
-            >
-              Replace Image
-            </button>
-            <button
-              id="sidebar-image-remove"
-              onClick={() => onChange({ ...content, url: "", storageKey: "" })}
-              className="text-xs bg-red-950/50 hover:bg-red-950 border border-red-900/50 hover:border-red-800 text-red-400 px-3 py-1.5 rounded-lg transition-all"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        )}
-      </div>
+        {/* Border */}
+        <div className="border-t border-zinc-800 pt-4">
+          <Label>Border</Label>
+          <SSelect value={c.borderStyle || "none"} onChange={(e) => onChange({ ...c, borderStyle: e.target.value })}>
+            <option value="none">None</option>
+            <option value="solid">Solid</option>
+            <option value="dashed">Dashed</option>
+            <option value="dotted">Dotted</option>
+          </SSelect>
+          {c.borderStyle && c.borderStyle !== "none" && (
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <div><Label>Thickness</Label><SInput type="number" value={c.borderWidth ?? 1} min={1} max={20} onChange={(e) => onChange({ ...c, borderWidth: Number(e.target.value) })} /></div>
+              <div><Label>Color</Label><input type="color" value={c.borderColor || "#ffffff"} onChange={(e) => onChange({ ...c, borderColor: e.target.value })} className="w-full h-9 rounded cursor-pointer border border-zinc-800 p-0.5" /></div>
+            </div>
+          )}
+        </div>
 
-      {/* Bentuk Gambar (Aspect Ratio / Shape) */}
-      <div>
-        <label className="sidebar-label">Bentuk Gambar</label>
-        <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1">
-          {([
-            { value: "widescreen", label: "Persegi Panjang" },
-            { value: "square", label: "Kotak" },
-            { value: "circle", label: "Bulat" },
-          ] as const).map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => onChange({ ...content, aspectRatio: opt.value })}
-              className={`flex-1 text-[11px] py-1.5 rounded-md font-medium transition-all ${
-                (content?.aspectRatio || "widescreen") === opt.value
-                  ? "bg-zinc-700 text-white shadow"
-                  : "text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        {/* Corner Radius */}
+        <SSlider label="Corner Radius" value={c.radius ?? 16} min={0} max={64} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
+
+        {/* Drop Shadow */}
+        <div className="border-t border-zinc-800 pt-4">
+          <Label>Drop Shadow</Label>
+          <div className="flex gap-1 flex-wrap">
+            {(["none","light","medium","dark","custom"] as const).map((s) => (
+              <button key={s} onClick={() => onChange({ ...c, shadow: s })}
+                className={`text-[10px] px-2.5 py-1.5 rounded-lg capitalize transition-all ${(c.shadow || "none") === s ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white bg-zinc-900"}`}>
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+    );
+  }
 
-      <div>
-        <label className="sidebar-label">Alt Text (Opsional)</label>
-        <input
-          id="sidebar-image-alt"
-          type="text"
-          value={content?.alt || ""}
-          maxLength={100}
-          onChange={(e) => onChange({ ...content, alt: e.target.value })}
-          placeholder="Deskripsi foto untuk aksesibilitas"
-          className="sidebar-input"
-        />
-        <p className="sidebar-hint">{(content?.alt || "").length}/100</p>
-      </div>
-    </div>
-  );
+  return <ComingSoon tab={activeTab} />;
 }
 
-// --- Divider Panel ---
-function DividerPanel() {
-  return (
-    <div className="text-center py-6 text-zinc-600 text-xs">
-      Blok divider tidak memiliki pengaturan.
-    </div>
-  );
-}
+// ─── Buttons Panel ───────────────────────────────────────────────────────────
 
-// --- Social Panel ---
-function SocialPanel({ content, onChange }: { content: any; onChange: (c: any) => void }) {
-  const items: SocialItem[] = content?.items || [];
+function ButtonsPanel({ content, onChange, activeTab }: any) {
+  const c = content || {};
+  const items: any[] = c.items || [];
 
-  const updateItem = (index: number, field: keyof SocialItem, value: string) => {
-    const updated = items.map((item, i) => i === index ? { ...item, [field]: value } : item);
-    onChange({ ...content, items: updated });
+  const updateItem = (i: number, key: string, val: any) => {
+    const newItems = [...items]; newItems[i] = { ...newItems[i], [key]: val };
+    onChange({ ...c, items: newItems });
   };
+  const removeItem = (i: number) => onChange({ ...c, items: items.filter((_, idx) => idx !== i) });
+  const addItem = () => onChange({ ...c, items: [...items, { id: nanoid(), label: "Tombol Baru", url: "https://", bgColor: "#14b8a6", textColor: "#ffffff" }] });
 
-  const handleUrlBlur = (index: number) => {
-    const url = items[index]?.url?.trim();
-    if (url && !/^https?:\/\//i.test(url)) {
-      if (url.includes(".")) {
-        updateItem(index, "url", `https://${url}`);
-      }
-    }
-  };
-
-  const addItem = () => {
-    const unusedPlatform = AVAILABLE_PLATFORMS.find(p => !items.some(i => i.platform === p.value));
-    const platform = unusedPlatform?.value || "instagram";
-    onChange({ ...content, items: [...items, { platform, url: "" }] });
-  };
-
-  const removeItem = (index: number) => {
-    onChange({ ...content, items: items.filter((_, i) => i !== index) });
-  };
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <label className="sidebar-label">Platform Sosial</label>
-        <button
-          id="sidebar-social-add"
-          onClick={addItem}
-          className="text-xs bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all"
-        >
-          <Plus size={13} /> Tambah
+  if (activeTab === "properties") {
+    return (
+      <div className="space-y-3">
+        {items.length === 0 && (
+          <p className="text-center text-zinc-600 text-xs italic py-4">Belum ada tombol. Klik tambah di bawah.</p>
+        )}
+        {items.map((item: any, i: number) => (
+          <div key={item.id || i} className="bg-zinc-900/60 border border-zinc-800 rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-800 bg-zinc-900/40">
+              <span className="text-[10px] font-semibold text-zinc-400">Tombol {i + 1}</span>
+              <button onClick={() => removeItem(i)} className="text-zinc-600 hover:text-red-400 transition-colors"><Trash2 size={12}/></button>
+            </div>
+            <div className="p-3 space-y-2">
+              <div>
+                <Label>Label</Label>
+                <SInput value={item.label || ""} onChange={(e) => updateItem(i, "label", e.target.value)} placeholder="Teks Tombol" />
+              </div>
+              <div>
+                <Label>URL</Label>
+                <SInput value={item.url || ""} onChange={(e) => updateItem(i, "url", e.target.value)} placeholder="https://..." className="font-mono text-xs" />
+              </div>
+              <div className="border-t border-zinc-800 pt-2">
+                <Label>Color (Opsional)</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Background</span>
+                    <input type="color" value={item.bgColor || "#14b8a6"} onChange={(e) => updateItem(i, "bgColor", e.target.value)} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Hover</span>
+                    <input type="color" value={item.hoverColor || item.bgColor || "#0d9488"} onChange={(e) => updateItem(i, "hoverColor", e.target.value)} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] text-zinc-600 block mb-1">Label</span>
+                    <input type="color" value={item.textColor || "#ffffff"} onChange={(e) => updateItem(i, "textColor", e.target.value)} className="w-full h-8 rounded cursor-pointer border border-zinc-800 p-0.5" />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label>On Click (JS Opsional)</Label>
+                <STextArea rows={2} value={item.onClick || ""} onChange={(e) => updateItem(i, "onClick", e.target.value)} placeholder={"console.log('clicked!');"} className="font-mono text-[10px]" />
+              </div>
+            </div>
+          </div>
+        ))}
+        <button onClick={addItem}
+          className="w-full py-2.5 text-xs font-semibold text-teal-400 hover:text-teal-300 bg-teal-950/30 hover:bg-teal-950/50 border border-teal-800/50 border-dashed rounded-xl transition-all flex items-center justify-center gap-1.5">
+          <Plus size={13}/> Add Button
         </button>
       </div>
-      {items.length === 0 ? (
-        <p className="text-xs text-zinc-600 italic text-center py-3">Belum ada platform. Klik Tambah.</p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {items.map((item, index) => {
-            const platformConfig = AVAILABLE_PLATFORMS.find(p => p.value === item.platform);
-            const Icon = platformConfig?.icon || Globe;
-            return (
-              <div key={index} className="flex items-center gap-2 bg-zinc-900/60 p-2 border border-zinc-800 rounded-lg">
-                <div className="text-zinc-400 p-1 bg-zinc-900 rounded shrink-0">
-                  <Icon size={15} />
-                </div>
-                <select
-                  value={item.platform}
-                  onChange={(e) => updateItem(index, "platform", e.target.value)}
-                  className="bg-zinc-900 text-zinc-300 text-xs border border-zinc-800 rounded px-1.5 py-1 outline-none shrink-0"
-                >
-                  {AVAILABLE_PLATFORMS.map(p => (
-                    <option key={p.value} value={p.value}>{p.label}</option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  value={item.url}
-                  onChange={(e) => updateItem(index, "url", e.target.value)}
-                  onBlur={() => handleUrlBlur(index)}
-                  placeholder="URL atau username"
-                  className="flex-1 bg-zinc-900 text-white text-xs border border-zinc-800 rounded px-2 py-1 outline-none min-w-0"
-                />
-                <button onClick={() => removeItem(index)} className="text-zinc-600 hover:text-red-500 p-1 transition-colors shrink-0">
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+    );
+  }
+
+  return <ComingSoon tab={activeTab} />;
 }
 
+// ─── Image Panel ─────────────────────────────────────────────────────────────
 
-// --- Main ContextualSidebar ---
+function ImagePanel({ content, onChange, activeTab, onUploadStart, onUploadEnd }: any) {
+  const { showToast } = useToast();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const c = content || {};
+
+  const handleFile = async (file: File) => {
+    if (!["image/jpeg","image/png","image/gif","image/svg+xml"].includes(file.type)) {
+      showToast("Format tidak didukung (JPEG/PNG/GIF/SVG)", "error"); return;
+    }
+    if (file.size > 2 * 1024 * 1024) { showToast("Ukuran maksimal 2MB", "error"); return; }
+    setUploading(true); onUploadStart?.();
+    try {
+      const result = await processImageToBase64(file);
+      onChange({ ...c, url: result.url, storageKey: result.storageKey });
+    } catch (e: any) { showToast(e.message || "Upload gagal", "error"); }
+    finally { setUploading(false); onUploadEnd?.(); }
+  };
+
+  if (activeTab === "properties") {
+    return (
+      <div className="space-y-4">
+        {/* Upload zone */}
+        <div>
+          <input ref={fileRef} type="file" className="hidden" accept="image/jpeg,image/png,image/gif,image/svg+xml"
+            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+          <div className="border border-zinc-800 rounded-xl overflow-hidden">
+            {/* Preview */}
+            <div className="bg-zinc-900 min-h-[120px] flex items-center justify-center relative">
+              {uploading ? (
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="animate-spin text-teal-400" size={24} />
+                  <span className="text-xs text-zinc-500">Uploading...</span>
+                </div>
+              ) : c.url ? (
+                <img src={c.url} alt={c.alt || ""} className="max-h-40 object-contain" />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-zinc-600">
+                  <ImageIcon size={28} />
+                  <span className="text-xs">Belum ada gambar</span>
+                </div>
+              )}
+            </div>
+            {/* Action bar */}
+            <div className="flex items-center gap-2 px-3 py-2 border-t border-zinc-800 bg-zinc-900/40">
+              <button onClick={() => fileRef.current?.click()}
+                className="flex-1 py-1.5 text-xs font-bold bg-teal-500 hover:bg-teal-400 text-teal-950 rounded-lg transition-colors">
+                Upload
+              </button>
+              {c.url && (
+                <button onClick={() => onChange({ ...c, url: "", storageKey: "" })}
+                  className="py-1.5 px-2.5 text-xs text-red-400 hover:text-red-300 bg-red-950/30 rounded-lg transition-colors">
+                  <Trash2 size={13} />
+                </button>
+              )}
+            </div>
+            <p className="text-[9px] text-zinc-600 text-center py-1.5">JPEG, PNG, GIF (maks 2MB), SVG</p>
+          </div>
+        </div>
+
+        <div><Label>Title (Opsional)</Label><SInput value={c.title || ""} onChange={(e) => onChange({ ...c, title: e.target.value })} placeholder="Judul gambar" /></div>
+        <div><Label>Alternate Text</Label><SInput value={c.alt || ""} onChange={(e) => onChange({ ...c, alt: e.target.value })} placeholder="Deskripsi gambar untuk SEO / aksesibilitas" /></div>
+        <div><Label>Link URL (Opsional)</Label><SInput value={c.linkUrl || ""} onChange={(e) => onChange({ ...c, linkUrl: e.target.value })} placeholder="https://..." className="font-mono text-xs" /></div>
+
+        <div className="border-t border-zinc-800 pt-3">
+          <Label>Options</Label>
+          <label className="flex items-center gap-2 cursor-pointer mt-1">
+            <input type="checkbox" checked={c.optimize ?? true} onChange={(e) => onChange({ ...c, optimize: e.target.checked })} className="rounded accent-teal-500" />
+            <span className="text-xs text-zinc-400">Optimize Image (kompresi otomatis)</span>
+          </label>
+        </div>
+      </div>
+    );
+  }
+
+  return <ComingSoon tab={activeTab} />;
+}
+
+// ─── Divider Panel ───────────────────────────────────────────────────────────
+
+function DividerPanel({ content, onChange, activeTab }: any) {
+  const c = content || {};
+
+  if (activeTab === "properties") {
+    return (
+      <div className="space-y-4">
+        <div>
+          <Label>Style</Label>
+          <SSelect value={c.style || "single"} onChange={(e) => onChange({ ...c, style: e.target.value })}>
+            <option value="single">Single</option>
+            <option value="dashed">Dashed</option>
+            <option value="dotted">Dotted</option>
+          </SSelect>
+        </div>
+        <div>
+          <Label>Orientation</Label>
+          <SSelect value={c.orientation || "horizontal"} onChange={(e) => onChange({ ...c, orientation: e.target.value })}>
+            <option value="horizontal">Horizontal</option>
+            <option value="vertical">Vertical</option>
+          </SSelect>
+        </div>
+        <div>
+          <Label>Color</Label>
+          <input type="color" value={c.color || "#52525b"} onChange={(e) => onChange({ ...c, color: e.target.value })}
+            className="w-full h-10 rounded-lg border border-zinc-800 bg-zinc-900 p-1 cursor-pointer" />
+        </div>
+        <div>
+          <Label>Gradient (Opsional)</Label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={c.useGradient || false} onChange={(e) => onChange({ ...c, useGradient: e.target.checked })} className="rounded accent-teal-500" />
+            <span className="text-xs text-zinc-400">Aktifkan gradient</span>
+          </label>
+          {c.useGradient && (
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <input type="color" value={c.gradColor1 || "#52525b"} onChange={(e) => onChange({ ...c, gradColor1: e.target.value })} className="w-full h-8 rounded border border-zinc-800 p-0.5 cursor-pointer" />
+              <input type="color" value={c.gradColor2 || "#27272a"} onChange={(e) => onChange({ ...c, gradColor2: e.target.value })} className="w-full h-8 rounded border border-zinc-800 p-0.5 cursor-pointer" />
+            </div>
+          )}
+        </div>
+        <SSlider label="Width" value={c.width ?? 80} min={1} max={100} unit="%" onChange={(v) => onChange({ ...c, width: v })} />
+        <SSlider label="Thickness" value={c.thickness ?? 1} min={1} max={20} unit="px" onChange={(v) => onChange({ ...c, thickness: v })} />
+        <SSlider label="Corner Rounding" value={c.radius ?? 0} min={0} max={20} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
+        <SSlider label="Margins" value={c.margin ?? 24} min={0} max={100} unit="px" onChange={(v) => onChange({ ...c, margin: v })} />
+        <div>
+          <Label>Alignment</Label>
+          <SSelect value={c.align || "auto"} onChange={(e) => onChange({ ...c, align: e.target.value })}>
+            <option value="auto">Auto</option>
+            <option value="left">Left</option>
+            <option value="center">Center</option>
+            <option value="right">Right</option>
+          </SSelect>
+        </div>
+        <div>
+          <Label>Mobile</Label>
+          <div className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+            {(["auto","manual"] as const).map((m) => (
+              <button key={m} onClick={() => onChange({ ...c, mobile: m })}
+                className={`flex-1 text-xs py-1.5 rounded-md capitalize transition-all ${(c.mobile || "auto") === m ? "bg-zinc-700 text-white" : "text-zinc-500 hover:text-white"}`}>
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <ComingSoon tab={activeTab} />;
+}
+
+// ─── Main Sidebar ─────────────────────────────────────────────────────────────
+
 export default function ContextualSidebar({
   selectedBlock,
   onUpdate,
+  onDelete,
+  onDuplicate,
   onClose,
   onImageUploadStart,
   onImageUploadEnd,
@@ -505,103 +605,122 @@ export default function ContextualSidebar({
   pageSettings,
   onPageSettingsChange,
 }: ContextualSidebarProps) {
-  const isOpen = !!selectedBlock || !!showPageSettings;
+  const [activeTab, setActiveTab] = useState("properties");
+  const [doneFlash, setDoneFlash] = useState(false);
+
+  const isOpen = !!selectedBlock || showPageSettings;
+  if (!isOpen) return null;
+
+  const blockType = selectedBlock?.type as BlockType;
+  const BlockIcon = blockType ? BLOCK_ICONS[blockType] : null;
+  const blockLabel = showPageSettings ? "Background" : (blockType ? BLOCK_LABELS[blockType] : "Settings");
+
+  // Divider only has properties, animation, settings (no appearance)
+  const tabs = blockType === "divider"
+    ? TABS.filter((t) => t.id !== "appearance")
+    : TABS;
+
+  const renderPanel = () => {
+    if (showPageSettings && pageSettings && onPageSettingsChange) {
+      return <BackgroundPicker settings={pageSettings} onChange={onPageSettingsChange} />;
+    }
+    if (!selectedBlock) return null;
+
+    const props = {
+      content: selectedBlock.content,
+      onChange: (newContent: any) => onUpdate(selectedBlock.id, newContent),
+      activeTab,
+      onUploadStart: () => onImageUploadStart?.(selectedBlock.id),
+      onUploadEnd: () => onImageUploadEnd?.(selectedBlock.id),
+    };
+
+    switch (selectedBlock.type) {
+      case "text":      return <TextPanel {...props} />;
+      case "container": return <ContainerPanel {...props} />;
+      case "buttons":   return <ButtonsPanel {...props} />;
+      case "image":     return <ImagePanel {...props} />;
+      case "divider":   return <DividerPanel {...props} />;
+      default:          return <p className="text-zinc-600 text-xs text-center py-6">Blok tidak dikenal.</p>;
+    }
+  };
+
+  const handleDone = () => {
+    setDoneFlash(true);
+    setTimeout(() => { setDoneFlash(false); onClose(); }, 600);
+  };
 
   return (
-    <>
-      {/* Sidebar Panel */}
-      <aside
-        className={`fixed left-0 top-0 h-full w-72 bg-zinc-950 border-r border-zinc-800 z-40 flex flex-col shadow-2xl transition-transform duration-300 ease-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-        aria-label="Sidebar editor blok"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
-          <div className="flex items-center gap-2.5">
-            <div className="w-1.5 h-5 bg-teal-500 rounded-full" />
-            <span className="text-xs font-bold tracking-widest text-zinc-300 uppercase">
-              {showPageSettings ? "BACKGROUND" : selectedBlock ? BLOCK_TYPE_LABELS[selectedBlock.type] || selectedBlock.type.toUpperCase() : "BLOCK"}
-            </span>
-          </div>
+    <aside className="fixed right-0 top-0 h-[100dvh] w-full sm:w-[300px] bg-zinc-950 border-l border-zinc-800 z-40 flex flex-col shadow-2xl">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
+        <div className="flex items-center gap-2">
+          {BlockIcon && <BlockIcon size={14} className="text-teal-400 shrink-0" />}
+          <span className="text-[11px] font-bold tracking-widest text-zinc-200 uppercase">{blockLabel}</span>
+        </div>
+        <button onClick={onClose} className="text-zinc-500 hover:text-white p-1 rounded-lg hover:bg-zinc-800 transition-all">
+          <X size={14} />
+        </button>
+      </div>
+
+      {/* Tabs */}
+      {!showPageSettings && (
+        <div className="flex items-center border-b border-zinc-800 shrink-0 px-1 py-1 gap-0.5">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                title={tab.label}
+                className={`flex-1 flex flex-col items-center justify-center py-2.5 rounded-lg transition-all group ${
+                  isActive ? "bg-zinc-800 text-teal-400" : "text-zinc-600 hover:text-zinc-300 hover:bg-zinc-900"
+                }`}
+              >
+                <Icon size={15} />
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Panel content */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4">
+        {renderPanel()}
+      </div>
+
+      {/* Action bar bawah (hanya untuk block, bukan page settings) */}
+      {!showPageSettings && selectedBlock && (
+        <div className="shrink-0 border-t border-zinc-800 p-3 flex items-center gap-2">
+          {onDuplicate && (
+            <button
+              onClick={() => onDuplicate(selectedBlock.id)}
+              title="Duplikasi"
+              className="p-2 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-lg transition-all"
+            >
+              <Copy size={15} />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={() => { onDelete(selectedBlock.id); onClose(); }}
+              title="Hapus"
+              className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-950/30 rounded-lg transition-all"
+            >
+              <Trash2 size={15} />
+            </button>
+          )}
           <button
-            id="sidebar-close"
-            onClick={onClose}
-            className="text-zinc-500 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition-all"
-            aria-label="Tutup sidebar"
+            onClick={handleDone}
+            className={`ml-auto flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              doneFlash ? "bg-teal-400 text-teal-950" : "bg-teal-500 hover:bg-teal-400 text-teal-950"
+            }`}
           >
-            <X size={16} />
+            {doneFlash ? <Check size={14} /> : null}
+            Done
           </button>
         </div>
-
-        {/* Form Content */}
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
-          <div className="flex-1">
-            {selectedBlock?.type === "heading" && (
-              <HeadingPanel
-                content={selectedBlock.content}
-                onChange={(c) => onUpdate(selectedBlock.id, c)}
-              />
-            )}
-            {selectedBlock?.type === "text" && (
-              <TextPanel
-                content={selectedBlock.content}
-                onChange={(c) => onUpdate(selectedBlock.id, c)}
-              />
-            )}
-            {selectedBlock?.type === "link" && (
-              <LinkPanel
-                content={selectedBlock.content}
-                onChange={(c) => onUpdate(selectedBlock.id, c)}
-              />
-            )}
-            {selectedBlock?.type === "image" && (
-              <ImagePanel
-                content={selectedBlock.content}
-                onChange={(c) => onUpdate(selectedBlock.id, c)}
-                onUploadStart={() => onImageUploadStart?.(selectedBlock.id)}
-                onUploadEnd={() => onImageUploadEnd?.(selectedBlock.id)}
-              />
-            )}
-            {selectedBlock?.type === "divider" && <DividerPanel />}
-            {selectedBlock?.type === "social" && (
-              <SocialPanel
-                content={selectedBlock.content}
-                onChange={(c) => onUpdate(selectedBlock.id, c)}
-              />
-            )}
-            {showPageSettings && pageSettings && onPageSettingsChange && (
-              <BackgroundPicker
-                settings={pageSettings}
-                onChange={onPageSettingsChange}
-              />
-            )}
-          </div>
-          
-          {selectedBlock && !["divider", "link"].includes(selectedBlock.type) && (
-            <div className="pt-4 border-t border-zinc-800">
-               <label className="sidebar-label flex items-center justify-between cursor-pointer">
-                  <span>Gunakan Card (Background)</span>
-                  <input
-                    type="checkbox"
-                    checked={selectedBlock.content?.useCard !== false}
-                    onChange={(e) => onUpdate(selectedBlock.id, { ...selectedBlock.content, useCard: e.target.checked })}
-                    className="accent-teal-500 w-4 h-4"
-                  />
-               </label>
-               <p className="sidebar-hint mt-2">Jika dimatikan, blok ini akan tampil tanpa bingkai dan latar belakang.</p>
-            </div>
-          )}
-        </div>
-      </aside>
-
-      {/* Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-[1px] lg:hidden"
-          onClick={onClose}
-        />
       )}
-    </>
+    </aside>
   );
 }
