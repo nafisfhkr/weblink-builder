@@ -5,6 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import DeleteProjectButton from "src/components/dashboard/DeleteProjectButton";
 import CopyLinkButton from "src/components/dashboard/CopyLinkButton";
+import EditSlugForm from "src/components/dashboard/EditSlugForm";
 import { headers } from "next/headers";
 
 export default async function DashboardPage() {
@@ -105,9 +106,9 @@ export default async function DashboardPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-zinc-900 w-full">
-                  <p className="text-xs text-gray-500 truncate flex-1 min-w-0">
-                    {host}/{project.slug}
-                  </p>
+                  <div className="flex-1 min-w-0 mr-1">
+                    <EditSlugForm projectId={project.id} initialSlug={project.slug} host={host} />
+                  </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <CopyLinkButton url={fullUrl} />
                     <DeleteProjectButton projectId={project.id} projectTitle={project.title} />

@@ -1,8 +1,8 @@
-﻿import 'src/global.css';
+import 'src/global.css';
 
 import type { Metadata, Viewport } from 'next';
 
-import localFont from 'next/font/local';
+import { DM_Sans, Barlow } from 'next/font/google';
 
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
@@ -18,26 +18,16 @@ import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 
 // ----------------------------------------------------------------------
-// Font di-self-host via next/font/local (woff2 dari @fontsource, subset latin)
-// — otomatis preload + size-adjusted fallback, tanpa CSS render-blocking dan
-// tanpa fetch eksternal saat build. Theme membacanya lewat CSS variable
-// (lihat theme-config.ts fontFamily).
 
-const dmSans = localFont({
-  src: '../assets/fonts/dm-sans-latin-wght-normal.woff2',
-  weight: '100 1000',
+const dmSans = DM_Sans({
+  subsets: ['latin'],
   display: 'swap',
   variable: '--font-dm-sans',
 });
 
-const barlow = localFont({
-  src: [
-    { path: '../assets/fonts/barlow-latin-400-normal.woff2', weight: '400' },
-    { path: '../assets/fonts/barlow-latin-500-normal.woff2', weight: '500' },
-    { path: '../assets/fonts/barlow-latin-600-normal.woff2', weight: '600' },
-    { path: '../assets/fonts/barlow-latin-700-normal.woff2', weight: '700' },
-    { path: '../assets/fonts/barlow-latin-800-normal.woff2', weight: '800' },
-  ],
+const barlow = Barlow({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
   display: 'swap',
   variable: '--font-barlow',
 });
