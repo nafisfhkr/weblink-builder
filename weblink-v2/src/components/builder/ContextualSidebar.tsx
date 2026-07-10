@@ -453,10 +453,10 @@ function ButtonsPanel({ content, onChange, activeTab }: any) {
         </button>
 
         <div className="border-t border-zinc-800 pt-4 mt-4">
-          <Label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-2 cursor-pointer mt-2 text-[11px] text-zinc-300 font-medium">
             <input type="checkbox" checked={c.useGlassContainer || false} onChange={(e) => onChange({ ...c, useGlassContainer: e.target.checked })} className="accent-teal-500" />
             Gunakan Wadah Kaca (Glass Container)
-          </Label>
+          </label>
           <p className="text-[10px] text-zinc-500 mt-1">
             Bungkus semua tombol di dalam kotak semi-transparan dengan efek blur (Glassmorphism).
           </p>
