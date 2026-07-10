@@ -57,6 +57,7 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const profileInputRef = useRef<HTMLInputElement>(null);
 
   const handleTabChange = (tab: "color" | "gradient" | "image") => {
     setActiveTab(tab);
@@ -70,13 +71,12 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
   };
 
   const handleUpload = async (file: File) => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      showToast("Format file tidak didukung, gunakan JPG/PNG/WebP", "error");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      showToast("Format tidak didukung (Gunakan JPG, PNG, atau WebP)", "error");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      showToast("Ukuran file melebihi 5MB", "error");
+      showToast("Ukuran maksimal 5MB", "error");
       return;
     }
 
@@ -89,6 +89,26 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
       showToast("Upload gagal, coba lagi", "error");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleProfileUpload = async (file: File) => {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      showToast("Format tidak didukung (Gunakan JPG, PNG, atau WebP)", "error");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("Ukuran maksimal 2MB", "error");
+      return;
+    }
+
+    showToast("Mengunggah foto profil...", "success");
+    try {
+      const result = await processImageToBase64(file);
+      onChange({ ...settings, profileImageUrl: result.url });
+      showToast("Foto profil berhasil diunggah", "success");
+    } catch {
+      showToast("Upload gagal, coba lagi", "error");
     }
   };
 
@@ -340,23 +360,58 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="w-full h-px bg-zinc-800" />
 
           {/* Profil Visibility */}
-          <div className="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2">
-            <div className="flex flex-col">
-              <span className="text-[11px] text-zinc-300 font-semibold">Tampilkan Info Profil</span>
-              <span className="text-[9px] text-zinc-500">Foto profil, nama, dan deskripsi singkat di atas</span>
-            </div>
-            <button
-              onClick={() => onChange({ ...settings, showProfile: settings.showProfile === false ? true : false })}
-              className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer ${
-                settings.showProfile !== false ? "bg-teal-500" : "bg-zinc-700"
-              }`}
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                  settings.showProfile !== false ? "translate-x-4" : "translate-x-0"
+          <div className="flex flex-col gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col">
+                <span className="text-[11px] text-zinc-300 font-semibold">Tampilkan Info Profil</span>
+                <span className="text-[9px] text-zinc-500">Foto profil, nama, dan deskripsi singkat di atas</span>
+              </div>
+              <button
+                onClick={() => onChange({ ...settings, showProfile: settings.showProfile === false ? true : false })}
+                className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer ${
+                  settings.showProfile !== false ? "bg-teal-500" : "bg-zinc-700"
                 }`}
-              />
-            </button>
+              >
+                <div
+                  className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                    settings.showProfile !== false ? "translate-x-4" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+            
+            {settings.showProfile !== false && (
+              <div className="mt-2 pt-2 border-t border-zinc-800 flex flex-col gap-2">
+                <span className="text-[10px] text-zinc-400">Custom Foto Profil</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    ref={profileInputRef}
+                    onChange={(e) => { if (e.target.files?.[0]) handleProfileUpload(e.target.files[0]); }}
+                  />
+                  {settings.profileImageUrl ? (
+                    <div className="flex items-center gap-2 w-full">
+                      <img src={settings.profileImageUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover border border-zinc-700" />
+                      <button 
+                        onClick={() => onChange({ ...settings, profileImageUrl: "" })}
+                        className="text-[10px] text-red-400 hover:text-red-300 bg-red-950/30 px-2 py-1 rounded"
+                      >
+                        Hapus Custom Foto
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => profileInputRef.current?.click()}
+                      className="text-[10px] flex items-center justify-center w-full gap-1.5 text-zinc-300 hover:text-white border border-zinc-700 px-3 py-1.5 rounded-lg transition-all bg-zinc-800 hover:bg-zinc-700"
+                    >
+                      <UploadCloud size={12} /> Upload Foto Profil
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
