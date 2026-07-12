@@ -402,8 +402,8 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
           isPreviewMode && isMobileView
             ? "min-h-screen py-16 shadow-2xl overflow-hidden"
             : isPreviewMode
-            ? "min-h-screen py-16 px-0"
-            : "py-12 px-6 min-h-screen"
+            ? "min-h-screen py-20 px-0"
+            : "py-20 px-6 min-h-screen"
         } font-sans transition-all duration-300`}
         style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
@@ -433,10 +433,10 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                 <img 
                   src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
                   alt={pageSettings.profileTitle || "Profile"} 
-                  className="w-16 h-16 rounded-full border shadow-xl object-cover"
+                  className="w-24 h-24 rounded-full border shadow-xl object-cover"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-zinc-200 border shadow-xl" />
+                <div className="w-24 h-24 rounded-full bg-zinc-200 border shadow-xl" />
               )}
 
               <div className="flex flex-col items-center" style={{ gap: `${(pageSettings.blockSpacing ?? 16) / 2}px` }}>
