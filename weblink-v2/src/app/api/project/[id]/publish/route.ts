@@ -1,6 +1,7 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "auth";
 import { prisma } from "src/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -29,6 +30,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         publishedAt: new Date(),
       },
     });
+
+    // Revalidate the published page to clear any cached version
+    revalidatePath(`/${project.slug}`);
 
     return NextResponse.json({ success: true, project: updatedProject });
   } catch (error) {
