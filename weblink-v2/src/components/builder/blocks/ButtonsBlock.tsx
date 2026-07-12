@@ -26,7 +26,7 @@ export default function ButtonsBlock({ content }: { content: any }) {
             className="w-full max-w-sm block"
           >
             <div
-              className="w-full px-6 py-4 rounded-full font-semibold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] flex items-center justify-between gap-4"
+              className="w-full px-4 py-1.5 rounded-xl font-semibold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:opacity-90 active:scale-[0.98] flex items-center justify-between gap-4"
               style={{
                 backgroundColor: finalBg,
                 color: item.textColor || "#ffffff",
@@ -36,10 +36,7 @@ export default function ButtonsBlock({ content }: { content: any }) {
                 WebkitBackdropFilter: opacity < 100 ? "blur(12px)" : undefined,
               }}
             >
-              {/* Left spacer to ensure text centers perfectly if justify-between is used */}
-              <div className="w-5 h-5 shrink-0" />
-              
-              <span className="truncate flex-1 text-center">{item.label || "Tombol"}</span>
+              <span className="truncate flex-1 text-left">{item.label || "Tombol"}</span>
               
               {item.icon === "whatsapp" ? (
                 <svg className="shrink-0" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/></svg>
@@ -59,7 +56,7 @@ export default function ButtonsBlock({ content }: { content: any }) {
 
   return (
     <div
-      className={`w-full ${cardWrapperClass(true)} px-5 py-5`}
+      className={`w-full max-w-[416px] mx-auto ${cardWrapperClass(true)} p-4`}
       style={cardStyle}
     >
       {buttons}

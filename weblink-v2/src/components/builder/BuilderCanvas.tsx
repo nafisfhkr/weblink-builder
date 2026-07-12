@@ -474,9 +474,9 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] font-medium opacity-60 hover:opacity-100 transition-opacity"
+              className="text-[11px] font-medium opacity-80 hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/90"
             >
-              Powered by <span className="font-bold">Weblink Builder</span>
+              Powered by <span className="font-bold text-white">Weblink Builder</span>
             </a>
           </div>
         )}
