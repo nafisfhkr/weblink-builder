@@ -1,25 +1,20 @@
+import { buildCardStyle, cardWrapperClass } from "src/lib/cardStyle";
+
 export default function ButtonsBlock({ content }: { content: any }) {
   const items = content?.items || [];
+  const useCard = content?.useCard ?? false;
+  const cardStyle = buildCardStyle(content);
 
-  if (items.length === 0) {
-    return (
-      <div className="w-full py-3 text-center text-zinc-500 text-xs italic">
-        Belum ada tombol
-      </div>
-    );
-  }
-
-  const useGlassContainer = content?.useGlassContainer;
-
-  return (
-    <div className={`w-full max-w-md mx-auto flex flex-col gap-3 items-center ${useGlassContainer ? 'bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-xl' : ''}`}>
+  const buttons = items.length === 0 ? (
+    <div className="w-full py-3 text-center text-zinc-500 text-xs italic">
+      Belum ada tombol
+    </div>
+  ) : (
+    <div className="w-full max-w-md mx-auto flex flex-col gap-3 items-center">
       {items.map((item: any, i: number) => {
-        const onClickAttr = item.onClick ? { onClick: new Function(item.onClick) } : {};
-        
-        // Handle opacity (0-100)
         let bgHex = item.bgColor || "#000000";
         const opacity = item.bgOpacity !== undefined ? item.bgOpacity : 100;
-        let alphaHex = Math.round((opacity / 100) * 255).toString(16).padStart(2, '0');
+        const alphaHex = Math.round((opacity / 100) * 255).toString(16).padStart(2, "0");
         const finalBg = opacity === 100 ? bgHex : `${bgHex}${alphaHex}`;
 
         return (
@@ -29,7 +24,6 @@ export default function ButtonsBlock({ content }: { content: any }) {
             target="_blank"
             rel="noopener noreferrer"
             className="w-full max-w-sm block"
-            {...onClickAttr as any}
           >
             <div
               className="w-full px-6 py-3.5 rounded-full font-semibold transition-all hover:-translate-y-0.5 hover:shadow-lg flex items-center justify-center gap-2.5"
@@ -37,7 +31,7 @@ export default function ButtonsBlock({ content }: { content: any }) {
                 backgroundColor: finalBg,
                 color: item.textColor || "#ffffff",
                 border: `${item.borderWidth || 0}px solid ${item.borderColor || "#ffffff"}`,
-                boxShadow: opacity >= 90 ? `0 4px 14px 0 ${bgHex}40` : 'none',
+                boxShadow: opacity >= 90 ? `0 4px 14px 0 ${bgHex}40` : "none",
                 backdropFilter: opacity < 100 ? "blur(12px)" : undefined,
                 WebkitBackdropFilter: opacity < 100 ? "blur(12px)" : undefined,
               }}
@@ -53,6 +47,17 @@ export default function ButtonsBlock({ content }: { content: any }) {
           </a>
         );
       })}
+    </div>
+  );
+
+  if (!useCard) return <div className="w-full py-2">{buttons}</div>;
+
+  return (
+    <div
+      className={`w-full ${cardWrapperClass(true)} px-5 py-5`}
+      style={cardStyle}
+    >
+      {buttons}
     </div>
   );
 }

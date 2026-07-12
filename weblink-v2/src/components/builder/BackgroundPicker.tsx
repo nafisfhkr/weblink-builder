@@ -121,7 +121,7 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
 
       {/* Tab Selector */}
       <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-1 gap-1 flex-wrap">
-        {(["color", "gradient", "image", "Layout", "Card"] as const).map((tab) => (
+        {(["color", "gradient", "image", "Layout"] as const).map((tab) => (
           <button
             key={tab}
             id={`bg-tab-${tab}`}
@@ -360,198 +360,74 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="w-full h-px bg-zinc-800" />
 
           {/* Profil Visibility */}
-          <div className="flex flex-col gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-3">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex flex-col">
-                <span className="text-[11px] text-zinc-300 font-semibold">Tampilkan Info Profil</span>
-                <span className="text-[9px] text-zinc-500">Foto profil, nama, dan deskripsi singkat di atas</span>
+          <div className="flex flex-col gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col flex-1">
+                <span className="text-xs text-zinc-200 font-semibold leading-tight">Tampilkan Info Profil</span>
+                <span className="text-[10px] text-zinc-500 mt-1 leading-tight">Muncul di atas halaman</span>
               </div>
-              <button
+              <div
                 onClick={() => onChange({ ...settings, showProfile: settings.showProfile === false ? true : false })}
-                className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer ${
+                className={`relative w-10 h-5 shrink-0 rounded-full transition-colors cursor-pointer ${
                   settings.showProfile !== false ? "bg-teal-500" : "bg-zinc-700"
                 }`}
               >
-                <div
-                  className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                    settings.showProfile !== false ? "translate-x-4" : "translate-x-0"
+                <span
+                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                    settings.showProfile !== false ? "translate-x-5" : "translate-x-0"
                   }`}
                 />
-              </button>
+              </div>
             </div>
             
             {settings.showProfile !== false && (
-              <div className="mt-2 pt-2 border-t border-zinc-800 flex flex-col gap-2">
-                <span className="text-[10px] text-zinc-400">Custom Foto Profil</span>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    ref={profileInputRef}
-                    onChange={(e) => { if (e.target.files?.[0]) handleProfileUpload(e.target.files[0]); }}
-                  />
-                  {settings.profileImageUrl ? (
-                    <div className="flex items-center gap-2 w-full">
-                      <img src={settings.profileImageUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover border border-zinc-700" />
-                      <button 
-                        onClick={() => onChange({ ...settings, profileImageUrl: "" })}
-                        className="text-[10px] text-red-400 hover:text-red-300 bg-red-950/30 px-2 py-1 rounded"
+              <div className="mt-3 pt-3 border-t border-zinc-800 flex flex-col gap-3">
+                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Custom Foto Profil</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  ref={profileInputRef}
+                  onChange={(e) => { if (e.target.files?.[0]) handleProfileUpload(e.target.files[0]); }}
+                />
+                {settings.profileImageUrl ? (
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-center">
+                      <img
+                        src={settings.profileImageUrl}
+                        alt="Profile"
+                        className="w-16 h-16 rounded-full object-cover border border-zinc-700 shadow shrink-0"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => profileInputRef.current?.click()}
+                        className="flex-1 text-xs text-zinc-300 hover:text-white border border-zinc-700 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all bg-zinc-800 hover:bg-zinc-700"
                       >
-                        Hapus Custom Foto
+                        Ganti Foto
+                      </button>
+                      <button
+                        onClick={() => onChange({ ...settings, profileImageUrl: "" })}
+                        className="flex-1 text-xs text-red-400 hover:text-red-300 bg-red-950/20 hover:bg-red-950/40 border border-red-900/40 px-3 py-1.5 rounded-lg transition-all"
+                      >
+                        Hapus
                       </button>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => profileInputRef.current?.click()}
-                      className="text-[10px] flex items-center justify-center w-full gap-1.5 text-zinc-300 hover:text-white border border-zinc-700 px-3 py-1.5 rounded-lg transition-all bg-zinc-800 hover:bg-zinc-700"
-                    >
-                      <UploadCloud size={12} /> Upload Foto Profil
-                    </button>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => profileInputRef.current?.click()}
+                    className="w-full flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-white border border-dashed border-zinc-700 hover:border-zinc-500 px-3 py-5 rounded-xl transition-all bg-zinc-900 hover:bg-zinc-800"
+                  >
+                    <UploadCloud size={20} className="text-zinc-500" />
+                    <span className="text-xs font-medium">Upload Foto Profil</span>
+                    <span className="text-[10px] text-zinc-600">JPG, PNG, WebP · Maks 2MB</span>
+                  </button>
+                )}
               </div>
             )}
           </div>
         </div>
-      )}
-
-      {/* Pengaturan Card Styling */}
-      {activeTab === "Card" as any && (
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-1.5">
-          <Palette size={14} className="text-teal-400" />
-          <label className="sidebar-label !mb-0">Desain Kartu (Card)</label>
-        </div>
-
-        {/* Card Background Color */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] text-zinc-400 font-medium">Warna Background Kartu</label>
-          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
-            <input
-              type="color"
-              value={settings.cardBgColor || "#ffffff"}
-              onChange={(e) => onChange({ ...settings, cardBgColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
-            />
-            <input
-              type="text"
-              value={settings.cardBgColor || "#ffffff"}
-              onChange={(e) => onChange({ ...settings, cardBgColor: e.target.value })}
-              className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
-              maxLength={7}
-            />
-          </div>
-        </div>
-
-        {/* Card Background Opacity */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between items-center text-[11px] text-zinc-400">
-            <span>Transparansi Kartu</span>
-            <span className="font-mono">{settings.cardBgOpacity ?? 10}%</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={settings.cardBgOpacity ?? 10}
-            onChange={(e) => onChange({ ...settings, cardBgOpacity: parseInt(e.target.value) })}
-            className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
-          />
-        </div>
-
-        {/* Card Text Color */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] text-zinc-400 font-medium">Warna Teks Kartu</label>
-          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
-            <input
-              type="color"
-              value={settings.cardTextColor || "#ffffff"}
-              onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
-            />
-            <input
-              type="text"
-              value={settings.cardTextColor || "#ffffff"}
-              onChange={(e) => onChange({ ...settings, cardTextColor: e.target.value })}
-              className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
-              maxLength={7}
-            />
-          </div>
-        </div>
-
-        {/* Card Border Color */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-[11px] text-zinc-400 font-medium">Warna Border Kartu</label>
-          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1.5">
-            <input
-              type="color"
-              value={settings.cardBorderColor || "#ffffff"}
-              onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer bg-transparent border-0 p-0"
-            />
-            <input
-              type="text"
-              value={settings.cardBorderColor || "#ffffff"}
-              onChange={(e) => onChange({ ...settings, cardBorderColor: e.target.value })}
-              className="flex-1 bg-transparent text-zinc-300 text-xs font-mono outline-none"
-              maxLength={7}
-            />
-          </div>
-        </div>
-
-        {/* Card Border Opacity */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between items-center text-[11px] text-zinc-400">
-            <span>Transparansi Border</span>
-            <span className="font-mono">{settings.cardBorderOpacity ?? 20}%</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={settings.cardBorderOpacity ?? 20}
-            onChange={(e) => onChange({ ...settings, cardBorderOpacity: parseInt(e.target.value) })}
-            className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
-          />
-        </div>
-
-        {/* Backdrop Blur Slider */}
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between items-center text-[11px] text-zinc-400">
-            <span>Backdrop Blur (Glassmorphism)</span>
-            <span className="font-mono">{settings.cardBlur ?? 10}px</span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="20"
-            value={settings.cardBlur ?? 10}
-            onChange={(e) => onChange({ ...settings, cardBlur: parseInt(e.target.value) })}
-            className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
-          />
-        </div>
-
-        {/* Toggle Show Heading Block inside Card */}
-        <div className="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 mt-2">
-          <div className="flex flex-col">
-            <span className="text-[11px] text-zinc-300 font-semibold">Tampilkan Heading dalam Card</span>
-            <span className="text-[9px] text-zinc-500">Membungkus judul utama di dalam kartu</span>
-          </div>
-          <button
-            onClick={() => onChange({ ...settings, cardShowHeadingCard: !settings.cardShowHeadingCard })}
-            className={`w-9 h-5 rounded-full p-0.5 transition-colors cursor-pointer ${
-              settings.cardShowHeadingCard ? "bg-teal-500" : "bg-zinc-700"
-            }`}
-          >
-            <div
-              className={`w-4 h-4 rounded-full bg-white transition-transform ${
-                settings.cardShowHeadingCard ? "translate-x-4" : "translate-x-0"
-              }`}
-            />
-          </button>
-        </div>
-      </div>
       )}
     </div>
   );

@@ -1,5 +1,7 @@
 "use client";
 
+import { buildCardStyle, cardWrapperClass } from "src/lib/cardStyle";
+
 interface DividerBlockProps {
   data: any;
   onChange?: (newData: any) => void;
@@ -17,6 +19,9 @@ export default function DividerBlock({ data }: DividerBlockProps) {
   const radius = data?.radius ?? 0;
   const margin = data?.margin ?? 24;
   const align = data?.align || "auto";
+
+  const useCard = data?.useCard ?? false;
+  const cardStyle = buildCardStyle(data);
 
   const cssStyle = style === "single" ? "solid" : style;
 
@@ -40,6 +45,7 @@ export default function DividerBlock({ data }: DividerBlockProps) {
     width: "100%",
   };
 
+  let inner = null;
   if (orientation === "horizontal") {
     const lineStyle: React.CSSProperties = {
       width: `${width}%`,
@@ -52,17 +58,28 @@ export default function DividerBlock({ data }: DividerBlockProps) {
         borderImage: `linear-gradient(90deg, ${gradColor1}, ${gradColor2}) 1`,
       } : {}),
     };
-    return <div style={containerStyle}><div style={lineStyle} /></div>;
+    inner = <div style={containerStyle}><div style={lineStyle} /></div>;
+  } else {
+    // Vertical
+    const lineStyle: React.CSSProperties = {
+      height: "60px",
+      width: 0,
+      borderLeftWidth: `${thickness}px`,
+      borderLeftStyle: cssStyle as any,
+      borderLeftColor: borderColor,
+      borderRadius: `${radius}px`,
+    };
+    inner = <div style={containerStyle}><div style={lineStyle} /></div>;
   }
 
-  // Vertical
-  const lineStyle: React.CSSProperties = {
-    height: "60px",
-    width: 0,
-    borderLeftWidth: `${thickness}px`,
-    borderLeftStyle: cssStyle as any,
-    borderLeftColor: borderColor,
-    borderRadius: `${radius}px`,
-  };
-  return <div style={containerStyle}><div style={lineStyle} /></div>;
+  if (!useCard) return inner;
+
+  return (
+    <div
+      className={`w-full ${cardWrapperClass(true)}`}
+      style={cardStyle}
+    >
+      {inner}
+    </div>
+  );
 }
