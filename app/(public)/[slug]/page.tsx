@@ -206,7 +206,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                 return groupedBlocks.map((group) => {
                   if (group.type === "linkGroup") {
                     return (
-                      <div key={group.id} style={cardStyle} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] mb-4 shadow-md border transition-all">
+                      <div key={group.id} style={cardStyle} className="w-full max-w-[416px] mx-auto flex flex-col gap-2.5 p-4 rounded-3xl mb-4 shadow-md border transition-all">
                         {group.items.map((block: any) => {
                           const iconType = block.content?.icon || "default";
                           let IconComponent: any = Globe;
@@ -219,7 +219,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                               href={block.content?.url || "#"} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="w-full flex items-center justify-between py-4 px-6 rounded-full border border-zinc-700/50 hover:bg-white/5 transition-all font-semibold tracking-wide"
+                              className="w-full flex items-center justify-between py-1.5 px-4 rounded-xl border border-white/20 hover:bg-white/10 transition-all font-semibold tracking-wide"
                             >
                               <span>{block.content?.title || "Tautan"}</span>
                               {iconType !== "none" && (
@@ -383,8 +383,8 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
       </div>
       
       {/* LinkBuilder Watermark Footer */}
-      <footer className="mt-auto pt-20">
-        <p className="text-[10px] font-bold tracking-[0.25em] text-zinc-700 uppercase">
+      <footer className="mt-auto pt-20 pb-8 flex justify-center w-full">
+        <p className="text-[10px] font-bold tracking-[0.25em] uppercase bg-black/40 backdrop-blur-md px-4 py-2 rounded-full text-white/90">
           POWERED BY LINKBUILDER
         </p>
       </footer>

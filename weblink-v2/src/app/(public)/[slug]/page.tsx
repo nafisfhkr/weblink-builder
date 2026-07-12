@@ -218,7 +218,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                   return groupedBlocks.map((group) => {
                   if (group.type === "linkGroup") {
                     return (
-                      <div key={group.id} className="w-full max-w-[500px] mx-auto flex flex-col gap-3 p-6 rounded-[32px] shadow-md border transition-all">
+                      <div key={group.id} className="w-full max-w-[416px] mx-auto flex flex-col gap-2.5 p-4 rounded-3xl shadow-md border transition-all">
                         {group.items.map((block: any) => {
                           const iconType = block.content?.icon || "default";
                           let IconComponent: any = Globe;
@@ -231,7 +231,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
                               href={block.content?.url || "#"} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="w-full flex items-center justify-between py-4 px-6 rounded-full border border-zinc-700/50 hover:bg-white/5 transition-all hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] font-semibold tracking-wide"
+                              className="w-full flex items-center justify-between py-1.5 px-4 rounded-xl border border-white/20 hover:bg-white/10 transition-all hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] font-semibold tracking-wide"
                             >
                               <span>{block.content?.title || "Tautan"}</span>
                               {iconType !== "none" && (
@@ -349,9 +349,9 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[11px] font-medium opacity-60 hover:opacity-100 transition-opacity"
+          className="text-[11px] font-medium opacity-80 hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/90"
         >
-          Powered by <span className="font-bold">Weblink Builder</span>
+          Powered by <span className="font-bold text-white">Weblink Builder</span>
         </a>
       </div>
     </div>
