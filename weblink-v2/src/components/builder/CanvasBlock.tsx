@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2 } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import TextBlock from "./blocks/TextBlock";
 import ContainerBlock from "./blocks/ContainerBlock";
 import ButtonsBlock from "./blocks/ButtonsBlock";
@@ -23,8 +23,6 @@ interface CanvasBlockProps {
   onSelect: (id: string) => void;
   isPreviewMode: boolean;
   uploadingBlockIds?: Set<string>;
-  cardStyle?: React.CSSProperties;
-  cardShowHeadingCard?: boolean;
 }
 
 export default function CanvasBlock({
@@ -34,7 +32,6 @@ export default function CanvasBlock({
   onSelect,
   isPreviewMode,
   uploadingBlockIds,
-  cardStyle,
 }: CanvasBlockProps) {
   const {
     attributes,
@@ -64,7 +61,7 @@ export default function CanvasBlock({
   const renderBlock = () => {
     switch (block.type) {
       case "text":
-        return <TextBlock content={block.content || {}} textColor={cardStyle?.color} textSize={block.content?.textSize} />;
+        return <TextBlock content={block.content || {}} />;
       case "container":
         return <ContainerBlock content={block.content || {}} />;
       case "buttons":
@@ -74,8 +71,6 @@ export default function CanvasBlock({
           <ImageBlock
             content={block.content || {}}
             isUploading={uploadingBlockIds?.has(block.id)}
-            cardStyle={cardStyle}
-            useCard={block.content?.useCard}
           />
         );
       case "divider":
@@ -106,7 +101,7 @@ export default function CanvasBlock({
           : "hover:outline hover:outline-1 hover:outline-zinc-700"
       }`}
     >
-      {/* Drag handle — appears on hover */}
+      {/* Drag handle */}
       <div
         {...attributes}
         {...listeners}
@@ -120,18 +115,6 @@ export default function CanvasBlock({
       <div className="flex-1 min-w-0 pointer-events-none select-none w-full">
         {renderBlock()}
       </div>
-
-      {/* Delete button — appears on hover */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(block.id);
-        }}
-        className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-950/30 transition-all z-10 shrink-0"
-        aria-label="Hapus blok"
-      >
-        <Trash2 size={14} />
-      </button>
     </div>
   );
 }

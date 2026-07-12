@@ -34,6 +34,22 @@ const socialContentSchema = z.object({
   items: z.array(socialItemSchema).optional(),
 }).passthrough();
 
+// Container block schema
+const containerContentSchema = z.object({}).passthrough().optional();
+
+// Buttons block schema
+const buttonItemSchema = z.object({
+  id: z.string().optional(),
+  label: z.string().optional().or(z.literal("")),
+  url: z.string().optional().or(z.literal("")),
+  bgColor: z.string().optional(),
+  textColor: z.string().optional(),
+}).passthrough();
+
+const buttonsContentSchema = z.object({
+  items: z.array(buttonItemSchema).optional(),
+}).passthrough();
+
 const blockSchema = z.discriminatedUnion("type", [
   z.object({
     id: z.string(),
@@ -69,6 +85,18 @@ const blockSchema = z.discriminatedUnion("type", [
     id: z.string(),
     type: z.literal("social"),
     content: socialContentSchema,
+    order: z.number(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("container"),
+    content: containerContentSchema,
+    order: z.number(),
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("buttons"),
+    content: buttonsContentSchema,
     order: z.number(),
   }),
 ]);

@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import BlockPicker from "./BlockPicker";
+
+type BlockType = "text" | "container" | "buttons" | "image" | "divider";
 
 interface FloatingToolbarProps {
-  onAddBlock: () => void;
+  onAddBlock: (type: BlockType) => void;
   onUndo: () => void;
   onRedo: () => void;
   canUndo: boolean;
@@ -15,6 +18,9 @@ interface FloatingToolbarProps {
   isBackgroundOpen: boolean;
   onToggleBackground: () => void;
   publishButton: React.ReactNode;
+  showBlockPicker: boolean;
+  onToggleBlockPicker: () => void;
+  onCloseBlockPicker: () => void;
 }
 
 export default function FloatingToolbar({
@@ -30,6 +36,9 @@ export default function FloatingToolbar({
   isBackgroundOpen,
   onToggleBackground,
   publishButton,
+  showBlockPicker,
+  onToggleBlockPicker,
+  onCloseBlockPicker,
 }: FloatingToolbarProps) {
   const btnBase =
     "flex items-center justify-center w-[26px] h-[26px] rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all disabled:opacity-30 disabled:cursor-not-allowed";
@@ -51,18 +60,37 @@ export default function FloatingToolbar({
 
       <div className="w-px h-3.5 bg-zinc-800 mx-0.5" />
 
-      {/* Add Block */}
-      <button
-        id="toolbar-add-block"
-        onClick={onAddBlock}
-        className={btnBase + " hover:text-teal-400"}
-        title="Tambah Blok"
-        aria-label="Tambah Blok"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-      </button>
+      {/* Add Block — wrapped in relative so popup positions relative to it */}
+      <div className="relative">
+        <button
+          id="toolbar-add-block"
+          onClick={onToggleBlockPicker}
+          className={btnBase + (showBlockPicker ? " text-teal-400 bg-teal-950" : " hover:text-teal-400")}
+          title="Tambah Blok"
+          aria-label="Tambah Blok"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {showBlockPicker ? (
+              <>
+                <line x1="5" y1="5" x2="19" y2="19"/>
+                <line x1="19" y1="5" x2="5" y2="19"/>
+              </>
+            ) : (
+              <>
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </>
+            )}
+          </svg>
+        </button>
+
+        {showBlockPicker && (
+          <BlockPicker
+            onSelectBlock={onAddBlock}
+            onClose={onCloseBlockPicker}
+          />
+        )}
+      </div>
 
       <div className="w-px h-3.5 bg-zinc-800 mx-0.5" />
 
@@ -155,7 +183,7 @@ export default function FloatingToolbar({
 
       <div className="w-px h-3.5 bg-zinc-800 mx-0.5" />
 
-      {/* Publish Button (injected from parent) */}
+      {/* Publish Button */}
       <div className="pl-0.5">
         {publishButton}
       </div>

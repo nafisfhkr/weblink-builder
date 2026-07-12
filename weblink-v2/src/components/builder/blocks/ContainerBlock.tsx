@@ -1,7 +1,11 @@
+import { buildCardStyle, cardWrapperClass } from "src/lib/cardStyle";
+
 export default function ContainerBlock({ content }: { content: any }) {
   const layout = content?.layout || "default";
   const columns = content?.columns || 2;
   const mobileStack = content?.mobileStack ?? true;
+  const useCard = content?.useCard ?? false;
+  const cardStyle = buildCardStyle(content);
   
   const bgType = content?.bgType || "none";
   const backgroundStyle: React.CSSProperties = {};
@@ -26,8 +30,9 @@ export default function ContainerBlock({ content }: { content: any }) {
     ...borderStyle,
   };
 
+  let inner = null;
   if (layout === "columns") {
-    return (
+    inner = (
       <div style={containerStyle} className="w-full overflow-hidden">
         <div className={`flex ${mobileStack ? "flex-col sm:flex-row" : "flex-row"} gap-4 p-4 min-h-[100px]`}>
           {Array.from({ length: columns }).map((_, i) => (
@@ -40,13 +45,24 @@ export default function ContainerBlock({ content }: { content: any }) {
         </div>
       </div>
     );
+  } else {
+    inner = (
+      <div style={containerStyle} className="w-full min-h-[100px] p-4 flex flex-col items-center justify-center text-zinc-500 text-xs text-center border border-dashed border-zinc-500/50">
+        Default Container
+        <br/>
+        <span className="text-[10px] opacity-70">Area Konten (Segera Hadir)</span>
+      </div>
+    );
   }
 
+  if (!useCard) return inner;
+
   return (
-    <div style={containerStyle} className="w-full min-h-[100px] p-4 flex flex-col items-center justify-center text-zinc-500 text-xs text-center border border-dashed border-zinc-500/50">
-      Default Container
-      <br/>
-      <span className="text-[10px] opacity-70">Area Konten (Segera Hadir)</span>
+    <div
+      className={`w-full ${cardWrapperClass(true)} p-2`}
+      style={cardStyle}
+    >
+      {inner}
     </div>
   );
 }

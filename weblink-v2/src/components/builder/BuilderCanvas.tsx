@@ -20,7 +20,6 @@ import { nanoid } from "nanoid";
 import { UploadCloud, ArrowLeft, Check, Copy, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
 import CanvasBlock from "./CanvasBlock";
-import BlockPicker from "./BlockPicker";
 import PublishButton from "./PublishButton";
 import FloatingToolbar from "./FloatingToolbar";
 import ContextualSidebar from "./ContextualSidebar";
@@ -319,20 +318,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  const cardBg = hexToRgba(pageSettings.cardBgColor || "#ffffff", pageSettings.cardBgOpacity ?? 10);
-  const cardBorder = hexToRgba(pageSettings.cardBorderColor || "#ffffff", pageSettings.cardBorderOpacity ?? 20);
-  const cardText = pageSettings.cardTextColor || "#ffffff";
-  const cardBlur = pageSettings.cardBlur !== undefined ? `${pageSettings.cardBlur}px` : "10px";
-
-  const cardStyle: React.CSSProperties = {
-    backgroundColor: cardBg,
-    borderColor: cardBorder,
-    color: cardText,
-    backdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
-    WebkitBackdropFilter: cardBlur !== "0px" ? `blur(${cardBlur})` : undefined,
-  };
-
-  // Editor: max-w-2xl centered. Preview Desktop: truly full-screen. Preview Mobile: narrow (handled via wrapper).
+  // Editor: max-w-2xl centered. Preview Desktop: truly full-screen. Preview Mobile: narrow.
   const canvasWidth = isPreviewMode ? (isMobileView ? "max-w-[390px]" : "w-full max-w-none") : "max-w-2xl";
 
   if (!mounted) {
@@ -343,17 +329,20 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     <div className="min-h-screen bg-zinc-50">
       {/* Floating Toolbar */}
       <FloatingToolbar
-        onAddBlock={() => { setShowBlockPicker((v) => !v); setSelectedBlockId(null); setShowPageSettings(false); }}
+        onAddBlock={handleAddBlock}
         onUndo={handleUndo}
         onRedo={handleRedo}
         canUndo={undoStack.length > 0}
         canRedo={redoStack.length > 0}
         isPreviewMode={isPreviewMode}
-        onTogglePreview={() => { setIsPreviewMode((v) => !v); setSelectedBlockId(null); setShowPageSettings(false); }}
+        onTogglePreview={() => { setIsPreviewMode((v) => !v); setSelectedBlockId(null); setShowPageSettings(false); setShowBlockPicker(false); }}
         isMobileView={isMobileView}
         onToggleMobile={() => setIsMobileView((v) => !v)}
         isBackgroundOpen={showPageSettings}
         onToggleBackground={() => { setShowPageSettings((v) => !v); setSelectedBlockId(null); setShowBlockPicker(false); }}
+        showBlockPicker={showBlockPicker}
+        onToggleBlockPicker={() => { setShowBlockPicker((v) => !v); setSelectedBlockId(null); setShowPageSettings(false); }}
+        onCloseBlockPicker={() => setShowBlockPicker(false)}
         publishButton={
           <PublishButton
             projectId={initialData.id}
@@ -381,14 +370,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
           showPageSettings={showPageSettings}
           pageSettings={pageSettings}
           onPageSettingsChange={handlePageSettingsChange}
-        />
-      )}
-
-      {/* Block Picker Sidebar */}
-      {showBlockPicker && !isPreviewMode && (
-        <BlockPicker 
-          onSelectBlock={handleAddBlock} 
-          onClose={() => setShowBlockPicker(false)} 
         />
       )}
 
@@ -433,10 +414,10 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                 <img 
                   src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
                   alt={pageSettings.profileTitle || "Profile"} 
-                  className="w-24 h-24 rounded-full border shadow-xl object-cover"
+                  className="w-[120px] h-[120px] rounded-full border-2 border-white/20 shadow-xl object-cover"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-zinc-200 border shadow-xl" />
+                <div className="w-[120px] h-[120px] rounded-full bg-zinc-200 border-2 border-white/20 shadow-xl" />
               )}
 
               <div className="flex flex-col items-center" style={{ gap: `${(pageSettings.blockSpacing ?? 16) / 2}px` }}>
@@ -467,8 +448,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                     onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
                     isPreviewMode={isPreviewMode}
                     uploadingBlockIds={uploadingBlockIds}
-                    cardStyle={cardStyle}
-                    cardShowHeadingCard={pageSettings.cardShowHeadingCard ?? false}
                   />
                 ))}
               </div>
