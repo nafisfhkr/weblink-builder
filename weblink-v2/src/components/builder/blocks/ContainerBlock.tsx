@@ -72,6 +72,17 @@ export default function ContainerBlock({ content, isEditor = false }: ContainerB
     }
   };
 
+  const getWrapperStyle = (child: any): React.CSSProperties => {
+    if (child.type === "divider") {
+      const margin = child.content?.margin ?? 24;
+      return {
+        marginTop: `${margin}px`,
+        marginBottom: `${margin}px`,
+      };
+    }
+    return {};
+  };
+
   let inner = null;
   if (layout === "columns") {
     inner = (
@@ -85,7 +96,7 @@ export default function ContainerBlock({ content, isEditor = false }: ContainerB
             return (
               <div key={i} className="flex-1 flex flex-col gap-3 w-full min-w-0">
                 {colChildren.map((child: any) => (
-                  <div key={child.id} className="w-full">
+                  <div key={child.id} className="w-full" style={getWrapperStyle(child)}>
                     {renderChildBlock(child)}
                   </div>
                 ))}
@@ -105,7 +116,7 @@ export default function ContainerBlock({ content, isEditor = false }: ContainerB
       <div style={{ ...containerStyle, ...paddingStyle }} className="w-full">
         <div className="flex flex-col gap-3 w-full">
           {children.map((child: any) => (
-            <div key={child.id} className="w-full">
+            <div key={child.id} className="w-full" style={getWrapperStyle(child)}>
               {renderChildBlock(child)}
             </div>
           ))}

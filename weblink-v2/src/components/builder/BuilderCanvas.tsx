@@ -390,7 +390,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         className={`relative ${canvasWidth} mx-auto font-sans transition-all duration-300 ${
           isMobileView
             ? "my-4 border-[12px] border-zinc-950 rounded-[3rem] shadow-2xl min-h-[780px] py-16 px-4 overflow-hidden flex flex-col justify-start bg-white"
-            : "py-20 px-6 min-h-screen flex flex-col"
+            : "pt-8 pb-20 px-6 min-h-screen flex flex-col"
         }`}
         style={{ ...(isMobileView ? bgStyle : {}), fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
@@ -416,11 +416,11 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
         {/* Content Wrapper */}
         <div className={`w-full mx-auto flex flex-col items-center relative z-10 ${
-          isMobileView ? "px-2 pb-10" : "max-w-2xl px-4 md:px-8 pb-20"
+          isMobileView ? "px-2 pb-10" : "max-w-2xl px-4 md:px-8"
         }`}>
           {/* Profile / Header Section in Canvas */}
           {pageSettings.showProfile !== false && (
-            <div className="w-full flex flex-col items-center relative z-10 mb-8" style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}>
+            <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
               {pageSettings.profileImageUrl || initialData.user?.image ? (
                 <img 
                   src={pageSettings.profileImageUrl || initialData.user?.image || ""} 

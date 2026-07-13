@@ -160,7 +160,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
   blocks.sort((a, b) => a.order - b.order);
 
   return (
-    <div className="min-h-screen flex flex-col items-center py-20 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
+    <div className="min-h-screen flex flex-col items-center pt-8 pb-20 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
       {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
         <div 
           className="absolute inset-0 pointer-events-none z-0" 
@@ -169,7 +169,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
       )}
       <div className="w-full max-w-[416px] flex flex-col items-center relative z-10">
         {pageSettings.showProfile !== false && (
-          <div className="w-full flex flex-col items-center relative z-10 mb-8">
+          <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
             {pageSettings.profileImageUrl || project.user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img 
@@ -191,7 +191,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         )}
 
         <div 
-          className="w-full flex flex-col mt-4" 
+          className="w-full flex flex-col" 
           style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
         >
           {blocks.length > 0 ? (

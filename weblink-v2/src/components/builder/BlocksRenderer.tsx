@@ -205,8 +205,13 @@ export default function BlocksRenderer({ blocks, isEditor = false, pageSettings 
         }
 
         // Default wrapper for published page
+        const wrapperStyle: React.CSSProperties = block.type === "divider" ? {
+          marginTop: `${block.content?.margin ?? 24}px`,
+          marginBottom: `${block.content?.margin ?? 24}px`,
+        } : {};
+
         return (
-          <div key={block.id} className="w-full">
+          <div key={block.id} className="w-full" style={wrapperStyle}>
             {childNode}
           </div>
         );

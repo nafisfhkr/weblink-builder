@@ -46,8 +46,12 @@ export default function CanvasBlock({
     zIndex: isDragging ? 10 : 1,
   };
 
-  const combinedStyle = {
+  const combinedStyle: React.CSSProperties = {
     ...style,
+    ...(block.type === "divider" ? {
+      marginTop: `${block.content?.margin ?? 24}px`,
+      marginBottom: `${block.content?.margin ?? 24}px`,
+    } : {}),
     ...(isSelected
       ? {
           outline: "2px solid rgba(20, 184, 166, 0.8)",

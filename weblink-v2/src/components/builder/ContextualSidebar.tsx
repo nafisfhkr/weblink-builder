@@ -885,10 +885,10 @@ function DividerPanel({ content, onChange, activeTab }: any) {
             value={c.style || "single"}
             onChange={(v) => onChange({ ...c, style: v })}
             options={[
-              { value: "single", label: "Solid" },
-              { value: "dashed", label: "Dashed" },
+              { value: "single", label: "Garis Solid" },
+              { value: "dashed", label: "Garis Putus" },
               { value: "dotted", label: "Dotted" },
-              { value: "spacer", label: "Spacer" },
+              { value: "spacer", label: "Sembunyi (Ruang)" },
             ]}
           />
         </div>
@@ -903,10 +903,23 @@ function DividerPanel({ content, onChange, activeTab }: any) {
             />
           </div>
         )}
-        <SSlider label="Lebar" value={c.width ?? 80} min={1} max={100} unit="%" onChange={(v) => onChange({ ...c, width: v })} />
-        <SSlider label="Ketebalan" value={c.thickness ?? 1} min={1} max={20} unit="px" onChange={(v) => onChange({ ...c, thickness: v })} />
-        <SSlider label="Corner Radius" value={c.radius ?? 0} min={0} max={20} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
-        <SSlider label="Margin Atas/Bawah" value={c.margin ?? 24} min={0} max={100} unit="px" onChange={(v) => onChange({ ...c, margin: v })} />
+        {c.style !== "spacer" && (
+          <SSlider label="Lebar" value={c.width ?? 80} min={1} max={100} unit="%" onChange={(v) => onChange({ ...c, width: v })} />
+        )}
+        {c.style !== "spacer" && (
+          <SSlider label="Ketebalan" value={c.thickness ?? 1} min={1} max={20} unit="px" onChange={(v) => onChange({ ...c, thickness: v })} />
+        )}
+        {c.style !== "spacer" && (
+          <SSlider label="Corner Radius" value={c.radius ?? 0} min={0} max={20} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
+        )}
+        <SSlider 
+          label={c.style === "spacer" ? "Tinggi Ruang (Spacing)" : "Margin Atas/Bawah"} 
+          value={c.margin ?? 24} 
+          min={-100} 
+          max={150} 
+          unit="px" 
+          onChange={(v) => onChange({ ...c, margin: v })} 
+        />
         <Divider />
         {c.style !== "spacer" && (
           <>

@@ -37,8 +37,6 @@ export default function DividerBlock({ data }: DividerBlockProps) {
     : color;
 
   const containerStyle: React.CSSProperties = {
-    paddingTop: `${margin}px`,
-    paddingBottom: `${margin}px`,
     display: "flex",
     justifyContent: justifyMap[align] || "center",
     alignItems: "center",
