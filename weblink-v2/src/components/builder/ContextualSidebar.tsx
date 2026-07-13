@@ -887,8 +887,7 @@ function DividerPanel({ content, onChange, activeTab }: any) {
             options={[
               { value: "single", label: "Garis Solid" },
               { value: "dashed", label: "Garis Putus" },
-              { value: "dotted", label: "Dotted" },
-              { value: "spacer", label: "Sembunyi (Ruang)" },
+              { value: "spacer", label: "Ruang Kosong" },
             ]}
           />
         </div>
