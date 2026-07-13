@@ -12,7 +12,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
 
   try {
-    // Cari project untuk mendapatkan blocksData yang terbaru
+    const body = await req.json().catch(() => ({}));
+    const { blocksData, pageSettings } = body;
+
+    // Cari project untuk validasi
     const project = await prisma.project.findFirst({
       where: { id, userId: session.user.id },
     });
@@ -21,14 +24,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Salin blocksData ke publishedBlocksData
+    const dataToUpdate: any = {
+      isPublished: true,
+      publishedAt: new Date(),
+    };
+
+    if (blocksData !== undefined) {
+      dataToUpdate.blocksData = blocksData;
+      dataToUpdate.publishedBlocksData = blocksData;
+    } else {
+      dataToUpdate.publishedBlocksData = project.blocksData as any;
+    }
+
+    if (pageSettings !== undefined) {
+      dataToUpdate.pageSettings = pageSettings;
+    }
+
+    // Update project
     const updatedProject = await prisma.project.update({
       where: { id },
-      data: {
-        publishedBlocksData: project.blocksData as any,
-        isPublished: true,
-        publishedAt: new Date(),
-      },
+      data: dataToUpdate,
     });
 
     // Revalidate the published page to clear any cached version

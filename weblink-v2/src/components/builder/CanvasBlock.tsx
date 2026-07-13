@@ -61,7 +61,7 @@ export default function CanvasBlock({
       case "text":
         return <TextBlock content={block.content || {}} />;
       case "container":
-        return <ContainerBlock content={block.content || {}} />;
+        return <ContainerBlock content={block.content || {}} isEditor={true} />;
       case "buttons":
         return <ButtonsBlock content={block.content || {}} />;
       case "image":

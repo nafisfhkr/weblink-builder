@@ -354,6 +354,8 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
             projectId={initialData.id}
             isPublished={isPublished}
             hasChanges={hasChanges}
+            blocksData={blocks}
+            pageSettingsData={pageSettings}
             onPublishSuccess={() => {
               setIsPublished(true);
               setPublishedBlocks(blocks);

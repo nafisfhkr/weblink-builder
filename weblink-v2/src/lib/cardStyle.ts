@@ -14,9 +14,9 @@ export function buildCardStyle(content: any): React.CSSProperties | undefined {
     return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
   };
 
-  const bgColor = hexToRgba(content.cardBgColor || "#ffffff", content.cardBgOpacity ?? 10);
+  const bgColor = hexToRgba(content.cardBgColor || "#ffffff", content.cardBgOpacity ?? 100);
   const borderColor = hexToRgba(content.cardBorderColor || "#ffffff", content.cardBorderOpacity ?? 20);
-  const blur = content.cardBlur ?? 10;
+  const blur = content.cardBlur ?? 0;
 
   return {
     backgroundColor: bgColor,
