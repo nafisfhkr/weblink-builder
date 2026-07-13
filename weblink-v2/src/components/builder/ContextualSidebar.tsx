@@ -787,7 +787,16 @@ function ImagePanel({ content, onChange, activeTab, onUploadStart, onUploadEnd }
     onUploadStart?.();
     try {
       const result = await processImageToBase64(file);
-      onChange({ ...c, url: result.url, storageKey: result.storageKey });
+      onChange({ 
+        ...c, 
+        url: result.url, 
+        storageKey: result.storageKey,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        bytes: result.bytes,
+        aspectRatio: result.aspectRatio,
+      });
     } catch (e: any) {
       showToast(e.message || "Upload gagal", "error");
     } finally {

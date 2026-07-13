@@ -3,6 +3,7 @@ import TextBlock from "./TextBlock";
 import ButtonsBlock from "./ButtonsBlock";
 import ImageBlock from "./ImageBlock";
 import DividerBlock from "./DividerBlock";
+import { getOptimizedImageUrl } from "src/lib/imageOptimization";
 
 interface ContainerBlockProps {
   content: any;
@@ -26,7 +27,7 @@ export default function ContainerBlock({ content, isEditor = false }: ContainerB
     const gradColor2 = content?.gradColor2 || "#333333";
     backgroundStyle.background = `linear-gradient(${gradAngle}deg, ${gradColor1}, ${gradColor2})`;
   } else if (bgType === "image" && content?.bgImage) {
-    backgroundStyle.backgroundImage = `url(${content.bgImage})`;
+    backgroundStyle.backgroundImage = `url(${getOptimizedImageUrl(content.bgImage, { width: 1000, quality: "auto" })})`;
     backgroundStyle.backgroundSize = "cover";
     backgroundStyle.backgroundPosition = "center";
   }
