@@ -135,6 +135,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     profileImageHeight?: number;
     profileImageFormat?: string;
     profileImageBytes?: number;
+    profileImageGlassEffect?: boolean;
   } = {};
   try {
     if (project.pageSettings) {
@@ -178,17 +179,19 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         {pageSettings.showProfile !== false && (
           <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
             {pageSettings.profileImageUrl || project.user?.image ? (
-              <OptimizedImage 
-                src={pageSettings.profileImageUrl || project.user?.image || ""} 
-                alt={pageSettings.profileTitle || "Profile"} 
-                className="rounded-full mb-4 border-2 border-white/20 shadow-xl object-cover w-[120px] h-[120px]"
-                wrapperClassName="w-[120px] h-[120px]"
-                originalWidth={pageSettings.profileImageWidth}
-                originalHeight={pageSettings.profileImageHeight}
-                format={pageSettings.profileImageFormat}
-                bytes={pageSettings.profileImageBytes}
-                isEditor={false}
-              />
+              <div className={pageSettings.profileImageGlassEffect !== false ? "p-[4px] rounded-full backdrop-blur-md bg-white/5 border border-white/20 shadow-2xl flex items-center justify-center mb-4" : "mb-4"}>
+                <OptimizedImage 
+                  src={pageSettings.profileImageUrl || project.user?.image || ""} 
+                  alt={pageSettings.profileTitle || "Profile"} 
+                  className={`rounded-full object-cover ${pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px] border-2 border-white/20 shadow-xl"}`}
+                  wrapperClassName={pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px]"}
+                  originalWidth={pageSettings.profileImageWidth}
+                  originalHeight={pageSettings.profileImageHeight}
+                  format={pageSettings.profileImageFormat}
+                  bytes={pageSettings.profileImageBytes}
+                  isEditor={false}
+                />
+              </div>
             ) : (
               <div className="w-[120px] h-[120px] rounded-full bg-zinc-200 mb-4 border-2 border-white/20 shadow-xl" />
             )}

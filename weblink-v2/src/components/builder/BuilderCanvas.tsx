@@ -424,17 +424,19 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
           {pageSettings.showProfile !== false && (
             <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
               {pageSettings.profileImageUrl || initialData.user?.image ? (
-                <OptimizedImage 
-                  src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
-                  alt={pageSettings.profileTitle || "Profile"} 
-                  className="w-[120px] h-[120px] rounded-full border-2 border-white/20 shadow-xl object-cover"
-                  wrapperClassName="w-[120px] h-[120px]"
-                  originalWidth={pageSettings.profileImageWidth}
-                  originalHeight={pageSettings.profileImageHeight}
-                  format={pageSettings.profileImageFormat}
-                  bytes={pageSettings.profileImageBytes}
-                  isEditor={true}
-                />
+                <div className={pageSettings.profileImageGlassEffect !== false ? "p-[4px] rounded-full backdrop-blur-md bg-white/5 border border-white/20 shadow-2xl flex items-center justify-center mb-2" : "mb-2"}>
+                  <OptimizedImage 
+                    src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
+                    alt={pageSettings.profileTitle || "Profile"} 
+                    className={`rounded-full object-cover ${pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px] border-2 border-white/20 shadow-xl"}`}
+                    wrapperClassName={pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px]"}
+                    originalWidth={pageSettings.profileImageWidth}
+                    originalHeight={pageSettings.profileImageHeight}
+                    format={pageSettings.profileImageFormat}
+                    bytes={pageSettings.profileImageBytes}
+                    isEditor={true}
+                  />
+                </div>
               ) : (
                 <div className="w-[120px] h-[120px] rounded-full bg-zinc-200 border-2 border-white/20 shadow-xl" />
               )}

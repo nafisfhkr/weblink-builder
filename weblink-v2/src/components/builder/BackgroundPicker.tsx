@@ -36,6 +36,7 @@ export interface PageSettings {
   profileImageHeight?: number;
   profileImageFormat?: string;
   profileImageBytes?: number;
+  profileImageGlassEffect?: boolean;
 }
 
 interface BackgroundPickerProps {
@@ -403,7 +404,24 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
                   }`}
                 />
               </div>
-            </div>
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-zinc-800 pt-3">
+              <div className="flex flex-col flex-1">
+                <span className="text-xs text-zinc-200 font-semibold leading-tight">Efek Glass Profil</span>
+                <span className="text-[10px] text-zinc-500 mt-1 leading-tight">Tambahkan ring transparan di belakang profil</span>
+              </div>
+              <div
+                onClick={() => onChange({ ...settings, profileImageGlassEffect: settings.profileImageGlassEffect === false ? true : false })}
+                className={`relative w-10 h-5 shrink-0 rounded-full transition-colors cursor-pointer ${
+                  settings.profileImageGlassEffect !== false ? "bg-teal-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                    settings.profileImageGlassEffect !== false ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </div>
+            </div></div>
             
             {settings.showProfile !== false && (
               <div className="mt-3 pt-3 border-t border-zinc-800 flex flex-col gap-3">
