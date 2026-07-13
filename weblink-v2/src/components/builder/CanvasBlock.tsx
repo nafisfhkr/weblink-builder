@@ -21,7 +21,7 @@ interface CanvasBlockProps {
   onDelete: (id: string) => void;
   isSelected: boolean;
   onSelect: (id: string) => void;
-  uploadingBlockIds?: Set<string>;
+  children: React.ReactNode;
 }
 
 export default function CanvasBlock({
@@ -29,7 +29,7 @@ export default function CanvasBlock({
   onDelete,
   isSelected,
   onSelect,
-  uploadingBlockIds,
+  children,
 }: CanvasBlockProps) {
   const {
     attributes,
@@ -56,35 +56,16 @@ export default function CanvasBlock({
       : {}),
   };
 
-  const renderBlock = () => {
-    switch (block.type) {
-      case "text":
-        return <TextBlock content={block.content || {}} />;
-      case "container":
-        return <ContainerBlock content={block.content || {}} isEditor={true} />;
-      case "buttons":
-        return <ButtonsBlock content={block.content || {}} />;
-      case "image":
-        return (
-          <ImageBlock
-            content={block.content || {}}
-            isUploading={uploadingBlockIds?.has(block.id)}
-          />
-        );
-      case "divider":
-        return <DividerBlock data={block.content || {}} />;
-      default:
-        return null;
-    }
-  };
-
 
 
   return (
     <div
       ref={setNodeRef}
       style={combinedStyle}
-      onClick={() => onSelect(block.id)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(block.id);
+      }}
       className={`group relative flex items-start gap-2 rounded-2xl transition-all cursor-pointer ${
         isDragging
           ? "opacity-90 shadow-xl"
@@ -105,7 +86,7 @@ export default function CanvasBlock({
 
       {/* Block content */}
       <div className="flex-1 min-w-0 pointer-events-none select-none w-full">
-        {renderBlock()}
+        {children}
       </div>
     </div>
   );

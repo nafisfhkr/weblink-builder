@@ -19,6 +19,8 @@ import {
 import { nanoid } from "nanoid";
 import { UploadCloud, ArrowLeft, Check, Copy, ExternalLink, X } from "lucide-react";
 import Link from "next/link";
+import LinkBlock from "./blocks/LinkBlock";
+import BlocksRenderer from "./BlocksRenderer";
 import CanvasBlock from "./CanvasBlock";
 import PublishButton from "./PublishButton";
 import FloatingToolbar from "./FloatingToolbar";
@@ -448,16 +450,23 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                 style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
                 onClick={(e) => e.stopPropagation()}
               >
-                {blocks.map((block) => (
-                  <CanvasBlock
-                    key={block.id}
-                    block={block}
-                    onDelete={handleDeleteBlock}
-                    isSelected={block.id === selectedBlockId}
-                    onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
-                    uploadingBlockIds={uploadingBlockIds}
-                  />
-                ))}
+                <BlocksRenderer
+                  blocks={blocks}
+                  isEditor={true}
+                  pageSettings={pageSettings}
+                  uploadingBlockIds={uploadingBlockIds}
+                  renderBlockWrapper={(block, children) => (
+                    <CanvasBlock
+                      key={block.id}
+                      block={block}
+                      onDelete={handleDeleteBlock}
+                      isSelected={block.id === selectedBlockId}
+                      onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
+                    >
+                      {children}
+                    </CanvasBlock>
+                  )}
+                />
               </div>
             </SortableContext>
           </DndContext>

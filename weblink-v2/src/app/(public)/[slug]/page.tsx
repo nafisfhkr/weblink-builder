@@ -8,6 +8,7 @@ import ContainerBlock from "src/components/builder/blocks/ContainerBlock";
 import ButtonsBlock from "src/components/builder/blocks/ButtonsBlock";
 import ImageBlock from "src/components/builder/blocks/ImageBlock";
 import DividerBlock from "src/components/builder/blocks/DividerBlock";
+import BlocksRenderer from "src/components/builder/BlocksRenderer";
 
 export const dynamic = "force-dynamic";
 
@@ -166,8 +167,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
           style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
         />
       )}
-      <div className="w-full max-w-2xl flex flex-col items-center px-4 md:px-8 relative z-10">
-        {/* Profile / Header Section */}
+      <div className="w-full max-w-[416px] flex flex-col items-center relative z-10">
         {pageSettings.showProfile !== false && (
           <div className="w-full flex flex-col items-center relative z-10 mb-8">
             {pageSettings.profileImageUrl || project.user?.image ? (
@@ -190,151 +190,12 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
           </div>
         )}
 
-        {/* Blocks Section */}
         <div 
           className="w-full flex flex-col mt-4" 
           style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
         >
           {blocks.length > 0 ? (
-            (() => {
-                const groupedBlocks: any[] = [];
-                let currentGroup: any[] = [];
-
-                blocks.forEach((block, i) => {
-                  if (block.type === "link") {
-                    currentGroup.push(block);
-                  } else {
-                    if (currentGroup.length > 0) {
-                      groupedBlocks.push({ type: "linkGroup", id: `group-${i}`, items: currentGroup });
-                      currentGroup = [];
-                    }
-                    groupedBlocks.push(block);
-                  }
-                });
-                if (currentGroup.length > 0) {
-                  groupedBlocks.push({ type: "linkGroup", id: `group-end`, items: currentGroup });
-                }
-
-                  return groupedBlocks.map((group) => {
-                  if (group.type === "linkGroup") {
-                    return (
-                      <div key={group.id} className="w-full max-w-[416px] mx-auto flex flex-col gap-2.5 p-4 rounded-3xl shadow-md border transition-all">
-                        {group.items.map((block: any) => {
-                          const iconType = block.content?.icon || "default";
-                          let IconComponent: any = Globe;
-                          if (iconType === "whatsapp") IconComponent = WhatsappIcon;
-                          else if (iconType === "web") IconComponent = Globe;
-                          
-                          return (
-                            <a 
-                              key={block.id} 
-                              href={block.content?.url || "#"} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="w-full flex items-center justify-between py-1.5 px-4 rounded-xl border border-white/20 hover:bg-white/10 transition-all hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] font-semibold tracking-wide"
-                            >
-                              <span>{block.content?.title || "Tautan"}</span>
-                              {iconType !== "none" && (
-                                <IconComponent 
-                                  size={20} 
-                                  className={iconType !== "default" ? "text-white" : "text-zinc-300"} 
-                                />
-                              )}
-                            </a>
-                          );
-                        })}
-                      </div>
-                    );
-                  }
-                  
-                  const block = group;
-                  switch (block.type) {
-                    case "heading": {
-                      const customColorStyle: React.CSSProperties = {
-                        color: block.content?.textColor,
-                        fontSize: block.content?.textSize ? `${block.content.textSize}px` : undefined,
-                        textAlign: (block.content?.align as any) || "center",
-                        textAlignLast: block.content?.align === "justify" ? "center" : undefined,
-                      };
-                      
-                      const pStyle: React.CSSProperties = {
-                        color: block.content?.textColor,
-                        opacity: 0.8,
-                        textAlign: (block.content?.align as any) || "center",
-                        textAlignLast: block.content?.align === "justify" ? "center" : undefined,
-                      };
-                      
-                      if (block.content?.useCard === true || (block.content?.useCard !== false && pageSettings.cardShowHeadingCard)) {
-                        return (
-                          <div 
-                            key={block.id} 
-                            className="w-full text-center border border-white/10 p-5 rounded-2xl transition-all shadow-md bg-white/5 backdrop-blur-md"
-                          >
-                            <h1 style={customColorStyle} className="text-3xl font-extrabold tracking-tight mb-2 whitespace-pre-wrap">
-                              {block.content?.title || ""}
-                            </h1>
-                            {block.content?.bio && (
-                              <p style={pStyle} className="text-sm max-w-md mx-auto leading-relaxed whitespace-pre-wrap">
-                                {block.content.bio}
-                              </p>
-                            )}
-                          </div>
-                        );
-                      }
-                      return (
-                        <div key={block.id} className="w-full text-center">
-                          <h1 style={customColorStyle} className="text-3xl font-extrabold tracking-tight whitespace-pre-wrap">
-                            {block.content?.title || ""}
-                          </h1>
-                          {block.content?.bio && (
-                            <p style={pStyle} className="text-sm max-w-md mx-auto leading-relaxed whitespace-pre-wrap">
-                              {block.content.bio}
-                            </p>
-                          )}
-                        </div>
-                      );
-                    }
-                    case "text":
-                      return <div key={block.id} className="w-full flex justify-center"><TextBlock content={block.content || {}} /></div>;
-                    case "container":
-                      return <div key={block.id} className="w-full flex justify-center"><ContainerBlock content={block.content || {}} /></div>;
-                    case "buttons":
-                      return <div key={block.id} className="w-full flex justify-center"><ButtonsBlock content={block.content || {}} /></div>;
-                    case "image":
-                      return <div key={block.id} className="w-full flex justify-center"><ImageBlock content={block.content || {}} /></div>;
-                    case "divider":
-                      return <div key={block.id} className="w-full flex justify-center"><DividerBlock data={block.content || {}} /></div>;
-                    case "social": {
-                      const items = block.content?.items || [];
-                      const useCardSocial = block.content?.useCard !== false;
-                      return (
-                        <div key={block.id} className="w-full flex justify-center gap-3.5 py-3">
-                          {items.map((item: any, i: number) => {
-                            const platformConfig = AVAILABLE_PLATFORMS.find((p) => p.value === item.platform);
-                            const Icon = platformConfig?.icon || Globe;
-                            return (
-                              <a
-                                key={i}
-                                href={getPlatformUrl(item.platform, item.url)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`p-3 rounded-full hover:scale-110 transition-all ${
-                                  useCardSocial ? "border shadow-md" : ""
-                                }`}
-                                title={item.platform}
-                              >
-                                <Icon size={18} />
-                              </a>
-                            );
-                          })}
-                        </div>
-                      );
-                    }
-                    default:
-                      return null;
-                  }
-            });
-          })()
+            <BlocksRenderer blocks={blocks} isEditor={false} pageSettings={pageSettings} />
           ) : (
             <p className="text-zinc-500 text-center py-8 italic text-sm">
               Halaman ini belum memiliki konten yang dipublikasikan.
