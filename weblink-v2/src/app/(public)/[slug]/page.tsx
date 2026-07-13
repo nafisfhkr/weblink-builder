@@ -9,6 +9,8 @@ import ButtonsBlock from "src/components/builder/blocks/ButtonsBlock";
 import ImageBlock from "src/components/builder/blocks/ImageBlock";
 import DividerBlock from "src/components/builder/blocks/DividerBlock";
 import BlocksRenderer from "src/components/builder/BlocksRenderer";
+import { getOptimizedImageUrl } from "src/lib/imageOptimization";
+import OptimizedImage from "src/components/OptimizedImage";
 
 export const dynamic = "force-dynamic";
 
@@ -129,6 +131,10 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     showProfile?: boolean;
     backgroundOverlayOpacity?: number;
     fontFamily?: string;
+    profileImageWidth?: number;
+    profileImageHeight?: number;
+    profileImageFormat?: string;
+    profileImageBytes?: number;
   } = {};
   try {
     if (project.pageSettings) {
@@ -139,7 +145,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
 
   const bgStyle: React.CSSProperties =
     pageSettings.type === "image" && pageSettings.imageUrl
-      ? { backgroundImage: `url(${pageSettings.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }
+      ? { backgroundImage: `url(${getOptimizedImageUrl(pageSettings.imageUrl, { width: 1920, quality: "auto" })})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }
       : pageSettings.type === "gradient" && pageSettings.gradient
       ? { background: pageSettings.gradient }
       : { backgroundColor: pageSettings.color || "#ffffff" };
@@ -172,11 +178,16 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         {pageSettings.showProfile !== false && (
           <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
             {pageSettings.profileImageUrl || project.user?.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img 
+              <OptimizedImage 
                 src={pageSettings.profileImageUrl || project.user?.image || ""} 
                 alt={pageSettings.profileTitle || "Profile"} 
                 className="rounded-full mb-4 border-2 border-white/20 shadow-xl object-cover w-[120px] h-[120px]"
+                wrapperClassName="w-[120px] h-[120px]"
+                originalWidth={pageSettings.profileImageWidth}
+                originalHeight={pageSettings.profileImageHeight}
+                format={pageSettings.profileImageFormat}
+                bytes={pageSettings.profileImageBytes}
+                isEditor={false}
               />
             ) : (
               <div className="w-[120px] h-[120px] rounded-full bg-zinc-200 mb-4 border-2 border-white/20 shadow-xl" />

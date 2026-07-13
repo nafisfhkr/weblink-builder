@@ -61,7 +61,7 @@ export function SingleBlockRenderer({ block, isEditor, pageSettings, isUploading
     case "buttons":
       return <ButtonsBlock content={block.content || {}} />;
     case "image":
-      return <ImageBlock content={block.content || {}} isUploading={isUploading} />;
+      return <ImageBlock content={block.content || {}} isUploading={isUploading} isEditor={isEditor} />;
     case "divider":
       return <DividerBlock data={block.content || {}} />;
     case "heading": {

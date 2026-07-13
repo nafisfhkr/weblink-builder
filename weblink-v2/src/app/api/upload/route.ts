@@ -55,6 +55,10 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: uploadResult.secure_url,
       public_id: uploadResult.public_id,
+      width: uploadResult.width,
+      height: uploadResult.height,
+      format: uploadResult.format,
+      bytes: uploadResult.bytes,
     });
   } catch (error: any) {
     console.error("Cloudinary Upload Error:", error);

@@ -8,6 +8,7 @@ import CopyLinkButton from "src/components/dashboard/CopyLinkButton";
 import EditSlugForm from "src/components/dashboard/EditSlugForm";
 import { headers } from "next/headers";
 import Container from "@mui/material/Container";
+import { getOptimizedImageUrl } from "src/lib/imageOptimization";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -66,7 +67,7 @@ export default async function DashboardPage() {
                 : project.pageSettings as any;
 
               if (settings.type === "image" && settings.imageUrl) {
-                bgStyle = { backgroundImage: `url(${settings.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center" };
+                bgStyle = { backgroundImage: `url(${getOptimizedImageUrl(settings.imageUrl, { width: 400, quality: "auto" })})`, backgroundSize: "cover", backgroundPosition: "center" };
               } else if (settings.type === "gradient" && settings.gradient) {
                 bgStyle = { background: settings.gradient };
               } else if (settings.color) {

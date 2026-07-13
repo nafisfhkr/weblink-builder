@@ -28,6 +28,8 @@ import ContextualSidebar from "./ContextualSidebar";
 import { useToast } from "src/components/ui/Toast";
 import type { PageSettings } from "./BackgroundPicker";
 import { processImageToBase64 } from "src/lib/imageProcessor";
+import { getOptimizedImageUrl } from "src/lib/imageOptimization";
+import OptimizedImage from "src/components/OptimizedImage";
 
 interface BlockItem {
   id: string;
@@ -118,7 +120,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
   // Compute background CSS style for canvas
   const bgStyle: React.CSSProperties =
     pageSettings.type === "image" && pageSettings.imageUrl
-      ? { backgroundImage: `url(${pageSettings.imageUrl})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }
+      ? { backgroundImage: `url(${getOptimizedImageUrl(pageSettings.imageUrl, { width: 1920, quality: "auto" })})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" }
       : pageSettings.type === "gradient" && pageSettings.gradient
       ? { background: pageSettings.gradient }
       : { backgroundColor: pageSettings.color || "#ffffff" };
@@ -288,7 +290,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         const uploadResult = await processImageToBase64(file);
         const updated = withTemp.map((b) =>
           b.id === newBlockId
-            ? { ...b, content: { url: uploadResult.url, alt: "", storageKey: uploadResult.storageKey } }
+            ? { ...b, content: { url: uploadResult.url, alt: "", storageKey: uploadResult.storageKey, width: uploadResult.width, height: uploadResult.height, format: uploadResult.format, bytes: uploadResult.bytes, aspectRatio: uploadResult.aspectRatio } }
             : b
         );
         pushToHistory(blocks);
@@ -422,10 +424,16 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
           {pageSettings.showProfile !== false && (
             <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
               {pageSettings.profileImageUrl || initialData.user?.image ? (
-                <img 
+                <OptimizedImage 
                   src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
                   alt={pageSettings.profileTitle || "Profile"} 
                   className="w-[120px] h-[120px] rounded-full border-2 border-white/20 shadow-xl object-cover"
+                  wrapperClassName="w-[120px] h-[120px]"
+                  originalWidth={pageSettings.profileImageWidth}
+                  originalHeight={pageSettings.profileImageHeight}
+                  format={pageSettings.profileImageFormat}
+                  bytes={pageSettings.profileImageBytes}
+                  isEditor={true}
                 />
               ) : (
                 <div className="w-[120px] h-[120px] rounded-full bg-zinc-200 border-2 border-white/20 shadow-xl" />

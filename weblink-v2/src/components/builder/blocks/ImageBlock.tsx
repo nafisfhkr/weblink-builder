@@ -2,6 +2,7 @@
 
 import { ImageIcon } from "lucide-react";
 import { buildCardStyle, cardWrapperClass } from "src/lib/cardStyle";
+import OptimizedImage from "src/components/OptimizedImage";
 
 interface ImageBlockDisplayProps {
   content: {
@@ -16,11 +17,16 @@ interface ImageBlockDisplayProps {
     cardBorderColor?: string;
     cardBorderOpacity?: number;
     cardBlur?: number;
+    width?: number;
+    height?: number;
+    format?: string;
+    bytes?: number;
   };
   isUploading?: boolean;
+  isEditor?: boolean;
 }
 
-export default function ImageBlock({ content, isUploading }: ImageBlockDisplayProps) {
+export default function ImageBlock({ content, isUploading, isEditor }: ImageBlockDisplayProps) {
   const url = content?.url || "";
   const alt = content?.alt || "";
   const ratio = content?.aspectRatio || "widescreen";
@@ -60,11 +66,15 @@ export default function ImageBlock({ content, isUploading }: ImageBlockDisplayPr
   const imageEl = (
     <div className={`w-full overflow-hidden ${containerShape} ${useCard ? "" : ""}`}>
       <div className={wrapperClass}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <OptimizedImage
           src={url}
           alt={alt || "Image Block"}
           className="object-cover w-full h-full"
+          originalWidth={content.width}
+          originalHeight={content.height}
+          format={content.format}
+          bytes={content.bytes}
+          isEditor={isEditor}
         />
       </div>
       {alt && (
