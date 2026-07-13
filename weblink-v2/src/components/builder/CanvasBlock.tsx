@@ -21,7 +21,6 @@ interface CanvasBlockProps {
   onDelete: (id: string) => void;
   isSelected: boolean;
   onSelect: (id: string) => void;
-  isPreviewMode: boolean;
   uploadingBlockIds?: Set<string>;
 }
 
@@ -30,7 +29,6 @@ export default function CanvasBlock({
   onDelete,
   isSelected,
   onSelect,
-  isPreviewMode,
   uploadingBlockIds,
 }: CanvasBlockProps) {
   const {
@@ -80,13 +78,7 @@ export default function CanvasBlock({
     }
   };
 
-  if (isPreviewMode) {
-    return (
-      <div ref={setNodeRef} style={style}>
-        {renderBlock()}
-      </div>
-    );
-  }
+
 
   return (
     <div
