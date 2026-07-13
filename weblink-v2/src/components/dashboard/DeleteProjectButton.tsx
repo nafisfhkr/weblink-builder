@@ -50,7 +50,7 @@ export default function DeleteProjectButton({ projectId, projectTitle }: DeleteP
     <button
       onClick={handleDelete}
       disabled={isDeleting}
-      className="p-2 text-zinc-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 rounded-lg transition-all cursor-pointer shrink-0 disabled:opacity-50"
+      className="p-1.5 text-zinc-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 rounded-lg transition-all cursor-pointer shrink-0 disabled:opacity-50"
       title="Hapus Proyek"
       aria-label={`Hapus Proyek ${projectTitle}`}
     >

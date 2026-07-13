@@ -19,9 +19,9 @@ export default function CopyLinkButton({ url }: { url: string }) {
     <button
       onClick={handleCopy}
       title="Salin Tautan Publik"
-      className="flex items-center justify-center w-7 h-7 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-900 transition-colors"
+      className="p-1.5 text-zinc-500 hover:text-teal-600 hover:bg-teal-50 border border-transparent hover:border-teal-200 rounded-lg transition-all cursor-pointer shrink-0"
     >
-      {copied ? <Check size={14} className="text-teal-600" /> : <Copy size={14} />}
+      {copied ? <Check size={16} className="text-teal-600" /> : <Copy size={16} />}
     </button>
   );
 }

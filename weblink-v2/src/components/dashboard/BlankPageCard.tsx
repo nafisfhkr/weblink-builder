@@ -31,7 +31,7 @@ export default function BlankPageCard() {
       onClick={createProject}
       disabled={loading}
       style={{ backgroundColor: "#ffffff", borderColor: "#a1a1aa", borderWidth: "3px" }}
-      className="flex flex-col items-center justify-center w-full h-full min-h-[160px] border-dashed rounded-xl hover:border-zinc-400 hover:bg-zinc-50/50 transition-all group cursor-pointer disabled:opacity-50"
+      className="flex flex-col items-center justify-center w-full h-[200px] border-dashed rounded-xl hover:border-zinc-400 hover:bg-zinc-50/50 transition-all group cursor-pointer disabled:opacity-50 shrink-0"
     >
       <div 
         className="w-[40px] h-[40px] flex items-center justify-center rounded-full border-dashed mb-3 transition-colors bg-transparent"

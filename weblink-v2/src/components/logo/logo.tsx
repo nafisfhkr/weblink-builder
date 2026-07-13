@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import type { LinkProps } from '@mui/material/Link';
 
@@ -42,7 +42,7 @@ export function Logo({
       sx={[
         {
           width: 'auto',
-          height: 24,
+          height: 32,
           ...(isSingle && { width: 40, height: 40 }),
           ...(disabled && { pointerEvents: 'none' }),
         },
