@@ -118,19 +118,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.blocksData !== undefined) {
       const parsedBlocks = blocksDataSchema.parse(body.blocksData);
       
-      // Extract title from the heading block
-      let projectTitle = "My Linktree";
-      const headingBlock = parsedBlocks.find(b => b.type === "heading");
-      if (headingBlock && "title" in headingBlock.content && headingBlock.content.title) {
-        projectTitle = headingBlock.content.title;
+      // Extract title from the text block which is a heading
+      const headingBlock = parsedBlocks.find(b => b.type === "text" && b.content?.as === "heading");
+      
+      const updateData: any = { blocksData: parsedBlocks as any };
+      if (headingBlock && headingBlock.content?.text) {
+        updateData.title = headingBlock.content.text;
       }
 
       const project = await prisma.project.update({
         where: { id, userId: session.user.id },
-        data: { 
-          blocksData: parsedBlocks as any,
-          title: projectTitle
-        },
+        data: updateData,
       });
       return NextResponse.json({ success: true, project });
     }
@@ -164,9 +162,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         fontFamily: z.string().optional(),
       });
       const parsedSettings = pageSettingsSchema.parse(body.pageSettings);
+      const updateData: any = { pageSettings: parsedSettings as any };
+      if (parsedSettings.profileTitle) {
+        updateData.title = parsedSettings.profileTitle;
+      }
       const project = await prisma.project.update({
         where: { id, userId: session.user.id },
-        data: { pageSettings: parsedSettings as any },
+        data: updateData,
       });
       return NextResponse.json({ success: true, project });
     }

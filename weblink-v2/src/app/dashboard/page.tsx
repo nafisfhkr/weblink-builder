@@ -38,7 +38,7 @@ export default async function DashboardPage() {
   return (
     <Container maxWidth={false} className="pt-8 pb-12 sm:pt-12 sm:pb-16">
       <header className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 text-zinc-900 tracking-tight">Proyek Saya</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-1 text-zinc-900 tracking-tight">Project saya</h1>
         <p className="text-gray-500 text-sm sm:text-[15px]">Kelola identitas digital dan halaman biolink Anda.</p>
       </header>
 
@@ -57,6 +57,7 @@ export default async function DashboardPage() {
         {/* Daftar Proyek yang Sudah Ada */}
         {projects.map((project: any) => {
           let bgStyle: React.CSSProperties = { backgroundColor: "#141414" };
+          let displayTitle = project.title;
           try {
 
             if (project.pageSettings) {
@@ -71,6 +72,10 @@ export default async function DashboardPage() {
               } else if (settings.color) {
                 bgStyle = { backgroundColor: settings.color };
               }
+
+              if (settings.profileTitle) {
+                displayTitle = settings.profileTitle;
+              }
             }
           } catch (e) { }
 
@@ -79,28 +84,30 @@ export default async function DashboardPage() {
           return (
             <div
               key={project.id}
-              className="flex flex-col w-full overflow-hidden bg-white border border-zinc-200 rounded-xl shadow-sm hover:border-zinc-300 hover:shadow-md transition-all group"
+              className="flex flex-col w-full overflow-hidden bg-white border border-zinc-200 rounded-xl shadow-sm hover:border-zinc-300 hover:shadow-md transition-all group relative"
             >
-              {/* Thumbnail Preview Area */}
+              {/* Absolute link to make the entire card clickable */}
               <Link
                 href={`/editor/${project.id}`}
-                className="relative aspect-video w-full border-b border-zinc-100 overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 hover:opacity-90 transition-opacity"
+                className="absolute inset-0 z-0"
+              />
+
+              {/* Thumbnail Preview Area */}
+              <div
+                className="relative aspect-video w-full border-b border-zinc-100 overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 pointer-events-none"
                 style={bgStyle}
               >
                 <div className="bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 opacity-80 group-hover:opacity-100 transition-opacity">
                   <span className="text-white text-sm font-semibold truncate block max-w-full">
-                    {project.title}
+                    {displayTitle}
                   </span>
                 </div>
-              </Link>
+              </div>
 
               {/* Card Info Area */}
-              <div className="p-3 bg-white relative z-10 flex-1 flex flex-col w-full">
-                {/* Baris 1: Judul Proyek & Badge Status */}
-                <div className="flex items-center justify-between gap-2 w-full mb-1">
-                  <Link href={`/editor/${project.id}`} className="hover:underline flex-1 min-w-0">
-                    <h2 className="text-[14px] sm:text-[15px] font-bold truncate text-zinc-900 leading-snug">{project.title}</h2>
-                  </Link>
+              <div className="p-3 bg-white relative z-10 flex-1 flex flex-col w-full pointer-events-none">
+                {/* Baris 1: Badge Status */}
+                <div className="flex items-center justify-start w-full mb-1">
                   <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wider ${project.isPublished
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                     : "bg-zinc-100 text-zinc-600 border-zinc-200"
@@ -110,14 +117,14 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* Baris 2: Komponen EditSlugForm (Inline Slug & Pencil) */}
-                <div className="mb-2.5 w-full">
+                <div className="mb-2.5 w-full pointer-events-auto">
                   <EditSlugForm projectId={project.id} initialSlug={project.slug} host={host} />
                 </div>
 
                 {/* Baris 3: Footer Aksi (Hanya Salin & Hapus Icon di Kanan) */}
-                <div className="flex items-center justify-end gap-2 mt-auto pt-2.5 border-t border-zinc-100 w-full">
+                <div className="flex items-center justify-end gap-1 mt-auto pt-2.5 border-t border-zinc-100 w-full pointer-events-auto">
                   <CopyLinkButton url={fullUrl} />
-                  <DeleteProjectButton projectId={project.id} projectTitle={project.title} />
+                  <DeleteProjectButton projectId={project.id} projectTitle={displayTitle} />
                 </div>
               </div>
             </div>
