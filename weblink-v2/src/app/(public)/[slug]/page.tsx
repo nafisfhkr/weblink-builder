@@ -125,6 +125,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     profileTitle?: string;
     profileBio?: string;
     blockSpacing?: number;
+    profileSpacing?: number;
     showProfile?: boolean;
     backgroundOverlayOpacity?: number;
     fontFamily?: string;
