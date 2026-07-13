@@ -6,6 +6,7 @@ import {
   Type, Brush, Settings, ImageIcon,
   Minus, Box, MousePointerClick, Plus, Loader2,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  ArrowLeft, ChevronUp, ChevronDown,
 } from "lucide-react";
 import { useToast } from "src/components/ui/Toast";
 import { nanoid } from "nanoid";
@@ -209,7 +210,7 @@ function CardSettingsSection({ c, onChange }: { c: any; onChange: (newC: any) =>
 
           <SSlider
             label="Transparansi Dasar"
-            value={c.cardBgOpacity ?? 10}
+            value={c.cardBgOpacity ?? 100}
             min={0} max={100} unit="%"
             onChange={(v) => onChange({ ...c, cardBgOpacity: v })}
           />
@@ -221,7 +222,7 @@ function CardSettingsSection({ c, onChange }: { c: any; onChange: (newC: any) =>
           />
           <SSlider
             label="Efek Blur (Glass)"
-            value={c.cardBlur ?? 10}
+            value={c.cardBlur ?? 0}
             min={0} max={40} unit="px"
             onChange={(v) => onChange({ ...c, cardBlur: v })}
           />
@@ -331,10 +332,175 @@ function TextPanel({ content, onChange, activeTab }: any) {
 
 // ─── Container Panel ─────────────────────────────────────────────────────────
 
-function ContainerPanel({ content, onChange, activeTab }: any) {
+function ContainerPanel({ content, onChange, activeTab, onUploadStart, onUploadEnd }: any) {
   const c = content || {};
+  const [editingChildId, setEditingChildId] = useState<string | null>(null);
+  const [childTab, setChildTab] = useState("properties");
+
+  const columnsCount = c.columns || 2;
+  const children = c.children || [];
+
+  const addChild = (type: string, colIndex: number = 0) => {
+    const defaultContent: Record<string, any> = {
+      text: { text: "Teks baru di container..." },
+      buttons: { items: [{ id: nanoid(), label: "Tombol Baru", url: "https://", bgColor: "#14b8a6", textColor: "#ffffff" }] },
+      image: { url: "", alt: "", storageKey: "" },
+      divider: { style: "single", orientation: "horizontal", color: "#52525b", width: 100, thickness: 1, margin: 12 },
+    };
+
+    const newChild = {
+      id: nanoid(),
+      type,
+      content: defaultContent[type] || {},
+      column: colIndex,
+    };
+
+    const newChildren = [...children, newChild];
+    onChange({ ...c, children: newChildren });
+  };
+
+  const deleteChild = (id: string) => {
+    const newChildren = children.filter((ch: any) => ch.id !== id);
+    onChange({ ...c, children: newChildren });
+    if (editingChildId === id) setEditingChildId(null);
+  };
+
+  const moveChild = (id: string, direction: "up" | "down", colIndex: number) => {
+    const colChildren = children.filter((ch: any) => (ch.column ?? 0) === colIndex);
+    const indexInCol = colChildren.findIndex((ch: any) => ch.id === id);
+    if (indexInCol === -1) return;
+
+    const targetIndexInCol = direction === "up" ? indexInCol - 1 : indexInCol + 1;
+    if (targetIndexInCol < 0 || targetIndexInCol >= colChildren.length) return;
+
+    const siblingId = colChildren[targetIndexInCol].id;
+    
+    const originalIndex = children.findIndex((ch: any) => ch.id === id);
+    const siblingOriginalIndex = children.findIndex((ch: any) => ch.id === siblingId);
+
+    const newChildren = [...children];
+    newChildren[originalIndex] = children[siblingOriginalIndex];
+    newChildren[siblingOriginalIndex] = children[originalIndex];
+
+    onChange({ ...c, children: newChildren });
+  };
 
   if (activeTab === "properties") {
+    if (editingChildId) {
+      const child = children.find((ch: any) => ch.id === editingChildId);
+      if (!child) {
+        setEditingChildId(null);
+        return null;
+      }
+
+      const updateChildContent = (newChildContent: any) => {
+        const newChildren = children.map((ch: any) =>
+          ch.id === editingChildId ? { ...ch, content: newChildContent } : ch
+        );
+        onChange({ ...c, children: newChildren });
+      };
+
+      const props = {
+        content: child.content,
+        onChange: updateChildContent,
+        activeTab: childTab,
+        onUploadStart,
+        onUploadEnd,
+      };
+
+      return (
+        <div className="space-y-4">
+          <button
+            onClick={() => { setEditingChildId(null); setChildTab("properties"); }}
+            className="flex items-center gap-1.5 text-xs text-teal-400 hover:text-teal-300 transition-colors font-semibold"
+          >
+            <ArrowLeft size={14} /> Kembali ke Wadah
+          </button>
+          
+          <SegmentedControl
+            value={childTab}
+            onChange={setChildTab}
+            options={[
+              { value: "properties", label: "Konten", icon: Type },
+              { value: "appearance", label: "Tampilan", icon: Brush },
+            ]}
+          />
+          
+          <div className="border-t border-zinc-800/80 my-3" />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900/60 border border-zinc-800 rounded-lg">
+              <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">Mengedit:</span>
+              <span className="text-xs font-semibold text-zinc-300 capitalize">{child.type === "buttons" ? "Tombol" : child.type}</span>
+            </div>
+            {child.type === "text" && <TextPanel {...props} />}
+            {child.type === "buttons" && <ButtonsPanel {...props} />}
+            {child.type === "image" && <ImagePanel {...props} />}
+            {child.type === "divider" && <DividerPanel {...props} />}
+          </div>
+        </div>
+      );
+    }
+
+    const renderBlockList = (colIndex: number) => {
+      const colChildren = children.filter((ch: any) => (ch.column ?? 0) === colIndex);
+      return (
+        <div className="space-y-2">
+          {colChildren.map((child: any, idx: number) => (
+            <div key={child.id} className="flex items-center justify-between bg-zinc-900 border border-zinc-800/80 rounded-lg p-2 gap-2">
+              <span className="text-xs text-zinc-300 capitalize truncate flex-1">{child.type === "buttons" ? "Tombol" : child.type}</span>
+              <div className="flex items-center shrink-0">
+                <button
+                  onClick={() => moveChild(child.id, "up", colIndex)}
+                  disabled={idx === 0}
+                  className="text-zinc-500 hover:text-zinc-300 disabled:opacity-30 p-1 rounded"
+                >
+                  <ChevronUp size={14} />
+                </button>
+                <button
+                  onClick={() => moveChild(child.id, "down", colIndex)}
+                  disabled={idx === colChildren.length - 1}
+                  className="text-zinc-500 hover:text-zinc-300 disabled:opacity-30 p-1 rounded"
+                >
+                  <ChevronDown size={14} />
+                </button>
+                <button
+                  onClick={() => setEditingChildId(child.id)}
+                  className="text-teal-400 hover:text-teal-300 p-1 rounded hover:bg-teal-950/20"
+                >
+                  <Settings size={14} />
+                </button>
+                <button
+                  onClick={() => deleteChild(child.id)}
+                  className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-950/20"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
+          {colChildren.length === 0 && (
+            <div className="text-[10px] text-zinc-600 text-center py-2 italic border border-dashed border-zinc-800 rounded-lg">
+              Kolom kosong
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-1.5 pt-1.5">
+            <span className="text-[10px] text-zinc-500 font-medium">Tambah:</span>
+            <div className="flex flex-wrap gap-1">
+              {["text", "buttons", "image", "divider"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => addChild(type, colIndex)}
+                  className="text-[9px] font-bold px-1.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded capitalize transition-all"
+                >
+                  {type === "buttons" ? "Tombol" : type}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="space-y-5">
         <div>
@@ -348,14 +514,23 @@ function ContainerPanel({ content, onChange, activeTab }: any) {
             ]}
           />
         </div>
-        {(c.layout || "default") === "columns" && (
+        {(c.layout || "default") === "columns" ? (
           <>
-            <Divider />
             <div>
               <Label>Jumlah Kolom</Label>
               <SegmentedControl
                 value={String(c.columns || 2)}
-                onChange={(v) => onChange({ ...c, columns: Number(v) })}
+                onChange={(v) => {
+                  const newColCount = Number(v);
+                  const newChildren = children.map((ch: any) => {
+                    const col = ch.column ?? 0;
+                    if (col >= newColCount) {
+                      return { ...ch, column: newColCount - 1 };
+                    }
+                    return ch;
+                  });
+                  onChange({ ...c, columns: newColCount, children: newChildren });
+                }}
                 options={[
                   { value: "2", label: "2" },
                   { value: "3", label: "3" },
@@ -369,6 +544,24 @@ function ContainerPanel({ content, onChange, activeTab }: any) {
               min={0} max={64} unit="px"
               onChange={(v) => onChange({ ...c, gutter: v })}
             />
+            <Divider />
+            <div className="space-y-4">
+              <Label>Konten Kolom</Label>
+              {Array.from({ length: columnsCount }).map((_, i) => (
+                <div key={i} className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-3 space-y-2">
+                  <span className="text-[10px] font-bold text-zinc-400">Kolom {i + 1}</span>
+                  {renderBlockList(i)}
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <Divider />
+            <div className="space-y-3">
+              <Label>Konten Wadah (Stack)</Label>
+              {renderBlockList(0)}
+            </div>
           </>
         )}
       </div>
@@ -471,6 +664,15 @@ function ButtonsPanel({ content, onChange, activeTab }: any) {
   if (activeTab === "properties") {
     return (
       <div className="space-y-3">
+        <div>
+          <Label>Judul (Opsional)</Label>
+          <SInput 
+            value={c.heading || ""} 
+            onChange={(e) => onChange({ ...c, heading: e.target.value })} 
+            placeholder="Ketik judul untuk bagian tombol ini..." 
+          />
+        </div>
+        <Divider />
         {items.length === 0 && (
           <div className="text-center py-6 text-zinc-600 text-xs">
             Belum ada tombol. Klik tombol di bawah untuk menambahkan.
@@ -533,6 +735,29 @@ function ButtonsPanel({ content, onChange, activeTab }: any) {
   if (activeTab === "appearance") {
     return (
       <div className="space-y-5">
+        <div>
+          <Label>Orientasi Tombol</Label>
+          <SegmentedControl
+            value={c.orientation || "vertical"}
+            onChange={(v) => onChange({ ...c, orientation: v })}
+            options={[
+              { value: "vertical", label: "Vertikal" },
+              { value: "horizontal", label: "Horizontal" },
+            ]}
+          />
+        </div>
+        <div>
+          <Label>Gaya Tombol</Label>
+          <SegmentedControl
+            value={c.buttonStyle || "solid"}
+            onChange={(v) => onChange({ ...c, buttonStyle: v })}
+            options={[
+              { value: "solid", label: "Solid" },
+              { value: "outline", label: "Outline" },
+              { value: "transparent", label: "Ghost" },
+            ]}
+          />
+        </div>
         <CardSettingsSection c={c} onChange={onChange} />
       </div>
     );
@@ -660,41 +885,73 @@ function DividerPanel({ content, onChange, activeTab }: any) {
             value={c.style || "single"}
             onChange={(v) => onChange({ ...c, style: v })}
             options={[
-              { value: "single", label: "Solid" },
-              { value: "dashed", label: "Dashed" },
-              { value: "dotted", label: "Dotted" },
+              { value: "single", label: "Garis Solid" },
+              { value: "dashed", label: "Garis Putus" },
+              { value: "spacer", label: "Ruang Kosong" },
             ]}
           />
         </div>
-        <SSlider label="Lebar" value={c.width ?? 80} min={1} max={100} unit="%" onChange={(v) => onChange({ ...c, width: v })} />
-        <SSlider label="Ketebalan" value={c.thickness ?? 1} min={1} max={20} unit="px" onChange={(v) => onChange({ ...c, thickness: v })} />
-        <SSlider label="Corner Radius" value={c.radius ?? 0} min={0} max={20} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
-        <SSlider label="Margin Atas/Bawah" value={c.margin ?? 24} min={0} max={100} unit="px" onChange={(v) => onChange({ ...c, margin: v })} />
-        <Divider />
-        <ColorRow label="Warna" value={c.color || "#52525b"} onChange={(v) => onChange({ ...c, color: v })} />
-        <Divider />
-        <label className="flex items-center justify-between cursor-pointer">
+        {c.style !== "spacer" && (
           <div>
-            <span className="text-xs text-zinc-300 font-medium">Gunakan Gradient</span>
+            <Label>Teks Label (Opsional)</Label>
+            <SInput
+              type="text"
+              placeholder="Contoh: Media Sosial"
+              value={c.text || ""}
+              onChange={(e) => onChange({ ...c, text: e.target.value })}
+            />
           </div>
-          <div
-            onClick={() => onChange({ ...c, useGradient: !c.useGradient })}
-            className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${c.useGradient ? "bg-teal-500" : "bg-zinc-700"}`}
-          >
-            <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${c.useGradient ? "translate-x-5" : "translate-x-0"}`} />
-          </div>
-        </label>
-        {c.useGradient && (
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label>Warna 1</Label>
-              <input type="color" value={c.gradColor1 || "#52525b"} onChange={(e) => onChange({ ...c, gradColor1: e.target.value })} className="w-full h-9 rounded-lg border border-zinc-800 p-0.5 cursor-pointer" />
-            </div>
-            <div>
-              <Label>Warna 2</Label>
-              <input type="color" value={c.gradColor2 || "#27272a"} onChange={(e) => onChange({ ...c, gradColor2: e.target.value })} className="w-full h-9 rounded-lg border border-zinc-800 p-0.5 cursor-pointer" />
-            </div>
-          </div>
+        )}
+        {c.style !== "spacer" && (
+          <SSlider label="Lebar" value={c.width ?? 80} min={1} max={100} unit="%" onChange={(v) => onChange({ ...c, width: v })} />
+        )}
+        {c.style !== "spacer" && (
+          <SSlider label="Ketebalan" value={c.thickness ?? 1} min={1} max={20} unit="px" onChange={(v) => onChange({ ...c, thickness: v })} />
+        )}
+        {c.style !== "spacer" && (
+          <SSlider label="Corner Radius" value={c.radius ?? 0} min={0} max={20} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
+        )}
+        <SSlider 
+          label={c.style === "spacer" ? "Tinggi Ruang (Spacing)" : "Margin Atas/Bawah"} 
+          value={c.margin ?? 24} 
+          min={-100} 
+          max={150} 
+          unit="px" 
+          onChange={(v) => onChange({ ...c, margin: v })} 
+        />
+        <Divider />
+        {c.style !== "spacer" && (
+          <>
+            <ColorRow label="Warna" value={c.color || "#52525b"} onChange={(v) => onChange({ ...c, color: v })} />
+            <Divider />
+          </>
+        )}
+        {c.style !== "spacer" && (
+          <>
+            <label className="flex items-center justify-between cursor-pointer">
+              <div>
+                <span className="text-xs text-zinc-300 font-medium">Gunakan Gradient</span>
+              </div>
+              <div
+                onClick={() => onChange({ ...c, useGradient: !c.useGradient })}
+                className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${c.useGradient ? "bg-teal-500" : "bg-zinc-700"}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${c.useGradient ? "translate-x-5" : "translate-x-0"}`} />
+              </div>
+            </label>
+            {c.useGradient && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <Label>Warna 1</Label>
+                  <input type="color" value={c.gradColor1 || "#52525b"} onChange={(e) => onChange({ ...c, gradColor1: e.target.value })} className="w-full h-9 rounded-lg border border-zinc-800 p-0.5 cursor-pointer" />
+                </div>
+                <div>
+                  <Label>Warna 2</Label>
+                  <input type="color" value={c.gradColor2 || "#27272a"} onChange={(e) => onChange({ ...c, gradColor2: e.target.value })} className="w-full h-9 rounded-lg border border-zinc-800 p-0.5 cursor-pointer" />
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     );

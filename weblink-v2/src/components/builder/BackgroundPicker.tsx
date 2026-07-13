@@ -25,6 +25,7 @@ export interface PageSettings {
   profileBio?: string;
   fontFamily?: string;
   blockSpacing?: number;
+  profileSpacing?: number;
   showProfile?: boolean;
   backgroundOverlayOpacity?: number;
 }
@@ -382,7 +383,22 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
             
             {settings.showProfile !== false && (
               <div className="mt-3 pt-3 border-t border-zinc-800 flex flex-col gap-3">
-                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest">Custom Foto Profil</span>
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-xs font-semibold text-zinc-300">Jarak Profil & Blok</span>
+                    <span className="text-xs text-zinc-500">{settings.profileSpacing ?? 32}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={settings.profileSpacing ?? 32}
+                    onChange={(e) => onChange({ ...settings, profileSpacing: Number(e.target.value) })}
+                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                  />
+                </div>
+                
+                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mt-2">Custom Foto Profil</span>
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/webp"

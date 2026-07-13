@@ -37,8 +37,6 @@ export default function DividerBlock({ data }: DividerBlockProps) {
     : color;
 
   const containerStyle: React.CSSProperties = {
-    paddingTop: `${margin}px`,
-    paddingBottom: `${margin}px`,
     display: "flex",
     justifyContent: justifyMap[align] || "center",
     alignItems: "center",
@@ -47,25 +45,59 @@ export default function DividerBlock({ data }: DividerBlockProps) {
 
   let inner = null;
   if (orientation === "horizontal") {
-    const lineStyle: React.CSSProperties = {
-      width: `${width}%`,
-      height: 0,
-      borderTopWidth: `${thickness}px`,
-      borderTopStyle: cssStyle as any,
-      borderTopColor: borderColor,
-      borderRadius: `${radius}px`,
-      ...(useGradient ? {
-        borderImage: `linear-gradient(90deg, ${gradColor1}, ${gradColor2}) 1`,
-      } : {}),
-    };
-    inner = <div style={containerStyle}><div style={lineStyle} /></div>;
+    if (style === "spacer") {
+      inner = (
+        <div style={containerStyle}>
+          <div style={{ width: `${width}%`, height: `${thickness}px` }} />
+        </div>
+      );
+    } else if (data?.text) {
+      const lineStyle: React.CSSProperties = {
+        flexGrow: 1,
+        height: 0,
+        borderTopWidth: `${thickness}px`,
+        borderTopStyle: cssStyle as any,
+        borderTopColor: borderColor,
+        borderRadius: `${radius}px`,
+        ...(useGradient ? {
+          borderImage: `linear-gradient(90deg, ${gradColor1}, ${gradColor2}) 1`,
+        } : {}),
+      };
+      inner = (
+        <div style={containerStyle}>
+          <div className="flex items-center gap-3" style={{ width: `${width}%` }}>
+            <div style={lineStyle} />
+            <span 
+              className="text-xs font-semibold px-1 select-none shrink-0" 
+              style={{ color: color }}
+            >
+              {data.text}
+            </span>
+            <div style={lineStyle} />
+          </div>
+        </div>
+      );
+    } else {
+      const lineStyle: React.CSSProperties = {
+        width: `${width}%`,
+        height: 0,
+        borderTopWidth: `${thickness}px`,
+        borderTopStyle: cssStyle as any,
+        borderTopColor: borderColor,
+        borderRadius: `${radius}px`,
+        ...(useGradient ? {
+          borderImage: `linear-gradient(90deg, ${gradColor1}, ${gradColor2}) 1`,
+        } : {}),
+      };
+      inner = <div style={containerStyle}><div style={lineStyle} /></div>;
+    }
   } else {
     // Vertical
     const lineStyle: React.CSSProperties = {
       height: "60px",
       width: 0,
       borderLeftWidth: `${thickness}px`,
-      borderLeftStyle: cssStyle as any,
+      borderLeftStyle: style === "spacer" ? "none" : (cssStyle as any),
       borderLeftColor: borderColor,
       borderRadius: `${radius}px`,
     };

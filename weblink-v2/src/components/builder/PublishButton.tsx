@@ -7,6 +7,8 @@ interface PublishButtonProps {
   projectId: string;
   isPublished: boolean;
   hasChanges: boolean;
+  blocksData: any;
+  pageSettingsData: any;
   onPublishSuccess: (updatedProject: any) => void;
 }
 
@@ -14,6 +16,8 @@ export default function PublishButton({
   projectId,
   isPublished,
   hasChanges,
+  blocksData,
+  pageSettingsData,
   onPublishSuccess,
 }: PublishButtonProps) {
   const [isPublishing, setIsPublishing] = useState(false);
@@ -25,6 +29,8 @@ export default function PublishButton({
     try {
       const res = await fetch(`/api/project/${projectId}/publish`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blocksData, pageSettings: pageSettingsData }),
       });
 
       if (!res.ok) {
