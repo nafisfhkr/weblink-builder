@@ -1,4 +1,4 @@
-﻿import { auth } from "auth";
+import { auth } from "auth";
 import { prisma } from "src/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import BuilderCanvas from "src/components/builder/BuilderCanvas";
@@ -17,7 +17,7 @@ export default async function EditorPage({ params }: { params: Promise<{ id: str
   if (!project) notFound();
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-zinc-50 text-zinc-900">
       <BuilderCanvas initialData={project} />
     </div>
   );

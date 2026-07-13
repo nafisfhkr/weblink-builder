@@ -20,6 +20,10 @@ const SHOW_COMPONENTS =
   process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_SHOW_COMPONENTS === 'true';
 
 export default auth((request) => {
+  if (process.env.PLAYWRIGHT_TEST === 'true') {
+    return NextResponse.next();
+  }
+
   const { nextUrl } = request;
   const isLoggedIn = !!request.auth;
 

@@ -11,8 +11,6 @@ interface FloatingToolbarProps {
   onRedo: () => void;
   canUndo: boolean;
   canRedo: boolean;
-  isPreviewMode: boolean;
-  onTogglePreview: () => void;
   isMobileView: boolean;
   onToggleMobile: () => void;
   isBackgroundOpen: boolean;
@@ -29,8 +27,6 @@ export default function FloatingToolbar({
   onRedo,
   canUndo,
   canRedo,
-  isPreviewMode,
-  onTogglePreview,
   isMobileView,
   onToggleMobile,
   isBackgroundOpen,
@@ -123,25 +119,6 @@ export default function FloatingToolbar({
       </button>
 
       <div className="w-px h-3.5 bg-zinc-800 mx-0.5" />
-
-      {/* Preview Mode */}
-      <button
-        id="toolbar-preview"
-        onClick={onTogglePreview}
-        className={btnBase + (isPreviewMode ? " text-teal-400 bg-teal-950" : "")}
-        title={isPreviewMode ? "Keluar Preview" : "Mode Preview"}
-        aria-label={isPreviewMode ? "Keluar Preview" : "Mode Preview"}
-      >
-        {isPreviewMode ? (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
-          </svg>
-        ) : (
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="5 3 19 12 5 21 5 3"/>
-          </svg>
-        )}
-      </button>
 
       {/* Mobile Frame Toggle */}
       <button

@@ -96,7 +96,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
   const [isPublished, setIsPublished] = useState<boolean>(initialData.isPublished);
   const [isSaving, setIsSaving] = useState(false);
   const [canvasDragOver, setCanvasDragOver] = useState(false);
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [showBlockPicker, setShowBlockPicker] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
@@ -318,15 +317,24 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  // Editor: max-w-2xl centered. Preview Desktop: truly full-screen. Preview Mobile: narrow.
-  const canvasWidth = isPreviewMode ? (isMobileView ? "max-w-[390px]" : "w-full max-w-none") : "max-w-2xl";
+  // Editor: max-w-2xl centered. Preview Mobile: narrow.
+  const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-2xl";
 
   if (!mounted) {
     return <div className="min-h-screen bg-zinc-50" />;
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div 
+      className={`min-h-screen ${isMobileView ? "bg-zinc-50 py-4 overflow-y-auto" : ""} transition-all duration-300 relative`}
+      style={!isMobileView ? { ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' } : undefined}
+    >
+      {!isMobileView && ((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
+        <div 
+          className="fixed inset-0 pointer-events-none z-0" 
+          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
+        />
+      )}
       {/* Floating Toolbar */}
       <FloatingToolbar
         onAddBlock={handleAddBlock}
@@ -334,8 +342,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onRedo={handleRedo}
         canUndo={undoStack.length > 0}
         canRedo={redoStack.length > 0}
-        isPreviewMode={isPreviewMode}
-        onTogglePreview={() => { setIsPreviewMode((v) => !v); setSelectedBlockId(null); setShowPageSettings(false); setShowBlockPicker(false); }}
         isMobileView={isMobileView}
         onToggleMobile={() => setIsMobileView((v) => !v)}
         isBackgroundOpen={showPageSettings}
@@ -358,20 +364,18 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       />
 
       {/* Contextual Sidebar */}
-      {!isPreviewMode && (
-        <ContextualSidebar
-          selectedBlock={selectedBlock}
-          onUpdate={handleUpdateBlock}
-          onDelete={handleDeleteBlock}
-          onDuplicate={handleDuplicateBlock}
-          onClose={() => { setSelectedBlockId(null); setShowPageSettings(false); }}
-          onImageUploadStart={(id) => setUploadingBlockIds((s) => new Set(s).add(id))}
-          onImageUploadEnd={(id) => setUploadingBlockIds((s) => { const ns = new Set(s); ns.delete(id); return ns; })}
-          showPageSettings={showPageSettings}
-          pageSettings={pageSettings}
-          onPageSettingsChange={handlePageSettingsChange}
-        />
-      )}
+      <ContextualSidebar
+        selectedBlock={selectedBlock}
+        onUpdate={handleUpdateBlock}
+        onDelete={handleDeleteBlock}
+        onDuplicate={handleDuplicateBlock}
+        onClose={() => { setSelectedBlockId(null); setShowPageSettings(false); }}
+        onImageUploadStart={(id) => setUploadingBlockIds((s) => new Set(s).add(id))}
+        onImageUploadEnd={(id) => setUploadingBlockIds((s) => { const ns = new Set(s); ns.delete(id); return ns; })}
+        showPageSettings={showPageSettings}
+        pageSettings={pageSettings}
+        onPageSettingsChange={handlePageSettingsChange}
+      />
 
       {/* Canvas Area */}
       <div
@@ -379,17 +383,18 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onDragLeave={() => setCanvasDragOver(false)}
         onDrop={handleCanvasDrop}
         onClick={() => { setSelectedBlockId(null); setShowBlockPicker(false); setShowPageSettings(false); }}
-        className={`relative ${canvasWidth} mx-auto ${
-          isPreviewMode && isMobileView
-            ? "min-h-screen py-16 shadow-2xl overflow-hidden"
-            : isPreviewMode
-            ? "min-h-screen py-20 px-0"
-            : "py-20 px-6 min-h-screen"
-        } font-sans transition-all duration-300`}
-        style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}
+        className={`relative ${canvasWidth} mx-auto font-sans transition-all duration-300 ${
+          isMobileView
+            ? "my-4 border-[12px] border-zinc-950 rounded-[3rem] shadow-2xl min-h-[780px] py-16 px-4 overflow-hidden flex flex-col justify-start bg-white"
+            : "py-20 px-6 min-h-screen flex flex-col"
+        }`}
+        style={{ ...(isMobileView ? bgStyle : {}), fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
-        {/* Dark overlay for backgrounds */}
-        {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
+        {isMobileView && (
+          <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-zinc-800 rounded-full z-40 pointer-events-none" />
+        )}
+        {/* Dark overlay for backgrounds inside phone mockup */}
+        {isMobileView && ((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
           <div 
             className="absolute inset-0 pointer-events-none z-0" 
             style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
@@ -406,7 +411,9 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         )}
 
         {/* Content Wrapper */}
-        <div className="w-full max-w-2xl mx-auto px-4 md:px-8 pb-20 flex flex-col items-center">
+        <div className={`w-full mx-auto flex flex-col items-center relative z-10 ${
+          isMobileView ? "px-2 pb-10" : "max-w-2xl px-4 md:px-8 pb-20"
+        }`}>
           {/* Profile / Header Section in Canvas */}
           {pageSettings.showProfile !== false && (
             <div className="w-full flex flex-col items-center relative z-10 mb-8" style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}>
@@ -446,7 +453,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                     onDelete={handleDeleteBlock}
                     isSelected={block.id === selectedBlockId}
                     onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
-                    isPreviewMode={isPreviewMode}
                     uploadingBlockIds={uploadingBlockIds}
                   />
                 ))}
@@ -456,7 +462,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         </div>
 
         {/* Empty state */}
-        {blocks.length === 0 && !isPreviewMode && (
+        {blocks.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center relative z-10">
             <div className="w-16 h-16 rounded-2xl border border-dashed border-zinc-400 flex items-center justify-center mb-4 text-zinc-500">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
