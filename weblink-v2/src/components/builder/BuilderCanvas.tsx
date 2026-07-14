@@ -330,7 +330,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
   return (
     <div 
-      className={`min-h-screen ${isMobileView ? "bg-zinc-50 h-screen overflow-hidden flex items-center justify-center p-4" : ""} transition-all duration-300 relative`}
+      className={`min-h-screen ${isMobileView ? "bg-zinc-50 py-4 overflow-y-auto" : ""} transition-all duration-300 relative`}
       style={!isMobileView ? { ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' } : undefined}
     >
       {!isMobileView && (getOverlayOpacity(pageSettings) > 0) && (
@@ -391,21 +391,19 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onClick={() => { setSelectedBlockId(null); setShowBlockPicker(false); setShowPageSettings(false); }}
         className={`relative ${canvasWidth} mx-auto font-sans transition-all duration-300 ${
           isMobileView
-            ? "border-[12px] border-zinc-950 rounded-[3rem] shadow-2xl h-[calc(100vh-8rem)] max-h-[820px] w-[390px] flex flex-col justify-start bg-white overflow-hidden"
+            ? "my-4 border border-zinc-200 rounded-2xl shadow-xl min-h-[780px] pt-8 pb-12 px-4 flex flex-col justify-start bg-white overflow-hidden"
             : "pt-8 pb-12 px-6 min-h-screen flex flex-col"
         }`}
         style={{ ...(isMobileView ? bgStyle : {}), fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
-        {isMobileView && (
-          <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-zinc-800 rounded-full z-40 pointer-events-none" />
-        )}
-        {/* Dark overlay for backgrounds inside phone mockup */}
-        {isMobileView && (getOverlayOpacity(pageSettings) > 0) && (
+        {/* Dark overlay for backgrounds inside mockup */}
+        {(getOverlayOpacity(pageSettings) > 0) && (
           <div 
             className="absolute inset-0 pointer-events-none z-0" 
             style={{ backgroundColor: `rgba(0, 0, 0, ${getOverlayOpacity(pageSettings) / 100})` }}
           />
         )}
+
         {/* Canvas OS Drop Overlay */}
         {canvasDragOver && (
           <div className="absolute inset-0 bg-teal-950/25 border-2 border-dashed border-teal-500 rounded-3xl flex items-center justify-center pointer-events-none z-30 backdrop-blur-sm m-4">
@@ -416,67 +414,51 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
           </div>
         )}
 
-        {/* Content Outer Container */}
-        {(() => {
-          const content = (
-            <>
-              {/* Content Wrapper */}
-              <div className={`w-full mx-auto flex flex-col items-center relative z-10 ${
-                isMobileView ? "px-2 pb-10" : "max-w-2xl px-4 md:px-8"
-              }`}>
-                {/* Blocks */}
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                  <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
-                    <div 
-                      className="flex flex-col relative z-10 w-full" 
-                      style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
-                      onClick={(e) => e.stopPropagation()}
+        {/* Content Wrapper */}
+        <div className={`w-full mx-auto flex flex-col items-center relative z-10 ${
+          isMobileView ? "px-2 pb-10" : "max-w-2xl px-4 md:px-8"
+        }`}>
+          {/* Blocks */}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
+              <div 
+                className="flex flex-col relative z-10 w-full" 
+                style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <BlocksRenderer
+                  blocks={blocks}
+                  isEditor
+                  pageSettings={pageSettings}
+                  uploadingBlockIds={uploadingBlockIds}
+                  renderBlockWrapper={(block, children) => (
+                    <CanvasBlock
+                      key={block.id}
+                      block={block}
+                      onDelete={handleDeleteBlock}
+                      isSelected={block.id === selectedBlockId}
+                      onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
                     >
-                      <BlocksRenderer
-                        blocks={blocks}
-                        isEditor
-                        pageSettings={pageSettings}
-                        uploadingBlockIds={uploadingBlockIds}
-                        renderBlockWrapper={(block, children) => (
-                          <CanvasBlock
-                            key={block.id}
-                            block={block}
-                            onDelete={handleDeleteBlock}
-                            isSelected={block.id === selectedBlockId}
-                            onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
-                          >
-                            {children}
-                          </CanvasBlock>
-                        )}
-                      />
-                    </div>
-                  </SortableContext>
-                </DndContext>
+                      {children}
+                    </CanvasBlock>
+                  )}
+                />
               </div>
+            </SortableContext>
+          </DndContext>
+        </div>
 
-              {/* Empty state */}
-              {blocks.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-20 text-center relative z-10">
-                  <div className="w-16 h-16 rounded-2xl border border-dashed border-zinc-400 flex items-center justify-center mb-4 text-zinc-500">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                  </div>
-                  <p className="text-zinc-500 text-sm">Klik <kbd className="px-1.5 py-0.5 bg-zinc-200 border border-zinc-300 rounded text-xs font-mono text-zinc-700">+</kbd> di toolbar untuk menambahkan blok pertama</p>
-                </div>
-              )}
-            </>
-          );
-
-          if (isMobileView) {
-            return (
-              <div className="w-full h-full overflow-y-auto pt-16 pb-12 px-4 relative z-10 flex flex-col justify-start scrollbar-thin">
-                {content}
-              </div>
-            );
-          }
-          return content;
-        })()}
+        {/* Empty state */}
+        {blocks.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center relative z-10">
+            <div className="w-16 h-16 rounded-2xl border border-dashed border-zinc-400 flex items-center justify-center mb-4 text-zinc-500">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <p className="text-zinc-500 text-sm">Klik <kbd className="px-1.5 py-0.5 bg-zinc-200 border border-zinc-300 rounded text-xs font-mono text-zinc-700">+</kbd> di toolbar untuk menambahkan blok pertama</p>
+          </div>
+        )}
       </div>
 
       {/* Publish Success Modal */}
