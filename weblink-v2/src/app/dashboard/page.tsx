@@ -1,14 +1,15 @@
 import { auth } from "auth";
-import { prisma } from "src/lib/prisma";
-import BlankPageCard from "src/components/dashboard/BlankPageCard";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import DeleteProjectButton from "src/components/dashboard/DeleteProjectButton";
-import CopyLinkButton from "src/components/dashboard/CopyLinkButton";
-import EditSlugForm from "src/components/dashboard/EditSlugForm";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+
 import Container from "@mui/material/Container";
+
+import { prisma } from "src/lib/prisma";
 import { getOptimizedImageUrl } from "src/lib/imageOptimization";
+
+import BlankPageCard from "src/components/dashboard/BlankPageCard";
+import ProjectActionMenu from "src/components/dashboard/ProjectActionMenu";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -78,14 +79,16 @@ export default async function DashboardPage() {
                 displayTitle = settings.profileTitle;
               }
             }
-          } catch (e) { }
+          } catch (error) {
+            console.error("Failed to parse settings:", error);
+          }
 
           const fullUrl = `${protocol}://${host}/${project.slug}`;
 
           return (
             <div
               key={project.id}
-              className="flex flex-col w-full overflow-hidden bg-white border border-zinc-200 rounded-xl shadow-sm hover:border-zinc-300 hover:shadow-md transition-all group relative"
+              className="flex flex-col w-full bg-white border border-zinc-200 rounded-xl shadow-sm hover:border-zinc-300 hover:shadow-md hover:z-30 focus-within:z-30 transition-all group relative"
             >
               {/* Absolute link to make the entire card clickable */}
               <Link
@@ -95,37 +98,28 @@ export default async function DashboardPage() {
 
               {/* Thumbnail Preview Area */}
               <div
-                className="relative aspect-video w-full border-b border-zinc-100 overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 pointer-events-none"
+                className="relative aspect-video w-full border-b border-zinc-100 overflow-hidden rounded-t-xl pointer-events-none"
                 style={bgStyle}
-              >
-                <div className="bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10 opacity-80 group-hover:opacity-100 transition-opacity">
-                  <span className="text-white text-sm font-semibold truncate block max-w-full">
-                    {displayTitle}
-                  </span>
-                </div>
-              </div>
+              />
 
               {/* Card Info Area */}
-              <div className="p-3 bg-white relative z-10 flex-1 flex flex-col w-full pointer-events-none">
-                {/* Baris 1: Badge Status */}
-                <div className="flex items-center justify-start w-full mb-1">
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border shrink-0 uppercase tracking-wider ${project.isPublished
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-zinc-100 text-zinc-600 border-zinc-200"
-                    }`}>
+              <div className="pl-3 pr-1.5 pt-1.5 pb-2 bg-white relative z-10 flex-1 flex flex-col justify-start gap-0.5 w-full pointer-events-none rounded-b-xl">
+                {/* Row 1: Status & Menu Aksi */}
+                <div className="flex items-center justify-between w-full">
+                  <span className={`text-[9px] font-bold tracking-wider uppercase ${project.isPublished ? "text-emerald-600" : "text-zinc-400"}`}>
                     {project.isPublished ? "Published" : "Draft"}
                   </span>
+                  
+                  <div className="pointer-events-auto shrink-0">
+                    <ProjectActionMenu projectId={project.id} projectTitle={displayTitle} fullUrl={fullUrl} />
+                  </div>
                 </div>
 
-                {/* Baris 2: Komponen EditSlugForm (Inline Slug & Pencil) */}
-                <div className="mb-2.5 w-full pointer-events-auto">
-                  <EditSlugForm projectId={project.id} initialSlug={project.slug} host={host} />
-                </div>
-
-                {/* Baris 3: Footer Aksi (Hanya Salin & Hapus Icon di Kanan) */}
-                <div className="flex items-center justify-end gap-1 mt-auto pt-2.5 border-t border-zinc-100 w-full pointer-events-auto">
-                  <CopyLinkButton url={fullUrl} />
-                  <DeleteProjectButton projectId={project.id} projectTitle={displayTitle} />
+                {/* Row 2: Judul Project */}
+                <div className="w-full mt-0.5 pr-1.5">
+                  <h3 className="text-xs font-bold text-zinc-900 line-clamp-1 break-all w-full" title={displayTitle}>
+                    {displayTitle}
+                  </h3>
                 </div>
               </div>
             </div>
