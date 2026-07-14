@@ -51,6 +51,12 @@ const PRESET_GRADIENTS = [
   "linear-gradient(135deg, #020617 0%, #0f2027 100%)",
 ];
 
+const getOverlayOpacity = (settings: PageSettings) => {
+  if (settings.backgroundOverlayOpacity !== undefined) return settings.backgroundOverlayOpacity;
+  if (settings.imageOverlayOpacity !== undefined) return settings.imageOverlayOpacity;
+  return settings.type === "image" ? 55 : 0;
+};
+
 export default function BackgroundPicker({ settings, onChange }: BackgroundPickerProps) {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<"color" | "gradient" | "image">(settings.type || "color");
@@ -90,7 +96,9 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
         imageWidth: result.width,
         imageHeight: result.height,
         imageFormat: result.format,
-        imageBytes: result.bytes
+        imageBytes: result.bytes,
+        backgroundOverlayOpacity: settings.backgroundOverlayOpacity ?? 55,
+        imageOverlayOpacity: settings.imageOverlayOpacity ?? 55
       });
       showToast("Foto background berhasil diunggah", "success");
     } catch {
@@ -240,13 +248,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
             <div className="flex flex-col gap-1 mt-2">
               <div className="flex justify-between items-center text-[11px] text-zinc-400">
                 <span>Transparansi Overlay Gelap</span>
-                <span className="font-mono">{settings.imageOverlayOpacity ?? 55}%</span>
+                <span className="font-mono">{getOverlayOpacity(settings)}%</span>
               </div>
               <input
                 type="range"
                 min="0"
                 max="100"
-                value={settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 55}
+                value={getOverlayOpacity(settings)}
                 onChange={(e) => onChange({ ...settings, backgroundOverlayOpacity: parseInt(e.target.value), imageOverlayOpacity: parseInt(e.target.value) })}
                 className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
               />
@@ -278,7 +286,7 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           {(settings.type === "image" || settings.type === "color" || settings.type === "gradient") && (
             <div 
               className="absolute inset-0" 
-              style={{ backgroundColor: `rgba(0, 0, 0, ${(settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 0) / 100})` }}
+              style={{ backgroundColor: `rgba(0, 0, 0, ${getOverlayOpacity(settings) / 100})` }}
             />
           )}
           <div className="absolute inset-0 flex items-center justify-center">
@@ -294,13 +302,13 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
           <div className="flex flex-col gap-1">
             <div className="flex justify-between items-center text-[11px] text-zinc-400">
               <span>Pencahayaan / Gelap Background</span>
-              <span className="font-mono">{settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 0}%</span>
+              <span className="font-mono">{getOverlayOpacity(settings)}%</span>
             </div>
             <input
               type="range"
               min="0"
               max="100"
-              value={settings.backgroundOverlayOpacity ?? settings.imageOverlayOpacity ?? 0}
+              value={getOverlayOpacity(settings)}
               onChange={(e) => onChange({ ...settings, backgroundOverlayOpacity: parseInt(e.target.value), imageOverlayOpacity: parseInt(e.target.value) })}
               className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
             />

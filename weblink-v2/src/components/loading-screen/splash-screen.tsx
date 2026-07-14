@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { LogoProps } from '../logo';
@@ -37,13 +37,14 @@ export function SplashScreen({ portal = true, slots, slotProps, sx, ...other }: 
         repeat: Infinity,
         ease: 'easeInOut',
       }}
+      style={{ backfaceVisibility: 'hidden', willChange: 'transform' }}
     >
       <Logo
         disabled
         isSingle
         {...slotProps?.logo}
         sx={[
-          { width: 128, height: 128 },
+          { width: 64, height: 64 },
           ...(Array.isArray(slotProps?.logo?.sx) ? slotProps.logo.sx : [slotProps?.logo?.sx]),
         ]}
       />
