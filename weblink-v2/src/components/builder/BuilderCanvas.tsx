@@ -1,35 +1,37 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
+import type { PageSettings } from "./BackgroundPicker";
+
+import { nanoid } from "nanoid";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { X, Copy, Check, Loader2, UploadCloud, ExternalLink } from "lucide-react";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { nanoid } from "nanoid";
-import { UploadCloud, ArrowLeft, Check, Copy, ExternalLink, X } from "lucide-react";
-import Link from "next/link";
-import LinkBlock from "./blocks/LinkBlock";
-import BlocksRenderer from "./BlocksRenderer";
-import CanvasBlock from "./CanvasBlock";
-import PublishButton from "./PublishButton";
-import FloatingToolbar from "./FloatingToolbar";
-import ContextualSidebar from "./ContextualSidebar";
-import { useToast } from "src/components/ui/Toast";
-import type { PageSettings } from "./BackgroundPicker";
+import {
+  useSensor,
+  DndContext,
+  useSensors,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+
+import { updateProjectSlug } from "src/app/actions/project";
 import { processImageToBase64 } from "src/lib/imageProcessor";
 import { getOptimizedImageUrl } from "src/lib/imageOptimization";
-import OptimizedImage from "src/components/OptimizedImage";
+
+import { useToast } from "src/components/ui/Toast";
+
+import CanvasBlock from "./CanvasBlock";
+import PublishButton from "./PublishButton";
+import BlocksRenderer from "./BlocksRenderer";
+import FloatingToolbar from "./FloatingToolbar";
+import ContextualSidebar from "./ContextualSidebar";
 
 interface BlockItem {
   id: string;
@@ -48,7 +50,14 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/${initialData.slug}` : `/${initialData.slug}`;
+  
+  const [slug, setSlug] = useState(initialData.slug);
+  const [isEditingSlug, setIsEditingSlug] = useState(false);
+  const [slugInput, setSlugInput] = useState(initialData.slug);
+  const [slugError, setSlugError] = useState<string | null>(null);
+  const [isSavingSlug, setIsSavingSlug] = useState(false);
+
+  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/${slug}` : `/${slug}`;
 
   // --- Block State ---
   const [blocks, setBlocks] = useState<BlockItem[]>(() => {
@@ -98,7 +107,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
   // --- UI States ---
   const [isPublished, setIsPublished] = useState<boolean>(initialData.isPublished);
-  const [isSaving, setIsSaving] = useState(false);
   const [canvasDragOver, setCanvasDragOver] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const [showBlockPicker, setShowBlockPicker] = useState(false);
@@ -111,7 +119,9 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
     try {
       if (typeof initialData.pageSettings === "string") return JSON.parse(initialData.pageSettings);
       if (typeof initialData.pageSettings === "object" && initialData.pageSettings !== null) return initialData.pageSettings;
-    } catch {}
+    } catch (e) {
+      console.error("Failed to parse page settings:", e);
+    }
     return { type: "color", color: "#ffffff" };
   });
 
@@ -142,7 +152,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      setIsSaving(true);
       try {
         const res = await fetch(`/api/project/${initialData.id}`, {
           method: "PATCH",
@@ -156,10 +165,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       } catch (err: any) {
         if (err.name !== "AbortError") {
           showToast("Koneksi gagal, mencoba menyimpan ulang", "error");
-        }
-      } finally {
-        if (abortControllerRef.current === controller) {
-          setIsSaving(false);
         }
       }
     },
@@ -308,18 +313,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
   const hasChanges = JSON.stringify(blocks) !== JSON.stringify(publishedBlocks);
 
-  // Helper to convert hex and opacity to rgba
-  const hexToRgba = (hex: string = "#121212", opacityPercentage: number = 100) => {
-    let c = hex.replace("#", "");
-    if (c.length === 3) {
-      c = c.charAt(0) + c.charAt(0) + c.charAt(1) + c.charAt(1) + c.charAt(2) + c.charAt(2);
-    }
-    const r = parseInt(c.substring(0, 2), 16) || 18;
-    const g = parseInt(c.substring(2, 4), 16) || 18;
-    const b = parseInt(c.substring(4, 6), 16) || 18;
-    const alpha = opacityPercentage / 100;
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  };
+
 
   // Editor: max-w-2xl centered. Preview Mobile: narrow.
   const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-2xl";
@@ -430,7 +424,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
               >
                 <BlocksRenderer
                   blocks={blocks}
-                  isEditor={true}
+                  isEditor
                   pageSettings={pageSettings}
                   uploadingBlockIds={uploadingBlockIds}
                   renderBlockWrapper={(block, children) => (
@@ -476,22 +470,94 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
             <h2 className="text-xl font-bold text-white mb-2">Halaman Berhasil Dipublikasikan!</h2>
             <p className="text-sm text-zinc-400 mb-6">Halaman Anda sekarang sudah online dan bisa diakses oleh siapa saja. Bagikan tautan ini ke audiens Anda.</p>
             
-            <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-700 rounded-xl p-2 mb-6">
-              <div className="flex-1 px-3 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-zinc-300 select-all">
-                {publicUrl}
-              </div>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(publicUrl);
-                  setCopiedLink(true);
-                  setTimeout(() => setCopiedLink(false), 2000);
-                  showToast("Tautan disalin!", "success");
-                }}
-                className="flex items-center justify-center w-10 h-10 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors"
-                title="Salin Tautan"
-              >
-                {copiedLink ? <Check size={16} className="text-teal-400" /> : <Copy size={16} />}
-              </button>
+            {/* Inline Slug Editor */}
+            <div className="flex flex-col gap-2 mb-6">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-left">Link Halaman Anda</span>
+              
+              {!isEditingSlug ? (
+                <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-700 rounded-xl p-2.5">
+                  <div className="flex-1 px-3 overflow-hidden text-ellipsis whitespace-nowrap text-sm text-zinc-300 font-mono select-all">
+                    {publicUrl}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSlugInput(slug);
+                      setSlugError(null);
+                      setIsEditingSlug(true);
+                    }}
+                    className="px-3 py-1.5 text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg transition-colors cursor-pointer"
+                    title="Ubah Link"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(publicUrl);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2000);
+                      showToast("Tautan disalin!", "success");
+                    }}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors shrink-0"
+                    title="Salin Tautan"
+                  >
+                    {copiedLink ? <Check size={14} className="text-teal-400" /> : <Copy size={14} />}
+                  </button>
+                </div>
+              ) : (
+                <form 
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (slugInput.trim() === slug) {
+                      setIsEditingSlug(false);
+                      return;
+                    }
+                    setIsSavingSlug(true);
+                    setSlugError(null);
+                    const res = await updateProjectSlug(initialData.id, slugInput);
+                    if (res.error) {
+                      setSlugError(res.error);
+                    } else {
+                      setSlug(slugInput.trim().toLowerCase());
+                      setIsEditingSlug(false);
+                    }
+                    setIsSavingSlug(false);
+                  }}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="flex items-center bg-zinc-900 border border-zinc-700 focus-within:border-teal-500/50 rounded-xl p-2.5 text-sm text-zinc-300 font-mono">
+                    <span className="text-zinc-500 select-none shrink-0">{typeof window !== "undefined" ? window.location.origin : ""}/</span>
+                    <input
+                      type="text"
+                      value={slugInput}
+                      onChange={(e) => setSlugInput(e.target.value)}
+                      disabled={isSavingSlug}
+                      className="bg-transparent border-none outline-none text-white w-full ml-0.5 focus:ring-0 p-0 font-mono"
+                      autoFocus
+                    />
+                  </div>
+                  {slugError && (
+                    <span className="text-[10px] text-red-400 font-semibold px-1 text-left">{slugError}</span>
+                  )}
+                  <div className="flex items-center justify-end gap-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingSlug(false)}
+                      disabled={isSavingSlug}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSavingSlug}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-500 hover:bg-teal-400 text-teal-950 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {isSavingSlug && <Loader2 size={12} className="animate-spin" />}
+                      {isSavingSlug ? "Menyimpan..." : "Simpan"}
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
 
             <div className="flex gap-3">
