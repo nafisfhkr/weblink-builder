@@ -316,7 +316,13 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
 
 
   // Editor: max-w-2xl centered. Preview Mobile: narrow.
-  const canvasWidth = isMobileView ? "max-w-[390px]" : "max-w-2xl";
+  const canvasWidth = isMobileView ? "max-w-[390px] w-full" : "max-w-2xl";
+
+  const getOverlayOpacity = (settings: PageSettings) => {
+    if (settings.backgroundOverlayOpacity !== undefined) return settings.backgroundOverlayOpacity;
+    if (settings.imageOverlayOpacity !== undefined) return settings.imageOverlayOpacity;
+    return settings.type === "image" ? 55 : 0;
+  };
 
   if (!mounted) {
     return <div className="min-h-screen bg-zinc-50" />;
@@ -327,10 +333,10 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       className={`min-h-screen ${isMobileView ? "bg-zinc-50 py-4 overflow-y-auto" : ""} transition-all duration-300 relative`}
       style={!isMobileView ? { ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' } : undefined}
     >
-      {!isMobileView && ((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
+      {!isMobileView && (getOverlayOpacity(pageSettings) > 0) && (
         <div 
           className="fixed inset-0 pointer-events-none z-0" 
-          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
+          style={{ backgroundColor: `rgba(0, 0, 0, ${getOverlayOpacity(pageSettings) / 100})` }}
         />
       )}
       {/* Floating Toolbar */}
@@ -385,21 +391,19 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onClick={() => { setSelectedBlockId(null); setShowBlockPicker(false); setShowPageSettings(false); }}
         className={`relative ${canvasWidth} mx-auto font-sans transition-all duration-300 ${
           isMobileView
-            ? "my-4 border-[12px] border-zinc-950 rounded-[3rem] shadow-2xl min-h-[780px] pt-16 pb-12 px-4 flex flex-col justify-start bg-white"
+            ? "my-4 border border-zinc-200 rounded-2xl shadow-xl min-h-[780px] pt-8 pb-12 px-4 flex flex-col justify-start bg-white overflow-hidden"
             : "pt-8 pb-12 px-6 min-h-screen flex flex-col"
         }`}
         style={{ ...(isMobileView ? bgStyle : {}), fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
-        {isMobileView && (
-          <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-zinc-800 rounded-full z-40 pointer-events-none" />
-        )}
-        {/* Dark overlay for backgrounds inside phone mockup */}
-        {isMobileView && ((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
+        {/* Dark overlay for backgrounds inside mockup */}
+        {(getOverlayOpacity(pageSettings) > 0) && (
           <div 
             className="absolute inset-0 pointer-events-none z-0" 
-            style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
+            style={{ backgroundColor: `rgba(0, 0, 0, ${getOverlayOpacity(pageSettings) / 100})` }}
           />
         )}
+
         {/* Canvas OS Drop Overlay */}
         {canvasDragOver && (
           <div className="absolute inset-0 bg-teal-950/25 border-2 border-dashed border-teal-500 rounded-3xl flex items-center justify-center pointer-events-none z-30 backdrop-blur-sm m-4">

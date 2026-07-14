@@ -164,15 +164,21 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
+  const getOverlayOpacity = (settings: any) => {
+    if (settings.backgroundOverlayOpacity !== undefined) return settings.backgroundOverlayOpacity;
+    if (settings.imageOverlayOpacity !== undefined) return settings.imageOverlayOpacity;
+    return settings.type === "image" ? 55 : 0;
+  };
+
   // Pastikan data block diurutkan berdasarkan field 'order'
   blocks.sort((a, b) => a.order - b.order);
 
   return (
     <div className="min-h-screen flex flex-col items-center pt-8 pb-12 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
-      {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
+      {getOverlayOpacity(pageSettings) > 0 && (
         <div 
           className="absolute inset-0 pointer-events-none z-0" 
-          style={{ backgroundColor: `rgba(0, 0, 0, ${(pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) / 100})` }}
+          style={{ backgroundColor: `rgba(0, 0, 0, ${getOverlayOpacity(pageSettings) / 100})` }}
         />
       )}
       <div className="w-full max-w-[416px] flex flex-col items-center relative z-10">
