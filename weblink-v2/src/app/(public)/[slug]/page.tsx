@@ -168,7 +168,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
   blocks.sort((a, b) => a.order - b.order);
 
   return (
-    <div className="min-h-screen flex flex-col items-center pt-8 pb-20 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
+    <div className="min-h-screen flex flex-col items-center pt-8 pb-12 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
       {((pageSettings.backgroundOverlayOpacity ?? pageSettings.imageOverlayOpacity ?? 0) > 0) && (
         <div 
           className="absolute inset-0 pointer-events-none z-0" 
@@ -176,34 +176,6 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         />
       )}
       <div className="w-full max-w-[416px] flex flex-col items-center relative z-10">
-        {pageSettings.showProfile !== false && (
-          <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
-            {pageSettings.profileImageUrl || project.user?.image ? (
-              <div className={pageSettings.profileImageGlassEffect !== false ? "p-[4px] rounded-full backdrop-blur-md bg-white/5 border border-white/20 shadow-2xl flex items-center justify-center mb-4" : "mb-4"}>
-                <OptimizedImage 
-                  src={pageSettings.profileImageUrl || project.user?.image || ""} 
-                  alt={pageSettings.profileTitle || "Profile"} 
-                  className={`rounded-full object-cover ${pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px] border-2 border-white/20 shadow-xl"}`}
-                  wrapperClassName={pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px]"}
-                  originalWidth={pageSettings.profileImageWidth}
-                  originalHeight={pageSettings.profileImageHeight}
-                  format={pageSettings.profileImageFormat}
-                  bytes={pageSettings.profileImageBytes}
-                  isEditor={false}
-                />
-              </div>
-            ) : (
-              <div className="w-[120px] h-[120px] rounded-full bg-zinc-200 mb-4 border-2 border-white/20 shadow-xl" />
-            )}
-
-            {pageSettings.profileTitle && (
-              <h1 className="text-xl font-bold mb-1">{pageSettings.profileTitle}</h1>
-            )}
-            {pageSettings.profileBio && (
-              <p className="text-sm opacity-80 text-center max-w-md">{pageSettings.profileBio}</p>
-            )}
-          </div>
-        )}
 
         <div 
           className="w-full flex flex-col" 
@@ -219,17 +191,6 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
         </div>
       </div>
       
-      {/* LinkBuilder Watermark Footer */}
-      <div className="mt-16 pb-8 flex justify-center relative z-10 w-full mt-auto pt-20">
-        <a 
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[11px] font-medium opacity-80 hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/90"
-        >
-          Powered by <span className="font-bold text-white">Weblink Builder</span>
-        </a>
-      </div>
     </div>
   );
 }

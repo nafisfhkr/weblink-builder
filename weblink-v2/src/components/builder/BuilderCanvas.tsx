@@ -391,8 +391,8 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onClick={() => { setSelectedBlockId(null); setShowBlockPicker(false); setShowPageSettings(false); }}
         className={`relative ${canvasWidth} mx-auto font-sans transition-all duration-300 ${
           isMobileView
-            ? "my-4 border-[12px] border-zinc-950 rounded-[3rem] shadow-2xl min-h-[780px] py-16 px-4 overflow-hidden flex flex-col justify-start bg-white"
-            : "pt-8 pb-20 px-6 min-h-screen flex flex-col"
+            ? "my-4 border-[12px] border-zinc-950 rounded-[3rem] shadow-2xl min-h-[780px] pt-16 pb-12 px-4 flex flex-col justify-start bg-white"
+            : "pt-8 pb-12 px-6 min-h-screen flex flex-col"
         }`}
         style={{ ...(isMobileView ? bgStyle : {}), fontFamily: pageSettings.fontFamily || 'inherit' }}
       >
@@ -420,38 +420,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         <div className={`w-full mx-auto flex flex-col items-center relative z-10 ${
           isMobileView ? "px-2 pb-10" : "max-w-2xl px-4 md:px-8"
         }`}>
-          {/* Profile / Header Section in Canvas */}
-          {pageSettings.showProfile !== false && (
-            <div className="w-full flex flex-col items-center relative z-10" style={{ marginBottom: `${pageSettings.profileSpacing ?? 32}px` }}>
-              {pageSettings.profileImageUrl || initialData.user?.image ? (
-                <div className={pageSettings.profileImageGlassEffect !== false ? "p-[4px] rounded-full backdrop-blur-md bg-white/5 border border-white/20 shadow-2xl flex items-center justify-center mb-2" : "mb-2"}>
-                  <OptimizedImage 
-                    src={pageSettings.profileImageUrl || initialData.user?.image || ""} 
-                    alt={pageSettings.profileTitle || "Profile"} 
-                    className={`rounded-full object-cover ${pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px] border-2 border-white/20 shadow-xl"}`}
-                    wrapperClassName={pageSettings.profileImageGlassEffect !== false ? "w-[96px] h-[96px]" : "w-[120px] h-[120px]"}
-                    originalWidth={pageSettings.profileImageWidth}
-                    originalHeight={pageSettings.profileImageHeight}
-                    format={pageSettings.profileImageFormat}
-                    bytes={pageSettings.profileImageBytes}
-                    isEditor={true}
-                  />
-                </div>
-              ) : (
-                <div className="w-[120px] h-[120px] rounded-full bg-zinc-200 border-2 border-white/20 shadow-xl" />
-              )}
-
-              <div className="flex flex-col items-center" style={{ gap: `${(pageSettings.blockSpacing ?? 16) / 2}px` }}>
-                {pageSettings.profileTitle && (
-                  <h1 className="text-xl font-bold">{pageSettings.profileTitle}</h1>
-                )}
-                {pageSettings.profileBio && (
-                  <p className="text-sm opacity-80 text-center max-w-md">{pageSettings.profileBio}</p>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Blocks */}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
@@ -491,20 +459,6 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
               </svg>
             </div>
             <p className="text-zinc-500 text-sm">Klik <kbd className="px-1.5 py-0.5 bg-zinc-200 border border-zinc-300 rounded text-xs font-mono text-zinc-700">+</kbd> di toolbar untuk menambahkan blok pertama</p>
-          </div>
-        )}
-
-        {/* Watermark Powered By */}
-        {blocks.length > 0 && (
-          <div className="mt-16 pb-8 flex justify-center relative z-10">
-            <a 
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] font-medium opacity-80 hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white/90"
-            >
-              Powered by <span className="font-bold text-white">Weblink Builder</span>
-            </a>
           </div>
         )}
       </div>
