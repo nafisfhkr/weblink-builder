@@ -850,8 +850,16 @@ function ImagePanel({ content, onChange, activeTab, onUploadStart, onUploadEnd }
           <p className="text-[9px] text-zinc-600 text-center py-1.5">JPEG, PNG, WebP, GIF (maks 2MB), SVG</p>
         </div>
         <div>
+          <Label>Judul / Nama Profil (Opsional)</Label>
+          <SInput value={c.title || ""} onChange={(e) => onChange({ ...c, title: e.target.value })} placeholder="Ketik nama atau judul" />
+        </div>
+        <div>
+          <Label>Bio / Deskripsi (Opsional)</Label>
+          <STextArea value={c.bio || ""} onChange={(e) => onChange({ ...c, bio: e.target.value })} placeholder="Ketik bio profil singkat" rows={3} />
+        </div>
+        <div>
           <Label>Alt Text (SEO)</Label>
-          <SInput value={c.alt || ""} onChange={(e) => onChange({ ...c, alt: e.target.value })} placeholder="Deskripsi gambar" />
+          <SInput value={c.alt || ""} onChange={(e) => onChange({ ...c, alt: e.target.value })} placeholder="Deskripsi gambar untuk SEO" />
         </div>
         <div>
           <Label>Link URL (Opsional)</Label>
@@ -872,6 +880,42 @@ function ImagePanel({ content, onChange, activeTab, onUploadStart, onUploadEnd }
             <option value="circle">Lingkaran</option>
           </SSelect>
         </div>
+        {c.aspectRatio === "circle" && (
+          <>
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-xs font-semibold text-zinc-300">Ukuran Gambar</span>
+                <span className="text-xs text-zinc-500">{c.imageSize || 120}px</span>
+              </div>
+              <input
+                type="range"
+                min="48"
+                max="300"
+                value={c.imageSize || 120}
+                onChange={(e) => onChange({ ...c, imageSize: Number(e.target.value) })}
+                className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
+              />
+            </div>
+            <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3">
+              <div className="flex flex-col">
+                <span className="text-xs text-zinc-200 font-semibold leading-tight">Efek Glass</span>
+                <span className="text-[10px] text-zinc-500 mt-1 leading-tight">Beri ring transparan</span>
+              </div>
+              <div
+                onClick={() => onChange({ ...c, useGlassEffect: !c.useGlassEffect })}
+                className={`relative w-10 h-5 shrink-0 rounded-full transition-colors cursor-pointer ${
+                  c.useGlassEffect ? "bg-teal-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                    c.useGlassEffect ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </div>
+            </div>
+          </>
+        )}
         <CardSettingsSection c={c} onChange={onChange} />
       </div>
     );

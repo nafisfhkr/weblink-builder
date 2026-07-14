@@ -20,23 +20,13 @@ export interface PageSettings {
   cardBlur?: number;
   cardShowHeadingCard?: boolean;
   imageOverlayOpacity?: number;
-  profileImageUrl?: string;
-  profileTitle?: string;
-  profileBio?: string;
   fontFamily?: string;
   blockSpacing?: number;
-  profileSpacing?: number;
-  showProfile?: boolean;
   backgroundOverlayOpacity?: number;
   imageWidth?: number;
   imageHeight?: number;
   imageFormat?: string;
   imageBytes?: number;
-  profileImageWidth?: number;
-  profileImageHeight?: number;
-  profileImageFormat?: string;
-  profileImageBytes?: number;
-  profileImageGlassEffect?: boolean;
 }
 
 interface BackgroundPickerProps {
@@ -67,7 +57,6 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const profileInputRef = useRef<HTMLInputElement>(null);
 
   const handleTabChange = (tab: "color" | "gradient" | "image") => {
     setActiveTab(tab);
@@ -108,33 +97,6 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
       showToast("Upload gagal, coba lagi", "error");
     } finally {
       setIsUploading(false);
-    }
-  };
-
-  const handleProfileUpload = async (file: File) => {
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      showToast("Format tidak didukung (Gunakan JPG, PNG, atau WebP)", "error");
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      showToast("Ukuran maksimal 2MB", "error");
-      return;
-    }
-
-    showToast("Mengunggah foto profil...", "success");
-    try {
-      const result = await processImageToBase64(file);
-      onChange({ 
-        ...settings, 
-        profileImageUrl: result.url,
-        profileImageWidth: result.width,
-        profileImageHeight: result.height,
-        profileImageFormat: result.format,
-        profileImageBytes: result.bytes
-      });
-      showToast("Foto profil berhasil diunggah", "success");
-    } catch {
-      showToast("Upload gagal, coba lagi", "error");
     }
   };
 
@@ -383,108 +345,7 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
             </select>
           </div>
 
-          <div className="w-full h-px bg-zinc-800" />
 
-          {/* Profil Visibility */}
-          <div className="flex flex-col gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex flex-col flex-1">
-                <span className="text-xs text-zinc-200 font-semibold leading-tight">Tampilkan Info Profil</span>
-                <span className="text-[10px] text-zinc-500 mt-1 leading-tight">Muncul di atas halaman</span>
-              </div>
-              <div
-                onClick={() => onChange({ ...settings, showProfile: settings.showProfile === false ? true : false })}
-                className={`relative w-10 h-5 shrink-0 rounded-full transition-colors cursor-pointer ${
-                  settings.showProfile !== false ? "bg-teal-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                    settings.showProfile !== false ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </div>
-            <div className="mt-3 flex items-center justify-between gap-3 border-t border-zinc-800 pt-3">
-              <div className="flex flex-col flex-1">
-                <span className="text-xs text-zinc-200 font-semibold leading-tight">Efek Glass Profil</span>
-                <span className="text-[10px] text-zinc-500 mt-1 leading-tight">Tambahkan ring transparan di belakang profil</span>
-              </div>
-              <div
-                onClick={() => onChange({ ...settings, profileImageGlassEffect: settings.profileImageGlassEffect === false ? true : false })}
-                className={`relative w-10 h-5 shrink-0 rounded-full transition-colors cursor-pointer ${
-                  settings.profileImageGlassEffect !== false ? "bg-teal-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                    settings.profileImageGlassEffect !== false ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </div>
-            </div></div>
-            
-            {settings.showProfile !== false && (
-              <div className="mt-3 pt-3 border-t border-zinc-800 flex flex-col gap-3">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-xs font-semibold text-zinc-300">Jarak Profil & Blok</span>
-                    <span className="text-xs text-zinc-500">{settings.profileSpacing ?? 32}px</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={settings.profileSpacing ?? 32}
-                    onChange={(e) => onChange({ ...settings, profileSpacing: Number(e.target.value) })}
-                    className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-teal-500"
-                  />
-                </div>
-                
-                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mt-2">Custom Foto Profil</span>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  ref={profileInputRef}
-                  onChange={(e) => { if (e.target.files?.[0]) handleProfileUpload(e.target.files[0]); }}
-                />
-                {settings.profileImageUrl ? (
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-center">
-                      <img
-                        src={settings.profileImageUrl}
-                        alt="Profile"
-                        className="w-16 h-16 rounded-full object-cover border border-zinc-700 shadow shrink-0"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => profileInputRef.current?.click()}
-                        className="flex-1 text-xs text-zinc-300 hover:text-white border border-zinc-700 hover:border-zinc-500 px-3 py-1.5 rounded-lg transition-all bg-zinc-800 hover:bg-zinc-700"
-                      >
-                        Ganti Foto
-                      </button>
-                      <button
-                        onClick={() => onChange({ ...settings, profileImageUrl: "" })}
-                        className="flex-1 text-xs text-red-400 hover:text-red-300 bg-red-950/20 hover:bg-red-950/40 border border-red-900/40 px-3 py-1.5 rounded-lg transition-all"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => profileInputRef.current?.click()}
-                    className="w-full flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-white border border-dashed border-zinc-700 hover:border-zinc-500 px-3 py-5 rounded-xl transition-all bg-zinc-900 hover:bg-zinc-800"
-                  >
-                    <UploadCloud size={20} className="text-zinc-500" />
-                    <span className="text-xs font-medium">Upload Foto Profil</span>
-                    <span className="text-[10px] text-zinc-600">JPG, PNG, WebP · Maks 2MB</span>
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       )}
     </div>
