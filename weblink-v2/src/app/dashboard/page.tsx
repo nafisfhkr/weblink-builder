@@ -98,28 +98,54 @@ export default async function DashboardPage() {
 
               {/* Thumbnail Preview Area */}
               <div
-                className="relative aspect-video w-full border-b border-zinc-100 overflow-hidden rounded-t-xl pointer-events-none"
+                className="relative aspect-video w-full border-b border-zinc-100 rounded-t-xl pointer-events-none"
                 style={bgStyle}
-              />
-
-              {/* Card Info Area */}
-              <div className="pl-3 pr-1.5 pt-1.5 pb-2 bg-white relative z-10 flex-1 flex flex-col justify-start gap-0.5 w-full pointer-events-none rounded-b-xl">
-                {/* Row 1: Status & Menu Aksi */}
-                <div className="flex items-center justify-between w-full">
-                  <span className={`text-[9px] font-bold tracking-wider uppercase ${project.isPublished ? "text-emerald-600" : "text-zinc-400"}`}>
+              >
+                {/* Status Teks: Solid Color */}
+                <div className="absolute top-2 left-2 z-20">
+                  <span className={`px-1.5 py-0.5 text-[8px] font-semibold tracking-wide uppercase rounded-md shadow-sm border ${
+                    project.isPublished
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "bg-zinc-500 text-white border-zinc-500"
+                  }`}>
                     {project.isPublished ? "Published" : "Draft"}
                   </span>
-                  
-                  <div className="pointer-events-auto shrink-0">
-                    <ProjectActionMenu projectId={project.id} projectTitle={displayTitle} fullUrl={fullUrl} />
-                  </div>
                 </div>
 
-                {/* Row 2: Judul Project */}
-                <div className="w-full mt-0.5 pr-1.5">
-                  <h3 className="text-xs font-bold text-zinc-900 line-clamp-1 break-all w-full" title={displayTitle}>
+                {/* Action Menu: Compact Glass Trigger */}
+                <div className="absolute top-2 right-2 z-20 pointer-events-auto">
+                  <ProjectActionMenu
+                    projectId={project.id}
+                    projectTitle={displayTitle}
+                    fullUrl={fullUrl}
+                    triggerClassName="p-0.5 rounded bg-black/25 border border-white/10 backdrop-blur-sm flex items-center justify-center text-white/90 hover:text-white transition-all cursor-pointer shadow-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Card Info Area */}
+              <div className="px-3 py-2.5 bg-white relative z-10 flex flex-col justify-start gap-1.5 w-full pointer-events-none rounded-b-xl">
+                {/* Row 1: Judul Project */}
+                <div className="w-full">
+                  <h3 className="text-xs font-semibold text-zinc-900 line-clamp-1 break-all w-full m-0 p-0" title={displayTitle}>
                     {displayTitle}
                   </h3>
+                </div>
+
+                {/* Row 2: Metadata Tanggal (Dibuat & Diedit) */}
+                <div className="flex flex-col gap-1 text-[10px] text-zinc-400 border-t border-zinc-100 pt-2 w-full">
+                  <div className="flex justify-between items-center w-full">
+                    <span>Dibuat</span>
+                    <span className="font-medium text-zinc-500">
+                      {new Date(project.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center w-full">
+                    <span>Diedit</span>
+                    <span className="font-medium text-zinc-500">
+                      {new Date(project.updatedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
