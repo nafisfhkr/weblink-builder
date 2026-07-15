@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import type { Breakpoint } from '@mui/material/styles';
 import type { FooterProps } from './footer';
@@ -60,7 +60,7 @@ export function MainLayout({
               [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
             })}
           />
-          <NavMobile data={navData} open={open} onClose={onClose} />
+          <NavMobile data={slotProps?.nav?.data ?? navData} open={open} onClose={onClose} />
 
           {/** @slot Logo */}
           <Logo />
@@ -70,7 +70,7 @@ export function MainLayout({
         <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           {/** @slot Nav desktop */}
           <NavDesktop
-            data={navData}
+            data={slotProps?.nav?.data ?? navData}
             sx={(theme) => ({
               display: 'none',
               [theme.breakpoints.up(layoutQuery)]: { display: 'flex' },

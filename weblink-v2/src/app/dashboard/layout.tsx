@@ -1,12 +1,18 @@
 import { MainLayout } from 'src/layouts/main';
 import LogoutButton from 'src/components/dashboard/LogoutButton';
 import Box from '@mui/material/Box';
+import { paths } from 'src/routes/paths';
 
 type Props = {
   children: React.ReactNode;
 };
 
 export default function Layout({ children }: Props) {
+  const dashboardNavData = [
+    { title: 'Projects', path: paths.dashboard },
+    { title: 'Settings', path: paths.settings },
+  ];
+
   return (
     <MainLayout
       slotProps={{
@@ -21,6 +27,9 @@ export default function Layout({ children }: Props) {
             )
           }
         },
+        nav: {
+          data: dashboardNavData
+        }
       }}
     >
       <div>
