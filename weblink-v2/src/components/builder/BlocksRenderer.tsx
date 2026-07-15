@@ -50,14 +50,38 @@ interface BlocksRendererProps {
   pageSettings?: any;
   uploadingBlockIds?: Set<string>;
   renderBlockWrapper?: (block: any, children: React.ReactNode) => React.ReactNode;
+  onUpdateBlock?: (id: string, content: any) => void;
+  onSelectChild?: (parentId: string, childId: string) => void;
 }
 
-export function SingleBlockRenderer({ block, isEditor, pageSettings, isUploading }: { block: any, isEditor: boolean, pageSettings: any, isUploading?: boolean }) {
+export function SingleBlockRenderer({
+  block,
+  isEditor,
+  pageSettings,
+  isUploading,
+  onUpdateBlock,
+  onSelectChild,
+}: {
+  block: any;
+  isEditor: boolean;
+  pageSettings: any;
+  isUploading?: boolean;
+  onUpdateBlock?: (id: string, content: any) => void;
+  onSelectChild?: (parentId: string, childId: string) => void;
+}) {
   switch (block.type) {
     case "text":
       return <TextBlock content={block.content || {}} />;
     case "container":
-      return <ContainerBlock content={block.content || {}} isEditor={isEditor} />;
+      return (
+        <ContainerBlock
+          blockId={block.id}
+          content={block.content || {}}
+          isEditor={isEditor}
+          onUpdate={onUpdateBlock}
+          onSelectChild={onSelectChild}
+        />
+      );
     case "buttons":
       return <ButtonsBlock content={block.content || {}} />;
     case "image":
@@ -137,7 +161,15 @@ export function SingleBlockRenderer({ block, isEditor, pageSettings, isUploading
   }
 }
 
-export default function BlocksRenderer({ blocks, isEditor = false, pageSettings = {}, uploadingBlockIds, renderBlockWrapper }: BlocksRendererProps) {
+export default function BlocksRenderer({
+  blocks,
+  isEditor = false,
+  pageSettings = {},
+  uploadingBlockIds,
+  renderBlockWrapper,
+  onUpdateBlock,
+  onSelectChild,
+}: BlocksRendererProps) {
   // Pastikan data block diurutkan berdasarkan field 'order'
   const sortedBlocks = [...blocks].sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -198,7 +230,16 @@ export default function BlocksRenderer({ blocks, isEditor = false, pageSettings 
         
         const block = group;
         const isUploading = uploadingBlockIds?.has(block.id);
-        const childNode = <SingleBlockRenderer block={block} isEditor={isEditor} pageSettings={pageSettings} isUploading={isUploading} />;
+        const childNode = (
+          <SingleBlockRenderer
+            block={block}
+            isEditor={isEditor}
+            pageSettings={pageSettings}
+            isUploading={isUploading}
+            onUpdateBlock={onUpdateBlock}
+            onSelectChild={onSelectChild}
+          />
+        );
         
         if (renderBlockWrapper) {
           return renderBlockWrapper(block, childNode);

@@ -89,7 +89,7 @@ export default function CanvasBlock({
       </div>
 
       {/* Block content */}
-      <div className="flex-1 min-w-0 pointer-events-none select-none w-full">
+      <div className={`flex-1 min-w-0 w-full ${block.type !== "container" ? "pointer-events-none select-none" : ""}`}>
         {children}
       </div>
     </div>

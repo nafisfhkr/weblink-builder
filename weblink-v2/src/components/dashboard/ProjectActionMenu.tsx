@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
-import { Copy, Check, Trash2, Loader2, MoreVertical } from "lucide-react";
+import { ExternalLink, Trash2, Loader2, MoreVertical } from "lucide-react";
 
 import { useToast } from "src/components/ui/Toast";
 
@@ -10,14 +10,14 @@ interface ProjectActionMenuProps {
   projectId: string;
   projectTitle: string;
   fullUrl: string;
+  triggerClassName?: string;
 }
 
-export default function ProjectActionMenu({ projectId, projectTitle, fullUrl }: ProjectActionMenuProps) {
+export default function ProjectActionMenu({ projectId, projectTitle, fullUrl, triggerClassName }: ProjectActionMenuProps) {
   const router = useRouter();
   const { showToast } = useToast();
   
   const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,16 +38,11 @@ export default function ProjectActionMenu({ projectId, projectTitle, fullUrl }: 
     setIsOpen(!isOpen);
   };
 
-  const handleCopy = (e: React.MouseEvent) => {
+  const handleVisit = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigator.clipboard.writeText(fullUrl);
-    setCopied(true);
-    showToast("Tautan disalin!", "success");
-    setTimeout(() => {
-      setCopied(false);
-      setIsOpen(false);
-    }, 1500);
+    window.open(fullUrl, "_blank");
+    setIsOpen(false);
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -84,7 +79,7 @@ export default function ProjectActionMenu({ projectId, projectTitle, fullUrl }: 
     <div className="relative shrink-0 pointer-events-auto" ref={menuRef}>
       <button
         onClick={toggleMenu}
-        className="p-1 text-zinc-400 hover:text-zinc-600 rounded-lg hover:bg-zinc-100 transition-all cursor-pointer flex items-center justify-center"
+        className={triggerClassName || "p-1 text-zinc-400 hover:text-zinc-600 rounded-lg hover:bg-zinc-100 transition-all cursor-pointer flex items-center justify-center"}
         title="Menu Aksi"
         aria-expanded={isOpen}
       >
@@ -92,28 +87,24 @@ export default function ProjectActionMenu({ projectId, projectTitle, fullUrl }: 
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 bg-white border border-zinc-200 shadow-xl rounded-xl py-1 z-50 min-w-[140px] flex flex-col animate-in fade-in slide-in-from-top-1 duration-100">
+        <div className="absolute right-0 mt-1 bg-white/70 border border-white/20 backdrop-blur-md shadow-xl rounded-lg py-0.5 z-50 min-w-[100px] flex flex-col animate-in fade-in slide-in-from-top-1 duration-100">
           <button
-            onClick={handleCopy}
-            className="flex items-center gap-2.5 px-3 py-2 text-xs text-zinc-700 hover:bg-zinc-50 transition-colors text-left w-full cursor-pointer font-medium"
+            onClick={handleVisit}
+            className="flex items-center gap-1.5 px-2 py-0.5 text-[11px] text-zinc-700 hover:bg-black/5 transition-colors text-left w-full cursor-pointer font-medium whitespace-nowrap"
           >
-            {copied ? (
-              <Check size={14} className="text-teal-600 shrink-0" />
-            ) : (
-              <Copy size={14} className="text-zinc-400 shrink-0" />
-            )}
-            <span>Salin Tautan</span>
+            <ExternalLink size={13} className="text-zinc-400 shrink-0" />
+            <span>Kunjungi Situs</span>
           </button>
           
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="flex items-center gap-2.5 px-3 py-2 text-xs text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors text-left w-full cursor-pointer font-medium border-t border-zinc-100"
+            className="flex items-center gap-1.5 px-2 py-0.5 text-[11px] text-red-600 hover:bg-red-500/10 disabled:opacity-50 transition-colors text-left w-full cursor-pointer font-medium border-t border-white/20 whitespace-nowrap"
           >
             {isDeleting ? (
-              <Loader2 size={14} className="animate-spin text-red-500 shrink-0" />
+              <Loader2 size={13} className="animate-spin text-red-500 shrink-0" />
             ) : (
-              <Trash2 size={14} className="text-red-400 shrink-0" />
+              <Trash2 size={13} className="text-red-400 shrink-0" />
             )}
             <span>Hapus Proyek</span>
           </button>

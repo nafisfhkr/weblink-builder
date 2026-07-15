@@ -25,7 +25,7 @@ export default async function DashboardLayout({
             <Link href="#" className="h-full flex items-center hover:text-gray-200 transition-colors">
               Analytics
             </Link>
-            <Link href="#" className="h-full flex items-center hover:text-gray-200 transition-colors">
+            <Link href="/dashboard/settings" className="h-full flex items-center hover:text-gray-200 transition-colors">
               Settings
             </Link>
           </div>

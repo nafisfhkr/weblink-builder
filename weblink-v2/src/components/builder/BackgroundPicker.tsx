@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { UploadCloud, Loader2, Trash2, Palette } from "lucide-react";
 import { useToast } from "src/components/ui/Toast";
 import { processImageToBase64 } from "src/lib/imageProcessor";
+import FontPicker from "./FontPicker";
 
 export interface PageSettings {
   type: "color" | "gradient" | "image";
@@ -340,17 +341,10 @@ export default function BackgroundPicker({ settings, onChange }: BackgroundPicke
             <div className="flex justify-between items-center text-[11px] text-zinc-400 font-semibold">
               <span>Jenis Font Halaman</span>
             </div>
-            <select
+            <FontPicker
               value={settings.fontFamily || "inherit"}
-              onChange={(e) => onChange({ ...settings, fontFamily: e.target.value })}
-              className="bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-300 outline-none w-full appearance-none cursor-pointer focus:border-teal-500 transition-colors"
-            >
-              <option value="inherit">Default (Sans-Serif)</option>
-              <option value="var(--font-dm-sans), sans-serif">Modern (DM Sans)</option>
-              <option value="var(--font-barlow), sans-serif">Bold (Barlow)</option>
-              <option value="Georgia, serif">Klasik (Serif)</option>
-              <option value="'Courier New', monospace">Monospace (Courier)</option>
-            </select>
+              onChange={(val) => onChange({ ...settings, fontFamily: val })}
+            />
           </div>
 
 

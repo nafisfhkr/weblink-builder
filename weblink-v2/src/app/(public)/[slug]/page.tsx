@@ -9,6 +9,7 @@ import ButtonsBlock from "src/components/builder/blocks/ButtonsBlock";
 import ImageBlock from "src/components/builder/blocks/ImageBlock";
 import DividerBlock from "src/components/builder/blocks/DividerBlock";
 import BlocksRenderer from "src/components/builder/BlocksRenderer";
+import GoogleFontLoader from "src/components/builder/GoogleFontLoader";
 import { getOptimizedImageUrl } from "src/lib/imageOptimization";
 import OptimizedImage from "src/components/OptimizedImage";
 
@@ -175,6 +176,7 @@ export default async function PublicPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="min-h-screen flex flex-col items-center pt-8 pb-12 px-6 font-sans text-zinc-900 relative" style={{ ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' }}>
+      <GoogleFontLoader pageSettings={pageSettings} blocks={blocks} />
       {getOverlayOpacity(pageSettings) > 0 && (
         <div 
           className="absolute inset-0 pointer-events-none z-0" 
