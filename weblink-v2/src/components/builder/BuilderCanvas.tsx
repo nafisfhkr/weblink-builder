@@ -32,6 +32,7 @@ import PublishButton from "./PublishButton";
 import BlocksRenderer from "./BlocksRenderer";
 import FloatingToolbar from "./FloatingToolbar";
 import ContextualSidebar from "./ContextualSidebar";
+import GoogleFontLoader from "./GoogleFontLoader";
 
 interface BlockItem {
   id: string;
@@ -111,6 +112,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
   const [isMobileView, setIsMobileView] = useState(false);
   const [showBlockPicker, setShowBlockPicker] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [selectedSubBlockId, setSelectedSubBlockId] = useState<string | null>(null);
   const [uploadingBlockIds, setUploadingBlockIds] = useState<Set<string>>(new Set());
   const [showPageSettings, setShowPageSettings] = useState(false);
 
@@ -333,6 +335,7 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
       className={`min-h-screen ${isMobileView ? "bg-zinc-50 py-4 overflow-y-auto" : ""} transition-all duration-300 relative`}
       style={!isMobileView ? { ...bgStyle, fontFamily: pageSettings.fontFamily || 'inherit' } : undefined}
     >
+      <GoogleFontLoader pageSettings={pageSettings} blocks={blocks} />
       {!isMobileView && (getOverlayOpacity(pageSettings) > 0) && (
         <div 
           className="fixed inset-0 pointer-events-none z-0" 
@@ -375,12 +378,18 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onUpdate={handleUpdateBlock}
         onDelete={handleDeleteBlock}
         onDuplicate={handleDuplicateBlock}
-        onClose={() => { setSelectedBlockId(null); setShowPageSettings(false); }}
+        onClose={() => {
+          setSelectedBlockId(null);
+          setSelectedSubBlockId(null);
+          setShowPageSettings(false);
+        }}
         onImageUploadStart={(id) => setUploadingBlockIds((s) => new Set(s).add(id))}
         onImageUploadEnd={(id) => setUploadingBlockIds((s) => { const ns = new Set(s); ns.delete(id); return ns; })}
         showPageSettings={showPageSettings}
         pageSettings={pageSettings}
         onPageSettingsChange={handlePageSettingsChange}
+        selectedSubBlockId={selectedSubBlockId}
+        onSelectSubBlock={setSelectedSubBlockId}
       />
 
       {/* Canvas Area */}
@@ -388,7 +397,12 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
         onDragOver={(e) => { e.preventDefault(); setCanvasDragOver(true); }}
         onDragLeave={() => setCanvasDragOver(false)}
         onDrop={handleCanvasDrop}
-        onClick={() => { setSelectedBlockId(null); setShowBlockPicker(false); setShowPageSettings(false); }}
+        onClick={() => {
+          setSelectedBlockId(null);
+          setSelectedSubBlockId(null);
+          setShowBlockPicker(false);
+          setShowPageSettings(false);
+        }}
         className={`relative ${canvasWidth} mx-auto font-sans transition-all duration-300 ${
           isMobileView
             ? "my-4 border border-zinc-200 rounded-2xl shadow-xl min-h-[780px] pt-8 pb-12 px-4 flex flex-col justify-start bg-white overflow-hidden"
@@ -426,18 +440,28 @@ export default function BuilderCanvas({ initialData }: { initialData: any }) {
                 style={{ gap: `${pageSettings.blockSpacing ?? 16}px` }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <BlocksRenderer
+                 <BlocksRenderer
                   blocks={blocks}
                   isEditor
                   pageSettings={pageSettings}
                   uploadingBlockIds={uploadingBlockIds}
+                  onUpdateBlock={handleUpdateBlock}
+                  onSelectChild={(parentId, childId) => {
+                    setSelectedBlockId(parentId);
+                    setSelectedSubBlockId(childId);
+                    setShowBlockPicker(false);
+                  }}
                   renderBlockWrapper={(block, children) => (
                     <CanvasBlock
                       key={block.id}
                       block={block}
                       onDelete={handleDeleteBlock}
                       isSelected={block.id === selectedBlockId}
-                      onSelect={(id) => { setSelectedBlockId(id); setShowBlockPicker(false); }}
+                      onSelect={(id) => {
+                        setSelectedBlockId(id);
+                        setSelectedSubBlockId(null);
+                        setShowBlockPicker(false);
+                      }}
                     >
                       {children}
                     </CanvasBlock>

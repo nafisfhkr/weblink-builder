@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   X, Copy, Trash2, Check,
   Type, Brush, Settings, ImageIcon,
@@ -12,6 +12,7 @@ import { useToast } from "src/components/ui/Toast";
 import { nanoid } from "nanoid";
 import { processImageToBase64 } from "src/lib/imageProcessor";
 import BackgroundPicker, { type PageSettings } from "./BackgroundPicker";
+import FontPicker from "./FontPicker";
 
 type BlockType = "text" | "container" | "buttons" | "image" | "divider";
 
@@ -33,6 +34,8 @@ interface ContextualSidebarProps {
   showPageSettings?: boolean;
   pageSettings?: PageSettings;
   onPageSettingsChange?: (settings: PageSettings) => void;
+  selectedSubBlockId?: string | null;
+  onSelectSubBlock?: (id: string | null) => void;
 }
 
 // ─── Tab Config ─────────────────────────────────────────────────────────────
@@ -116,14 +119,15 @@ function Divider() {
 }
 
 function SegmentedControl({
-  options, value, onChange,
+  options, value, onChange, hideLabel
 }: {
   options: { value: string; label: string; icon?: React.ElementType }[];
   value: string;
   onChange: (v: string) => void;
+  hideLabel?: boolean;
 }) {
   return (
-    <div className="flex bg-zinc-900 border border-zinc-800 rounded-lg p-0.5 gap-0.5">
+    <div className="flex w-full bg-zinc-900 border border-zinc-800 rounded-lg p-0.5 gap-0.5">
       {options.map((opt) => {
         const Icon = opt.icon;
         const isActive = value === opt.value;
@@ -131,14 +135,15 @@ function SegmentedControl({
           <button
             key={opt.value}
             onClick={() => onChange(opt.value)}
-            className={`flex-1 flex items-center justify-center gap-1 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
+            title={opt.label}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all ${
               isActive
                 ? "bg-zinc-700 text-white shadow-sm"
                 : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            {Icon && <Icon size={12} />}
-            <span>{opt.label}</span>
+            {Icon && <Icon size={13} />}
+            {!hideLabel && <span>{opt.label}</span>}
           </button>
         );
       })}
@@ -146,19 +151,39 @@ function SegmentedControl({
   );
 }
 
-function ColorRow({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function CompactColorPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const pickerColor = value.startsWith("#") && (value.length === 4 || value.length === 7) ? value : "#000000";
+
   return (
-    <div className="flex items-center justify-between">
-      <Label>{label}</Label>
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-zinc-500 font-mono">{value}</span>
+    <div className="flex items-center gap-1.5 shrink-0">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-white placeholder-zinc-600 outline-none focus:border-teal-700 transition-colors font-mono text-center"
+        style={{ width: "65px", maxWidth: "65px", padding: "3px 4px" }}
+        maxLength={7}
+      />
+      <div
+        className="relative w-5 h-5 rounded-md border border-zinc-700 shrink-0 shadow-sm"
+        style={{ backgroundColor: pickerColor }}
+      >
         <input
           type="color"
-          value={value}
+          value={pickerColor}
           onChange={(e) => onChange(e.target.value)}
-          className="w-8 h-8 rounded-lg cursor-pointer border border-zinc-700 bg-zinc-900 p-0.5"
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
       </div>
+    </div>
+  );
+}
+
+function ColorRow({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-1">
+      <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest shrink-0">{label}</span>
+      <CompactColorPicker value={value} onChange={onChange} />
     </div>
   );
 }
@@ -177,9 +202,9 @@ function CardSettingsSection({ c, onChange }: { c: any; onChange: (newC: any) =>
           </div>
           <div
             onClick={(e) => { e.preventDefault(); onChange({ ...c, useCard: !c.useCard }); }}
-            className={`shrink-0 relative w-10 h-5 rounded-full transition-colors cursor-pointer ${c.useCard ? "bg-teal-500" : "bg-zinc-700"}`}
+            className={`shrink-0 relative w-9 h-5 rounded-full transition-colors cursor-pointer ${c.useCard ? "bg-teal-500" : "bg-zinc-700"}`}
           >
-            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${c.useCard ? "left-5.5 translate-x-5" : "left-0.5"}`} />
+            <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${c.useCard ? "translate-x-4" : "translate-x-0"}`} />
           </div>
         </label>
       </div>
@@ -190,20 +215,16 @@ function CardSettingsSection({ c, onChange }: { c: any; onChange: (newC: any) =>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Warna Dasar</Label>
-              <input
-                type="color"
+              <CompactColorPicker
                 value={c.cardBgColor || "#ffffff"}
-                onChange={(e) => onChange({ ...c, cardBgColor: e.target.value })}
-                className="w-full h-8 rounded-lg cursor-pointer border border-zinc-700 bg-zinc-900 p-0.5"
+                onChange={(v) => onChange({ ...c, cardBgColor: v })}
               />
             </div>
             <div>
               <Label>Warna Border</Label>
-              <input
-                type="color"
+              <CompactColorPicker
                 value={c.cardBorderColor || "#ffffff"}
-                onChange={(e) => onChange({ ...c, cardBorderColor: e.target.value })}
-                className="w-full h-8 rounded-lg cursor-pointer border border-zinc-700 bg-zinc-900 p-0.5"
+                onChange={(v) => onChange({ ...c, cardBorderColor: v })}
               />
             </div>
           </div>
@@ -256,14 +277,14 @@ function TextPanel({ content, onChange, activeTab }: any) {
             value={c.as || "paragraph"}
             onChange={(v) => onChange({ ...c, as: v })}
             options={[
-              { value: "paragraph", label: "Paragraf" },
-              { value: "heading", label: "Judul" },
+              { value: "paragraph", label: "Teks Biasa" },
+              { value: "heading", label: "Tebal" },
             ]}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label>Ukuran Font (px)</Label>
+            <Label>Ukuran Font</Label>
             <SInput
               type="number"
               value={c.textSize || 16}
@@ -284,17 +305,10 @@ function TextPanel({ content, onChange, activeTab }: any) {
         </div>
         <div>
           <Label>Jenis Font</Label>
-          <SSelect
+          <FontPicker
             value={c.fontFamily || "inherit"}
-            onChange={(e) => onChange({ ...c, fontFamily: e.target.value })}
-          >
-            <option value="inherit">Bawaan Tema</option>
-            <option value="Arial, sans-serif">Arial</option>
-            <option value="'Courier New', monospace">Courier New</option>
-            <option value="Georgia, serif">Georgia</option>
-            <option value="'Times New Roman', serif">Times New Roman</option>
-            <option value="Verdana, sans-serif">Verdana</option>
-          </SSelect>
+            onChange={(val) => onChange({ ...c, fontFamily: val })}
+          />
         </div>
       </div>
     );
@@ -308,6 +322,7 @@ function TextPanel({ content, onChange, activeTab }: any) {
           <SegmentedControl
             value={c.align || "center"}
             onChange={(v) => onChange({ ...c, align: v })}
+            hideLabel
             options={[
               { value: "left", label: "Kiri", icon: AlignLeft },
               { value: "center", label: "Tengah", icon: AlignCenter },
@@ -332,13 +347,33 @@ function TextPanel({ content, onChange, activeTab }: any) {
 
 // ─── Container Panel ─────────────────────────────────────────────────────────
 
-function ContainerPanel({ content, onChange, activeTab, onUploadStart, onUploadEnd }: any) {
+function ContainerPanel({
+  content,
+  onChange,
+  activeTab,
+  onUploadStart,
+  onUploadEnd,
+  selectedSubBlockId,
+  onSelectSubBlock,
+}: any) {
   const c = content || {};
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [childTab, setChildTab] = useState("properties");
 
   const columnsCount = c.columns || 2;
   const children = c.children || [];
+
+  // Sync editingChildId with selectedSubBlockId from Canvas clicks
+  useEffect(() => {
+    if (selectedSubBlockId) {
+      const hasChild = children.some((ch: any) => ch.id === selectedSubBlockId);
+      if (hasChild) {
+        setEditingChildId(selectedSubBlockId);
+      }
+    } else {
+      setEditingChildId(null);
+    }
+  }, [selectedSubBlockId, children]);
 
   const addChild = (type: string, colIndex: number = 0) => {
     const defaultContent: Record<string, any> = {
@@ -362,7 +397,10 @@ function ContainerPanel({ content, onChange, activeTab, onUploadStart, onUploadE
   const deleteChild = (id: string) => {
     const newChildren = children.filter((ch: any) => ch.id !== id);
     onChange({ ...c, children: newChildren });
-    if (editingChildId === id) setEditingChildId(null);
+    if (editingChildId === id) {
+      onSelectSubBlock?.(null);
+      setEditingChildId(null);
+    }
   };
 
   const moveChild = (id: string, direction: "up" | "down", colIndex: number) => {
@@ -385,263 +423,286 @@ function ContainerPanel({ content, onChange, activeTab, onUploadStart, onUploadE
     onChange({ ...c, children: newChildren });
   };
 
-  if (activeTab === "properties") {
-    if (editingChildId) {
-      const child = children.find((ch: any) => ch.id === editingChildId);
-      if (!child) {
-        setEditingChildId(null);
-        return null;
-      }
-
-      const updateChildContent = (newChildContent: any) => {
-        const newChildren = children.map((ch: any) =>
-          ch.id === editingChildId ? { ...ch, content: newChildContent } : ch
-        );
-        onChange({ ...c, children: newChildren });
-      };
-
-      const props = {
-        content: child.content,
-        onChange: updateChildContent,
-        activeTab: childTab,
-        onUploadStart,
-        onUploadEnd,
-      };
-
-      return (
-        <div className="space-y-4">
-          <button
-            onClick={() => { setEditingChildId(null); setChildTab("properties"); }}
-            className="flex items-center gap-1.5 text-xs text-teal-400 hover:text-teal-300 transition-colors font-semibold"
-          >
-            <ArrowLeft size={14} /> Kembali ke Wadah
-          </button>
-          
-          <SegmentedControl
-            value={childTab}
-            onChange={setChildTab}
-            options={[
-              { value: "properties", label: "Konten", icon: Type },
-              { value: "appearance", label: "Tampilan", icon: Brush },
-            ]}
-          />
-          
-          <div className="border-t border-zinc-800/80 my-3" />
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900/60 border border-zinc-800 rounded-lg">
-              <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">Mengedit:</span>
-              <span className="text-xs font-semibold text-zinc-300 capitalize">{child.type === "buttons" ? "Tombol" : child.type}</span>
-            </div>
-            {child.type === "text" && <TextPanel {...props} />}
-            {child.type === "buttons" && <ButtonsPanel {...props} />}
-            {child.type === "image" && <ImagePanel {...props} />}
-            {child.type === "divider" && <DividerPanel {...props} />}
-          </div>
-        </div>
-      );
+  if (editingChildId) {
+    const child = children.find((ch: any) => ch.id === editingChildId);
+    if (!child) {
+      setEditingChildId(null);
+      return null;
     }
 
-    const renderBlockList = (colIndex: number) => {
-      const colChildren = children.filter((ch: any) => (ch.column ?? 0) === colIndex);
-      return (
-        <div className="space-y-2">
-          {colChildren.map((child: any, idx: number) => (
-            <div key={child.id} className="flex items-center justify-between bg-zinc-900 border border-zinc-800/80 rounded-lg p-2 gap-2">
-              <span className="text-xs text-zinc-300 capitalize truncate flex-1">{child.type === "buttons" ? "Tombol" : child.type}</span>
-              <div className="flex items-center shrink-0">
-                <button
-                  onClick={() => moveChild(child.id, "up", colIndex)}
-                  disabled={idx === 0}
-                  className="text-zinc-500 hover:text-zinc-300 disabled:opacity-30 p-1 rounded"
-                >
-                  <ChevronUp size={14} />
-                </button>
-                <button
-                  onClick={() => moveChild(child.id, "down", colIndex)}
-                  disabled={idx === colChildren.length - 1}
-                  className="text-zinc-500 hover:text-zinc-300 disabled:opacity-30 p-1 rounded"
-                >
-                  <ChevronDown size={14} />
-                </button>
-                <button
-                  onClick={() => setEditingChildId(child.id)}
-                  className="text-teal-400 hover:text-teal-300 p-1 rounded hover:bg-teal-950/20"
-                >
-                  <Settings size={14} />
-                </button>
-                <button
-                  onClick={() => deleteChild(child.id)}
-                  className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-950/20"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            </div>
-          ))}
-          {colChildren.length === 0 && (
-            <div className="text-[10px] text-zinc-600 text-center py-2 italic border border-dashed border-zinc-800 rounded-lg">
-              Kolom kosong
-            </div>
-          )}
-          <div className="flex items-center justify-between gap-1.5 pt-1.5">
-            <span className="text-[10px] text-zinc-500 font-medium">Tambah:</span>
-            <div className="flex flex-wrap gap-1">
-              {["text", "buttons", "image", "divider"].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => addChild(type, colIndex)}
-                  className="text-[9px] font-bold px-1.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded capitalize transition-all"
-                >
-                  {type === "buttons" ? "Tombol" : type}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+    const updateChildContent = (newChildContent: any) => {
+      const newChildren = children.map((ch: any) =>
+        ch.id === editingChildId ? { ...ch, content: newChildContent } : ch
       );
+      onChange({ ...c, children: newChildren });
+    };
+
+    const childProps = {
+      content: child.content,
+      onChange: updateChildContent,
+      onUploadStart,
+      onUploadEnd,
     };
 
     return (
-      <div className="space-y-5">
-        <div>
-          <Label>Tipe Layout</Label>
-          <SegmentedControl
-            value={c.layout || "default"}
-            onChange={(v) => onChange({ ...c, layout: v })}
-            options={[
-              { value: "default", label: "Default" },
-              { value: "columns", label: "Kolom" },
-            ]}
-          />
+      <div className="space-y-4">
+        <button
+          onClick={() => {
+            onSelectSubBlock?.(null);
+            setEditingChildId(null);
+          }}
+          className="flex items-center gap-1.5 text-xs text-teal-400 hover:text-teal-300 transition-colors font-semibold"
+        >
+          <ArrowLeft size={14} /> Kembali ke Wadah
+        </button>
+
+        <div className="border-t border-zinc-800/80 my-3" />
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900/60 border border-zinc-800 rounded-lg">
+            <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">Mengedit:</span>
+            <span className="text-xs font-semibold text-zinc-300 capitalize">{child.type === "buttons" ? "Tombol" : child.type}</span>
+          </div>
+
+          {child.type === "text" && (
+            <>
+              <TextPanel {...childProps} activeTab="properties" />
+              <Divider />
+              <TextPanel {...childProps} activeTab="appearance" />
+            </>
+          )}
+          {child.type === "buttons" && (
+            <>
+              <ButtonsPanel {...childProps} activeTab="properties" />
+              <Divider />
+              <ButtonsPanel {...childProps} activeTab="appearance" />
+            </>
+          )}
+          {child.type === "image" && (
+            <>
+              <ImagePanel {...childProps} activeTab="properties" />
+              <Divider />
+              <ImagePanel {...childProps} activeTab="appearance" />
+            </>
+          )}
+          {child.type === "divider" && (
+            <>
+              <DividerPanel {...childProps} activeTab="properties" />
+              <Divider />
+              <DividerPanel {...childProps} activeTab="appearance" />
+            </>
+          )}
         </div>
-        {(c.layout || "default") === "columns" ? (
-          <>
-            <div>
-              <Label>Jumlah Kolom</Label>
-              <SegmentedControl
-                value={String(c.columns || 2)}
-                onChange={(v) => {
-                  const newColCount = Number(v);
-                  const newChildren = children.map((ch: any) => {
-                    const col = ch.column ?? 0;
-                    if (col >= newColCount) {
-                      return { ...ch, column: newColCount - 1 };
-                    }
-                    return ch;
-                  });
-                  onChange({ ...c, columns: newColCount, children: newChildren });
+      </div>
+    );
+  }
+
+  const renderBlockList = (colIndex: number) => {
+    const colChildren = children.filter((ch: any) => (ch.column ?? 0) === colIndex);
+    return (
+      <div className="space-y-2">
+        {colChildren.map((child: any, idx: number) => (
+          <div key={child.id} className="flex items-center justify-between bg-zinc-900 border border-zinc-800/80 rounded-lg p-2 gap-2">
+            <span className="text-xs text-zinc-300 capitalize truncate flex-1">{child.type === "buttons" ? "Tombol" : child.type}</span>
+            <div className="flex items-center shrink-0">
+              <button
+                onClick={() => moveChild(child.id, "up", colIndex)}
+                disabled={idx === 0}
+                className="text-zinc-500 hover:text-zinc-300 disabled:opacity-30 p-1 rounded"
+              >
+                <ChevronUp size={14} />
+              </button>
+              <button
+                onClick={() => moveChild(child.id, "down", colIndex)}
+                disabled={idx === colChildren.length - 1}
+                className="text-zinc-500 hover:text-zinc-300 disabled:opacity-30 p-1 rounded"
+              >
+                <ChevronDown size={14} />
+              </button>
+              <button
+                onClick={() => {
+                  onSelectSubBlock?.(child.id);
+                  setEditingChildId(child.id);
                 }}
-                options={[
-                  { value: "2", label: "2" },
-                  { value: "3", label: "3" },
-                  { value: "4", label: "4" },
-                ]}
+                className="text-teal-400 hover:text-teal-300 p-1 rounded hover:bg-teal-950/20"
+              >
+                <Settings size={14} />
+              </button>
+              <button
+                onClick={() => deleteChild(child.id)}
+                className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-950/20"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+        {colChildren.length === 0 && (
+          <div className="text-[10px] text-zinc-600 text-center py-2 italic border border-dashed border-zinc-800 rounded-lg">
+            Kolom kosong
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-1.5 pt-1.5">
+          <span className="text-[10px] text-zinc-500 font-medium">Tambah:</span>
+          <div className="flex flex-wrap gap-1">
+            {["text", "buttons", "image", "divider"].map((type) => (
+              <button
+                key={type}
+                onClick={() => addChild(type, colIndex)}
+                className="text-[9px] font-bold px-1.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded capitalize transition-all"
+              >
+                {type === "buttons" ? "Tombol" : type}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* Layout & Columns */}
+      <div>
+        <Label>Tipe Layout</Label>
+        <SegmentedControl
+          value={c.layout || "default"}
+          onChange={(v) => onChange({ ...c, layout: v })}
+          options={[
+            { value: "default", label: "Default" },
+            { value: "columns", label: "Kolom" },
+          ]}
+        />
+      </div>
+      {(c.layout || "default") === "columns" ? (
+        <>
+          <div>
+            <Label>Jumlah Kolom</Label>
+            <SegmentedControl
+              value={String(c.columns || 2)}
+              onChange={(v) => {
+                const newColCount = Number(v);
+                const newChildren = children.map((ch: any) => {
+                  const col = ch.column ?? 0;
+                  if (col >= newColCount) {
+                    return { ...ch, column: newColCount - 1 };
+                  }
+                  return ch;
+                });
+                onChange({ ...c, columns: newColCount, children: newChildren });
+              }}
+              options={[
+                { value: "2", label: "2" },
+                { value: "3", label: "3" },
+                { value: "4", label: "4" },
+              ]}
+            />
+          </div>
+          <SSlider
+            label="Jarak Kolom"
+            value={c.gutter ?? 16}
+            min={0} max={64} unit="px"
+            onChange={(v) => onChange({ ...c, gutter: v })}
+          />
+          <Divider />
+          <div className="space-y-4">
+            <Label>Konten Kolom</Label>
+            {Array.from({ length: columnsCount }).map((_, i) => (
+              <div key={i} className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-3 space-y-2">
+                <span className="text-[10px] font-bold text-zinc-400">Kolom {i + 1}</span>
+                {renderBlockList(i)}
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <Divider />
+          <div className="space-y-3">
+            <Label>Konten Wadah (Stack)</Label>
+            {renderBlockList(0)}
+          </div>
+        </>
+      )}
+
+      {/* Appearance settings consolidated */}
+      <Divider />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label>Padding V (px)</Label>
+          <SInput type="number" value={c.paddingV ?? 16} onChange={(e) => onChange({ ...c, paddingV: Number(e.target.value) })} />
+        </div>
+        <div>
+          <Label>Padding H (px)</Label>
+          <SInput type="number" value={c.paddingH ?? 16} onChange={(e) => onChange({ ...c, paddingH: Number(e.target.value) })} />
+        </div>
+      </div>
+      <SSlider label="Corner Radius" value={c.radius ?? 16} min={0} max={64} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
+      <Divider />
+      <div>
+        <Label>Background</Label>
+        <SSelect value={c.bgType || "none"} onChange={(e) => onChange({ ...c, bgType: e.target.value })}>
+          <option value="none">None (Transparan)</option>
+          <option value="color">Warna Solid</option>
+          <option value="gradient">Gradient</option>
+        </SSelect>
+      </div>
+      {c.bgType === "color" && (
+        <ColorRow label="Warna BG" value={c.bgColor || "#000000"} onChange={(v) => onChange({ ...c, bgColor: v })} />
+      )}
+      {c.bgType === "gradient" && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label>Warna 1</Label>
+              <CompactColorPicker
+                value={c.gradColor1 || "#000000"}
+                onChange={(v) => onChange({ ...c, gradColor1: v })}
               />
             </div>
-            <SSlider
-              label="Jarak Kolom"
-              value={c.gutter ?? 16}
-              min={0} max={64} unit="px"
-              onChange={(v) => onChange({ ...c, gutter: v })}
-            />
-            <Divider />
-            <div className="space-y-4">
-              <Label>Konten Kolom</Label>
-              {Array.from({ length: columnsCount }).map((_, i) => (
-                <div key={i} className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-3 space-y-2">
-                  <span className="text-[10px] font-bold text-zinc-400">Kolom {i + 1}</span>
-                  {renderBlockList(i)}
-                </div>
-              ))}
+            <div>
+              <Label>Warna 2</Label>
+              <CompactColorPicker
+                value={c.gradColor2 || "#333333"}
+                onChange={(v) => onChange({ ...c, gradColor2: v })}
+              />
             </div>
-          </>
-        ) : (
-          <>
-            <Divider />
-            <div className="space-y-3">
-              <Label>Konten Wadah (Stack)</Label>
-              {renderBlockList(0)}
-            </div>
-          </>
-        )}
+          </div>
+          <div>
+            <Label>Sudut (°)</Label>
+            <SInput type="number" value={c.gradAngle ?? 90} min={0} max={360} onChange={(e) => onChange({ ...c, gradAngle: Number(e.target.value) })} />
+          </div>
+        </div>
+      )}
+      <Divider />
+      <div>
+        <Label>Border</Label>
+        <SSelect value={c.borderStyle || "none"} onChange={(e) => onChange({ ...c, borderStyle: e.target.value })}>
+          <option value="none">Tidak Ada</option>
+          <option value="solid">Solid</option>
+          <option value="dashed">Dashed</option>
+          <option value="dotted">Dotted</option>
+        </SSelect>
       </div>
-    );
-  }
-
-  if (activeTab === "appearance") {
-    return (
-      <div className="space-y-5">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label>Padding V (px)</Label>
-            <SInput type="number" value={c.paddingV ?? 16} onChange={(e) => onChange({ ...c, paddingV: Number(e.target.value) })} />
-          </div>
-          <div>
-            <Label>Padding H (px)</Label>
-            <SInput type="number" value={c.paddingH ?? 16} onChange={(e) => onChange({ ...c, paddingH: Number(e.target.value) })} />
-          </div>
-        </div>
-        <SSlider label="Corner Radius" value={c.radius ?? 16} min={0} max={64} unit="px" onChange={(v) => onChange({ ...c, radius: v })} />
-        <Divider />
-        <div>
-          <Label>Background</Label>
-          <SSelect value={c.bgType || "none"} onChange={(e) => onChange({ ...c, bgType: e.target.value })}>
-            <option value="none">None (Transparan)</option>
-            <option value="color">Warna Solid</option>
-            <option value="gradient">Gradient</option>
-          </SSelect>
-        </div>
-        {c.bgType === "color" && (
-          <ColorRow label="Warna BG" value={c.bgColor || "#000000"} onChange={(v) => onChange({ ...c, bgColor: v })} />
-        )}
-        {c.bgType === "gradient" && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label>Warna 1</Label>
-                <input type="color" value={c.gradColor1 || "#000000"} onChange={(e) => onChange({ ...c, gradColor1: e.target.value })} className="w-full h-9 rounded-lg cursor-pointer border border-zinc-800 p-0.5" />
-              </div>
-              <div>
-                <Label>Warna 2</Label>
-                <input type="color" value={c.gradColor2 || "#333333"} onChange={(e) => onChange({ ...c, gradColor2: e.target.value })} className="w-full h-9 rounded-lg cursor-pointer border border-zinc-800 p-0.5" />
-              </div>
+      {c.borderStyle && c.borderStyle !== "none" && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label>Tebal (px)</Label>
+              <SInput type="number" value={c.borderWidth ?? 1} min={1} max={20} onChange={(e) => onChange({ ...c, borderWidth: Number(e.target.value) })} />
             </div>
             <div>
-              <Label>Sudut (°)</Label>
-              <SInput type="number" value={c.gradAngle ?? 90} min={0} max={360} onChange={(e) => onChange({ ...c, gradAngle: Number(e.target.value) })} />
+              <Label>Warna</Label>
+              <CompactColorPicker
+                value={c.borderColor || "#ffffff"}
+                onChange={(v) => onChange({ ...c, borderColor: v })}
+              />
             </div>
           </div>
-        )}
-        <Divider />
-        <div>
-          <Label>Border</Label>
-          <SSelect value={c.borderStyle || "none"} onChange={(e) => onChange({ ...c, borderStyle: e.target.value })}>
-            <option value="none">Tidak Ada</option>
-            <option value="solid">Solid</option>
-            <option value="dashed">Dashed</option>
-            <option value="dotted">Dotted</option>
-          </SSelect>
         </div>
-        {c.borderStyle && c.borderStyle !== "none" && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label>Tebal (px)</Label>
-                <SInput type="number" value={c.borderWidth ?? 1} min={1} max={20} onChange={(e) => onChange({ ...c, borderWidth: Number(e.target.value) })} />
-              </div>
-              <div>
-                <Label>Warna</Label>
-                <input type="color" value={c.borderColor || "#ffffff"} onChange={(e) => onChange({ ...c, borderColor: e.target.value })} className="w-full h-9 rounded-lg cursor-pointer border border-zinc-800 p-0.5" />
-              </div>
-            </div>
-          </div>
-        )}
-        <CardSettingsSection c={c} onChange={onChange} />
-      </div>
-    );
-  }
-
-  return null;
+      )}
+      <CardSettingsSection c={c} onChange={onChange} />
+    </div>
+  );
 }
 
 // ─── Buttons Panel ───────────────────────────────────────────────────────────
@@ -1034,6 +1095,8 @@ export default function ContextualSidebar({
   showPageSettings,
   pageSettings,
   onPageSettingsChange,
+  selectedSubBlockId,
+  onSelectSubBlock,
 }: ContextualSidebarProps) {
   const [activeTab, setActiveTab] = useState("properties");
   const [doneFlash, setDoneFlash] = useState(false);
@@ -1049,7 +1112,7 @@ export default function ContextualSidebar({
   const tabs = blockType === "divider"
     ? TABS.filter((t) => t.id !== "settings") // Divider gets appearance
     : blockType === "container"
-    ? TABS.filter((t) => t.id !== "settings")
+    ? []
     : blockType === "buttons"
     ? TABS.filter((t) => t.id !== "settings") // Buttons gets appearance now!
     : TABS.filter((t) => t.id !== "settings");
@@ -1070,7 +1133,14 @@ export default function ContextualSidebar({
 
     switch (selectedBlock.type) {
       case "text":      return <TextPanel {...props} />;
-      case "container": return <ContainerPanel {...props} />;
+      case "container":
+        return (
+          <ContainerPanel
+            {...props}
+            selectedSubBlockId={selectedSubBlockId}
+            onSelectSubBlock={onSelectSubBlock}
+          />
+        );
       case "buttons":   return <ButtonsPanel {...props} />;
       case "image":     return <ImagePanel {...props} />;
       case "divider":   return <DividerPanel {...props} />;
@@ -1101,7 +1171,7 @@ export default function ContextualSidebar({
       </div>
 
       {/* Tabs — underline style, clean */}
-      {!showPageSettings && (
+      {!showPageSettings && tabs.length > 0 && (
         <div className="flex items-center border-b border-zinc-800/80 shrink-0 px-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
