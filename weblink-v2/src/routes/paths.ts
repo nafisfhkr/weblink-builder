@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 // Semua string route terpusat di sini — jangan hardcode URL di komponen.
 //
 // Kebijakan trailing slash: entri di bawah TANPA trailing slash (Next
@@ -25,6 +25,11 @@ export const paths = {
   support: '/support',
   page404: '/error/404',
   page500: '/error/500',
+  /**
+   * Dashboard & Settings
+   */
+  dashboard: '/dashboard',
+  settings: '/dashboard/settings',
   /**
    * Others
    */

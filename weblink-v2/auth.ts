@@ -1,9 +1,51 @@
 import NextAuth from "next-auth"
 import authConfig from "./auth.config"
 import { prisma } from "./src/lib/prisma"
+import Credentials from "next-auth/providers/credentials"
+import bcrypt from "bcryptjs"
 
 const nextAuth = NextAuth({
   ...authConfig,
+  providers: [
+    ...authConfig.providers,
+    Credentials({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const { email, password } = credentials as Record<string, any>;
+        if (!email || !password) {
+          return null;
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: email as string },
+        });
+
+        if (!user || !user.password) {
+          return null;
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          password as string,
+          user.password
+        );
+
+        if (!isPasswordValid) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        };
+      },
+    }),
+  ],
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
@@ -22,6 +64,9 @@ const nextAuth = NextAuth({
             image: user.image,
           },
         });
+        return true;
+      }
+      if (account?.provider === "credentials") {
         return true;
       }
       return false;

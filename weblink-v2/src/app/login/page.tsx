@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, Lock } from "lucide-react";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const [loadingCredentials, setLoadingCredentials] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
@@ -16,6 +19,29 @@ export default function LoginPage() {
     } catch (err) {
       setErrorMsg("Gagal melakukan autentikasi dengan Google. Silakan coba lagi.");
       setLoading(false);
+    }
+  };
+
+  const handleCredentialsSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoadingCredentials(true);
+    setErrorMsg(null);
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setErrorMsg("Email atau password salah.");
+        setLoadingCredentials(false);
+      } else {
+        window.location.href = "/dashboard";
+      }
+    } catch (err) {
+      setErrorMsg("Terjadi kesalahan. Silakan coba lagi.");
+      setLoadingCredentials(false);
     }
   };
 
@@ -90,20 +116,20 @@ export default function LoginPage() {
 
       {/* Right Column (Sign In Form) */}
       <div className="flex-1 flex items-center justify-center p-6 bg-white h-full">
-        <div className="max-w-[340px] w-full flex flex-col">
+        <div className="max-w-[280px] w-full flex flex-col pt-6 pb-2">
           {/* Logo visible on mobile only */}
-          <div className="flex md:hidden mb-5">
-            <span className="text-xl font-black text-[#007F96] tracking-tight">
+          <div className="flex md:hidden mb-4">
+            <span className="text-lg font-black text-[#007F96] tracking-tight">
               Weblink
             </span>
           </div>
 
-          <div className="mb-6">
-            <h1 className="text-zinc-900 text-xl font-bold tracking-tight mb-1.5">
+          <div className="mb-5">
+            <h1 className="text-zinc-900 text-lg font-bold tracking-tight mb-1">
               Sign in to Weblink
             </h1>
-            <p className="text-zinc-500 text-xs leading-relaxed">
-              Sign in with your Google account to start managing your biolinks.
+            <p className="text-zinc-500 text-[11px] leading-relaxed">
+              Sign in to start managing your biolinks.
             </p>
           </div>
 
@@ -113,16 +139,70 @@ export default function LoginPage() {
             </div>
           )}
 
+          <form onSubmit={handleCredentialsSignIn} className="space-y-3 mb-2">
+            <div>
+              <label className="block text-[9px] font-bold uppercase tracking-wider text-zinc-500 mb-0.5">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" size={13} />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg py-1.5 pl-8 pr-3 text-[11px] focus:border-zinc-400 focus:outline-none transition-colors text-zinc-800 placeholder-zinc-400"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[9px] font-bold uppercase tracking-wider text-zinc-500 mb-0.5">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" size={13} />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-lg py-1.5 pl-8 pr-3 text-[11px] focus:border-zinc-400 focus:outline-none transition-colors text-zinc-800 placeholder-zinc-400"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || loadingCredentials}
+              className="w-full flex items-center justify-center gap-1.5 bg-[#007F96] hover:bg-[#006678] text-white font-bold py-1.5 px-3 rounded-lg transition-colors text-[11px] shadow-sm disabled:opacity-50 cursor-pointer"
+            >
+              {loadingCredentials ? (
+                <Loader2 className="animate-spin" size={13} />
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
+
+          <div className="flex items-center my-2">
+            <div className="flex-grow border-t border-zinc-200"></div>
+            <span className="px-2 text-[9px] text-zinc-400 uppercase tracking-widest font-bold">or</span>
+            <div className="flex-grow border-t border-zinc-200"></div>
+          </div>
+
           {/* Google OAuth Login Button */}
           <button
             onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50 active:bg-zinc-100 text-zinc-800 font-semibold py-2.5 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors text-sm shadow-sm disabled:opacity-50"
+            disabled={loading || loadingCredentials}
+            className="w-full border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50 active:bg-zinc-100 text-zinc-800 font-bold py-1.5 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors text-[11px] shadow-sm disabled:opacity-50 cursor-pointer"
           >
             {loading ? (
-              <Loader2 size={16} className="animate-spin text-zinc-500" />
+              <Loader2 size={13} className="animate-spin text-zinc-500" />
             ) : (
-              <svg className="w-4.5 h-4.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"
